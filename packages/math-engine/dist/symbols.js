@@ -1,0 +1,19 @@
+import { CRYPTO_SYMBOLS } from '@crypto-mines/shared';
+/** Relative weights for safe-cell symbol assignment (excluding mines) */
+export const SYMBOL_WEIGHTS = {
+    BTC: 22,
+    ETH: 22,
+    SOL: 18,
+    USDT: 18,
+    DIAMOND: 12,
+    VAULT: 8,
+};
+export function assignSymbolsToSafeCells(safeIndices, rng) {
+    const map = new Map();
+    const ids = CRYPTO_SYMBOLS;
+    const weights = ids.map((id) => SYMBOL_WEIGHTS[id]);
+    for (const idx of safeIndices) {
+        map.set(idx, rng.pickWeighted(ids, weights));
+    }
+    return map;
+}

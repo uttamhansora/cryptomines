@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80" fill="none">
+  <defs>
+    <linearGradient id="eth-m" x1="40" y1="8" x2="40" y2="72" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#7af0ff"/>
+      <stop offset="1" stop-color="#2ee6d6"/>
+    </linearGradient>
+  </defs>
+  <circle cx="40" cy="40" r="34" fill="#141c28" stroke="#2ee6d6" stroke-width="2" opacity=".9"/>
+  <path fill="url(#eth-m)" d="M40 14 26 38l14 8 14-8-14-24zm0 44-16-10 16 26 16-26-16 10z"/>
+</svg>
