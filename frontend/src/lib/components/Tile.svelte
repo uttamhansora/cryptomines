@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onDestroy } from 'svelte';
   import type { BoardViewCell } from '../game/snapshot';
-  import { symbolIcon, ICONS } from '../icons';
+  import { symbolIcon, iconSrc } from '../icons';
 
 
   interface Props {
@@ -32,7 +32,10 @@
   }
 
   const symId = $derived(normalizeSymbol(cell.symbol));
-  const icon = $derived(cell.state === 'mine' ? ICONS.mine : symbolIcon(symId));
+  // ALWAYS resolve through the registry to an imported SVG asset URL.
+  // `icon` can never be a bare name like "bitcoin" — iconSrc() returns the
+  // Vite-imported URL (or undefined, in which case no <img> renders at all).
+  const icon = $derived(iconSrc(cell.state === 'mine' ? 'mine' : symbolIcon(symId)));
 
   let pressing = $state(false);
 
