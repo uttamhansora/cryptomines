@@ -11,9 +11,12 @@
 
 <section class="chain" aria-label="Crypto Chain" data-chain-meter class:pulse={pulseGen > 0}>
   <div class="head">
-    <div>
-      <h3>Crypto Chain</h3>
-      <p>Safe picks in a row charge the chain.</p>
+    <div class="title-wrap">
+      <img class="title-icon" src="./assets/game/ui/icons/chain-link.png" alt="" width="16" height="16" />
+      <div>
+        <h3>Crypto Chain</h3>
+        <p>Safe picks in a row charge the chain.</p>
+      </div>
     </div>
     <span class="count">{chainStreak} / {CHAIN_STREAK_MAX}</span>
   </div>
@@ -59,6 +62,14 @@
     justify-content: space-between;
     gap: var(--space-sm);
     margin-bottom: var(--space-sm);
+  }
+  .title-wrap {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.45rem;
+  }
+  .title-icon {
+    margin-top: 1px;
   }
   h3 {
     margin: 0;

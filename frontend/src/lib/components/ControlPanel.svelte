@@ -1,5 +1,4 @@
 <script lang="ts">
-  import gsap from 'gsap';
   import { BUY_VAULT_COST_MULTIPLIER } from '@crypto-mines/shared';
   import { apiToDisplay } from '../rgs';
 
@@ -47,21 +46,32 @@
   const buyCost = $derived(bet * BUY_VAULT_COST_MULTIPLIER);
   const balanceAfterBuy = $derived(Math.max(0, balance - buyCost));
 
-  let displayMult = $state(1);
-  const multTween = { v: 1 };
+  /* Lightweight rAF count-up for the displayed multiplier (no external animation lib,
+     honours prefers-reduced-motion). The authoritative value is always `multiplier`. */
+  let displayMult = $state(multiplier);
+  let rafId = 0;
 
   $effect(() => {
     const target = multiplier;
-    multTween.v = displayMult;
-    gsap.to(multTween, {
-      v: target,
-      duration: 0.42,
-      ease: 'power2.out',
-      overwrite: true,
-      onUpdate: () => {
-        displayMult = multTween.v;
-      },
-    });
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduced) {
+      cancelAnimationFrame(rafId);
+      displayMult = target;
+      return;
+    }
+    const from = displayMult;
+    if (from === target) return;
+    const start = performance.now();
+    const dur = 420;
+    cancelAnimationFrame(rafId);
+    const tick = (now: number) => {
+      const t = Math.min(1, (now - start) / dur);
+      const ease = 1 - Math.pow(1 - t, 3);
+      displayMult = from + (target - from) * ease;
+      if (t < 1) rafId = requestAnimationFrame(tick);
+    };
+    rafId = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(rafId);
   });
 
   const betMin = $derived(walletConfig ? apiToDisplay(walletConfig.minBet) : 0.1);
@@ -95,39 +105,59 @@
   </div>
 
   <div class="section grid2">
-    <div>
-      <span class="label">Potential win</span>
+    <div class="stat-card">
+      <span class="label">
+        <img src="./assets/game/ui/icons/trophy.png" alt="" width="14" height="14" />
+        Potential win
+      </span>
       <strong class="potential">{potential.toFixed(2)}</strong>
     </div>
-    <div>
-      <span class="label">Bet</span>
+    <div class="stat-card">
+      <span class="label">
+        <img src="./assets/game/ui/icons/usdt.png" alt="" width="14" height="14" />
+        Bet
+      </span>
       <strong class="bet-val">{bet.toFixed(2)}</strong>
     </div>
   </div>
 
   <div class="section">
-    <span class="label">Bet amount</span>
+    <span class="label">
+      <img src="./assets/game/ui/icons/usdt.png" alt="" width="14" height="14" />
+      Bet amount
+    </span>
     <div class="stepper">
-      <button type="button" disabled={roundActive} onclick={() => onBetChange(betMin)}>MIN</button>
-      <button type="button" disabled={roundActive} onclick={() => onBetChange(Math.max(betMin, +(bet / 2).toFixed(2)))}>½</button>
-      <button type="button" disabled={roundActive} onclick={() => adjustBet(-1)}>−</button>
+      <button type="button" disabled={roundActive} title="Minimum bet" onclick={() => onBetChange(betMin)}>MIN</button>
+      <button type="button" disabled={roundActive} title="Halve bet" onclick={() => onBetChange(Math.max(betMin, +(bet / 2).toFixed(2)))}>½</button>
+      <button type="button" class="step-btn" disabled={roundActive} aria-label="Decrease bet" onclick={() => adjustBet(-1)}>
+        <img src="./assets/game/ui/icons/minus.png" alt="" width="18" height="18" />
+      </button>
       <span class="value">{bet.toFixed(2)}</span>
-      <button type="button" disabled={roundActive} onclick={() => adjustBet(1)}>+</button>
-      <button type="button" disabled={roundActive} onclick={() => onBetChange(Math.min(betMax, +(bet * 2).toFixed(2)))}>2×</button>
-      <button type="button" disabled={roundActive} onclick={() => onBetChange(betMax)}>MAX</button>
+      <button type="button" class="step-btn" disabled={roundActive} aria-label="Increase bet" onclick={() => adjustBet(1)}>
+        <img src="./assets/game/ui/icons/plus.png" alt="" width="18" height="18" />
+      </button>
+      <button type="button" disabled={roundActive} title="Double bet" onclick={() => onBetChange(Math.min(betMax, +(bet * 2).toFixed(2)))}>2×</button>
+      <button type="button" disabled={roundActive} title="Maximum bet" onclick={() => onBetChange(betMax)}>MAX</button>
     </div>
   </div>
 
   <div class="section">
-    <span class="label">Mines</span>
+    <span class="label">
+      <img src="./assets/game/ui/icons/mines.png" alt="" width="14" height="14" />
+      Mines
+    </span>
     <div class="stepper">
-      <button type="button" disabled={roundActive} onclick={() => onMinesChange(Math.max(1, mines - 1))}>−</button>
+      <button type="button" class="step-btn" disabled={roundActive} aria-label="Fewer mines" onclick={() => onMinesChange(Math.max(1, mines - 1))}>
+        <img src="./assets/game/ui/icons/minus.png" alt="" width="18" height="18" />
+      </button>
       <span class="value">{mines}</span>
-      <button type="button" disabled={roundActive} onclick={() => onMinesChange(Math.min(24, mines + 1))}>+</button>
+      <button type="button" class="step-btn" disabled={roundActive} aria-label="More mines" onclick={() => onMinesChange(Math.min(24, mines + 1))}>
+        <img src="./assets/game/ui/icons/plus.png" alt="" width="18" height="18" />
+      </button>
     </div>
     <div class="presets">
       {#each minePresets as m}
-        <button type="button" disabled={roundActive} onclick={() => onMinesChange(m)}>{m}</button>
+        <button type="button" class:active={mines === m} disabled={roundActive} onclick={() => onMinesChange(m)}>{m}</button>
       {/each}
     </div>
   </div>
@@ -140,21 +170,27 @@
     {:else if roundActive}
       {#if canCashOut}
         <button type="button" class="cashout" data-cashout-btn onclick={onCashout}>
-          <span class="cta">Cash Out</span>
+          <span class="cta">
+            <img src="./assets/game/ui/icons/cashout.png" alt="" width="16" height="16" />
+            Cash Out
+          </span>
           <span class="amt">{potential.toFixed(2)}</span>
         </button>
       {:else}
         <p class="note reveal-hint">Tap a tile on the board to reveal</p>
       {/if}
     {:else}
-      <button type="button" class="play" disabled={!canPlaceBets} onclick={onStart}>Start Round · Reveal Tiles</button>
+      <button type="button" class="play" disabled={!canPlaceBets} onclick={onStart}>
+        <img src="./assets/game/ui/icons/start.png" alt="" width="20" height="20" />
+        Start Round · Reveal Tiles
+      </button>
     {/if}
   </div>
 
   {#if !replayMode && !roundActive}
     <div class="section bonus-buy">
       <button type="button" class="buy" disabled={!canPlaceBets} onclick={() => (showBuyConfirm = true)}>
-        <img class="buy-icon" src="./assets/game/crypto/vault.svg" alt="" width="40" height="40" />
+        <img class="buy-icon" src="./assets/game/ui/icons/vault-symbol.png" alt="" width="40" height="40" />
         <span class="buy-kicker">Buy Crypto Vault</span>
         <span class="buy-mult">{BUY_VAULT_COST_MULTIPLIER}× BET</span>
         <span class="buy-main">Instant vault bonus entry</span>
@@ -165,7 +201,10 @@
 
   {#if showBuyConfirm}
     <div class="confirm" role="dialog" aria-label="Confirm buy bonus">
-      <p class="confirm-tag">Buy Crypto Vault</p>
+      <p class="confirm-tag">
+        <img src="./assets/game/ui/icons/warning.png" alt="" width="14" height="14" />
+        Buy Crypto Vault
+      </p>
       <p class="confirm-cost">{BUY_VAULT_COST_MULTIPLIER}× BET</p>
       <dl class="confirm-grid">
         <dt>Your balance</dt>
@@ -178,7 +217,7 @@
         <dd class:warn={balanceAfterBuy <= 0}>{balanceAfterBuy.toFixed(2)}</dd>
       </dl>
       <div class="confirm-actions">
-        <button type="button" onclick={() => (showBuyConfirm = false)}>Cancel</button>
+        <button type="button" class="confirm-no" onclick={() => (showBuyConfirm = false)}>Cancel</button>
         <button
           type="button"
           class="confirm-yes"
@@ -245,11 +284,28 @@
     color: var(--accent-secondary);
     text-shadow: 0 0 18px rgba(61, 214, 181, 0.22);
     font-variant-numeric: tabular-nums;
+    animation: mult-count 0.42s cubic-bezier(0.22, 0.61, 0.36, 1);
+  }
+  @keyframes mult-count {
+    from {
+      opacity: 0.55;
+      transform: scale(0.94);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
   }
   .grid2 {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: var(--space-sm);
+  }
+  .stat-card {
+    background: rgba(10, 15, 13, 0.6);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 0.4rem 0.55rem;
   }
   .potential {
     font-family: var(--font-display);
@@ -261,7 +317,9 @@
     font-size: 1.1rem;
   }
   .label {
-    display: block;
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
     font-size: 0.62rem;
     text-transform: uppercase;
     letter-spacing: 0.1em;
@@ -306,6 +364,13 @@
     flex-wrap: wrap;
     gap: 0.3rem;
   }
+  .presets button.active {
+    border-color: rgba(61, 214, 181, 0.6);
+    color: var(--accent-secondary);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.08),
+      0 0 14px rgba(61, 214, 181, 0.25);
+  }
   .value {
     font-family: var(--font-display);
     min-width: 3.5rem;
@@ -324,6 +389,10 @@
     cursor: pointer;
   }
   .play {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
     background: linear-gradient(180deg, var(--emerald-mid), var(--emerald-deep));
     color: #eef5f1;
     font-size: 1rem;
@@ -354,6 +423,9 @@
     transform: scale(0.98);
   }
   .cashout .cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
     font-size: 0.72rem;
     letter-spacing: 0.14em;
     text-transform: uppercase;
@@ -456,6 +528,9 @@
     box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
   }
   .confirm-tag {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
     margin: 0;
     font-size: 0.65rem;
     letter-spacing: 0.14em;
@@ -494,6 +569,15 @@
     display: flex;
     gap: var(--space-sm);
     margin-top: var(--space-sm);
+  }
+  .confirm-no {
+    flex: 1;
+    min-height: 44px;
+    background: var(--surface);
+    color: var(--text-secondary);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-weight: 600;
   }
   .confirm-yes {
     flex: 1;

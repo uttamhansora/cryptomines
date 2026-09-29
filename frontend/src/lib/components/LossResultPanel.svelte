@@ -11,19 +11,29 @@
 {#if active}
   <div class="loss-wrap" role="status" aria-live="polite">
     <div class="card">
+      <img class="head-icon" src="./assets/game/ui/icons/mine.png" alt="" width="40" height="40" />
       <p class="title">Round Lost</p>
       <p class="sub">Mine Hit</p>
       <dl class="stats">
-        <div>
-          <dt>Bet</dt>
+        <div class="stat">
+          <dt>
+            <img src="./assets/game/ui/icons/usdt.png" alt="" width="13" height="13" />
+            Bet
+          </dt>
           <dd>{bet.toFixed(2)}</dd>
         </div>
-        <div>
-          <dt>Potential Win</dt>
+        <div class="stat">
+          <dt>
+            <img src="./assets/game/ui/icons/trophy.png" alt="" width="13" height="13" />
+            Potential Win
+          </dt>
           <dd>{potential.toFixed(2)}</dd>
         </div>
       </dl>
-      <button type="button" class="again" onclick={onPlayAgain}>Play Again</button>
+      <button type="button" class="again" onclick={onPlayAgain}>
+        <img src="./assets/game/ui/icons/refresh.png" alt="" width="16" height="16" />
+        Play Again
+      </button>
     </div>
   </div>
 {/if}
@@ -50,6 +60,10 @@
     box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45);
     text-align: center;
   }
+  .head-icon {
+    margin-bottom: 0.35rem;
+    filter: drop-shadow(0 4px 12px rgba(239, 68, 68, 0.4));
+  }
   .title {
     margin: 0;
     font-family: var(--font-display);
@@ -68,7 +82,17 @@
     gap: var(--space-sm);
     margin: 0 0 var(--space-md);
   }
+  .stat {
+    background: rgba(10, 15, 13, 0.6);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 0.4rem 0.5rem;
+  }
   dt {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.3rem;
     font-size: 0.65rem;
     letter-spacing: 0.08em;
     text-transform: uppercase;

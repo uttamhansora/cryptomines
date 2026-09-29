@@ -8,7 +8,20 @@
   }
   let { cell, disabled, onpick }: Props = $props();
 
-  const symbolSrc = (sym: string) => `./assets/game/crypto/${sym.toLowerCase()}.svg`;
+  /** Icons8 Fluency/Color icon set — bundled locally for a consistent style. */
+  const ICONS = {
+    BTC: 'btc',
+    ETH: 'eth',
+    SOL: 'sol',
+    USDT: 'usdt',
+    VAULT: 'vault-symbol',
+    DIAMOND: 'diamond',
+    MINE: 'mine',
+  } as const;
+
+  const symbolIcon = (sym: string | undefined) =>
+    sym ? ICONS[sym.toUpperCase() as keyof typeof ICONS] ?? 'btc' : null;
+
   let pressing = $state(false);
 
   const symClass = $derived.by(() => {
@@ -61,11 +74,18 @@
     {#if cell.state === 'hidden'}
       <img class="face back" src="./assets/game/tiles/tile-back.svg" alt="" width="64" height="64" />
     {:else if cell.state === 'mine'}
-      <img src="./assets/game/tiles/mine.svg" alt="" class="sym mine-sym" width="56" height="56" decoding="async" />
-    {:else if cell.symbol}
       <img
-        src={symbolSrc(cell.symbol)}
-        alt={cell.symbol}
+        src="./assets/game/ui/icons/mine.png"
+        alt="Mine"
+        class="sym mine-sym"
+        width="56"
+        height="56"
+        decoding="async"
+      />
+    {:else if symbolIcon(cell.symbol)}
+      <img
+        src="./assets/game/ui/icons/{symbolIcon(cell.symbol)}.png"
+        alt={cell.symbol ?? ''}
         class="sym"
         class:vault-sym={cell.symbol === 'VAULT'}
         width="56"
@@ -203,17 +223,17 @@
     filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.45));
   }
   .sym {
-    width: 64%;
-    height: 64%;
+    width: 68%;
+    height: 68%;
     object-fit: contain;
     pointer-events: none;
     filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.4));
   }
   .sym.vault-sym {
-    filter: drop-shadow(0 4px 12px rgba(201, 162, 39, 0.35));
+    filter: drop-shadow(0 4px 12px rgba(201, 162, 39, 0.45));
   }
   .mine-sym {
-    filter: drop-shadow(0 4px 14px rgba(239, 68, 68, 0.45));
+    filter: drop-shadow(0 4px 14px rgba(239, 68, 68, 0.5));
   }
   .tile.revealed.safe .tile-inner {
     border-color: rgba(61, 214, 181, 0.32);
