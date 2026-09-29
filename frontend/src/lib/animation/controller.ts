@@ -100,7 +100,8 @@ export class AnimationController {
     const shock = board?.querySelector('[data-shockwave]') as HTMLElement | null;
     const inner = el.querySelector('.tile-inner') as HTMLElement | null;
     const target = inner ?? el;
-    const sym = el.querySelector('.mine-sym') as HTMLElement | null;
+    const symWrap = el.querySelector('.mine-sym') as HTMLElement | null;
+    const sym = (el.querySelector('.sym') as HTMLElement | null) ?? symWrap;
     const neighbors = board?.querySelectorAll('.tile:not(.mine)') ?? [];
     return new Promise((resolve) => {
       const tl = gsap.timeline({ onComplete: () => {
@@ -125,7 +126,11 @@ export class AnimationController {
           '-=0.32',
         );
       }
-      tl.to(board, { x: 6, duration: 0.028, repeat: 7, yoyo: true, ease: 'power1.inOut' }, '-=0.5');
+      // Controlled board reaction: tiny scale pulse instead of a positional shake
+      // (avoids fighting the CSS transform on .stage and reads calmer/premium).
+      if (board) {
+        tl.to(board, { scale: 0.985, duration: 0.05, ease: 'power2.in', yoyo: true, repeat: 1 }, '-=0.5');
+      }
       if (neighbors.length) {
         tl.to(neighbors, { scale: 0.98, duration: 0.08, stagger: 0.012, yoyo: true, repeat: 1 }, '-=0.45');
       }

@@ -29,9 +29,9 @@
   import ChainMeter from './lib/components/ChainMeter.svelte';
   import VaultBonusScene from './lib/components/VaultBonusScene.svelte';
   import RulesModal from './lib/components/RulesModal.svelte';
+  import Icon from './lib/components/Icon.svelte';
   import LoadingShell from './lib/components/LoadingShell.svelte';
   import WinCelebration from './lib/components/WinCelebration.svelte';
-  import LossResultPanel from './lib/components/LossResultPanel.svelte';
   import { setSoundEnabled, getSoundSettings } from './lib/sound/sound-manager';
   import { playDeltaSounds } from './lib/game/event-sounds';
 
@@ -74,8 +74,12 @@
   let connectionState = $state<RgsConnectionState>('AUTHENTICATING');
   let walletConfig = $state<WalletConfig | null>(null);
   let showWin = $state(false);
-  let showLoss = $state(false);
+  /** On-board loss banner (NO blocking modal). Auto-dismisses and resets. */
+  let lossBanner = $state(false);
   let lossPotential = $state(0);
+  let lossBet = $state(0);
+  let boardLost = $state(false);
+  let lossResetTimer: ReturnType<typeof setTimeout> | undefined;
   let winDisplayMult = $state(0);
   let winDisplayPayout = $state(0);
   let winChainBonusBook = $state(0);
@@ -229,7 +233,7 @@
     try {
       playback.resetRound();
       showWin = false;
-      showLoss = false;
+      clearLossState();
       vaultTheatreActive = false;
       const amountApi = displayToApi(bet);
       const res = await client.play(amountApi, mines, 'base');
@@ -252,7 +256,7 @@
     try {
       playback.resetRound();
       showWin = false;
-      showLoss = false;
+      clearLossState();
       const amountApi = displayToApi(bet);
       const res = await client.play(amountApi, mines, 'buyVault');
       applyWalletBalance(res.balance.amount);
@@ -290,6 +294,9 @@
       console.info('[TILE] reveal requested', cellIndex);
     }
     pickingCell = cellIndex;
+    // Immediate tactile feedback while the RGS response is in flight —
+    // presentation only; the authoritative flip happens when events arrive.
+    document.querySelector(`[data-tile-index="${cellIndex}"]`)?.classList.add('is-pending');
     try {
       const res = await client.inRoundDecision({ action: 'pick', cellIndex });
       applyWalletBalance(res.balance.amount);
@@ -300,6 +307,7 @@
     } catch (e) {
       errorMsg = e instanceof Error ? e.message : String(e);
     } finally {
+      document.querySelector(`[data-tile-index="${cellIndex}"]`)?.classList.remove('is-pending');
       pickingCell = null;
     }
   }
@@ -371,8 +379,20 @@
         }
       }
     } else {
+      // Loss is communicated ON THE BOARD: danger tint + non-blocking banner.
+      // The RGS end-round call below already settled the wallet, so after a
+      // short transition we wipe the disclosed board back to idle — the
+      // player can immediately press START ROUND. No popup, no confirmation.
+      lossBet = bet;
       lossPotential = winFromBookMultiplier(bet, snap.multiplierBook + snap.chainBonusBook);
-      showLoss = true;
+      boardLost = true;
+      lossBanner = true;
+      clearTimeout(lossResetTimer);
+      lossResetTimer = setTimeout(() => {
+        lossBanner = false;
+        boardLost = false;
+        playback.resetRound();
+      }, reducedMotion() ? 450 : 900);
     }
 
     roundActive = false;
@@ -387,10 +407,10 @@
     }
   }
 
-  function onPlayAgain() {
-    showLoss = false;
-    playback.resetRound();
-    void startRound();
+  function clearLossState() {
+    clearTimeout(lossResetTimer);
+    lossBanner = false;
+    boardLost = false;
   }
 
   function toggleSound() {
@@ -413,7 +433,10 @@
     console.info('[RGS] auth state: initial');
     void load();
     window.addEventListener('keydown', onSpaceAction);
-    return () => window.removeEventListener('keydown', onSpaceAction);
+    return () => {
+      window.removeEventListener('keydown', onSpaceAction);
+      clearTimeout(lossResetTimer);
+    };
   });
 </script>
 
@@ -436,7 +459,6 @@
   chainBonusBook={winChainBonusBook}
   active={showWin}
 />
-<LossResultPanel active={showLoss} {bet} potential={lossPotential} onPlayAgain={onPlayAgain} />
 
 <main class="shell" class:dimmed={showVaultScene}>
   {#if loading}
@@ -484,14 +506,25 @@
           <ChainMeter chainStreak={snap.chainStreak} pulseGen={chainPulse} />
         </div>
         <HeroPitch />
-        <div class="stage" data-game-stage>
+        <div class="stage" data-game-stage class:lost={boardLost}>
           <div class="vault-dim" data-vault-dim aria-hidden="true"></div>
+          <div class="loss-tint" aria-hidden="true"></div>
           <GameBoard
             cells={snap.cells}
             disabled={boardInteractionBlocked}
             {pickingCell}
             onpick={onPick}
           />
+          {#if lossBanner}
+            <!-- Non-blocking, auto-dismissing on-board loss state (no modal). -->
+            <div class="loss-banner" role="status">
+              <span class="lb-icon"><Icon name="mine" size={26} /></span>
+              <span class="lb-text">
+                <strong>Round Lost</strong>
+                <small>Mine hit · Bet {lossBet.toFixed(2)} · Missed {lossPotential.toFixed(2)}</small>
+              </span>
+            </div>
+          {/if}
         </div>
         <FeatureEducation chainStreak={snap.chainStreak} vaultTokens={snap.vaultTokensCollected} />
       </section>
@@ -534,6 +567,70 @@
     opacity: 0;
     pointer-events: none;
     z-index: 2;
+  }
+  /* On-board loss reaction — subtle danger tint over the board, never a popup */
+  .loss-tint {
+    position: absolute;
+    inset: 0;
+    border-radius: var(--radius-lg);
+    background: radial-gradient(circle at 50% 45%, rgba(255, 91, 110, 0.1), rgba(120, 10, 24, 0.22) 78%);
+    box-shadow: inset 0 0 42px rgba(255, 91, 110, 0.16);
+    opacity: 0;
+    pointer-events: none;
+    z-index: 3;
+    transition: opacity 0.35s ease;
+  }
+  .stage.lost .loss-tint {
+    opacity: 1;
+  }
+  .loss-banner {
+    position: absolute;
+    left: 50%;
+    bottom: 14px;
+    transform: translateX(-50%);
+    z-index: 6;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.5rem 0.9rem;
+    border-radius: 999px;
+    background: linear-gradient(160deg, rgba(36, 16, 20, 0.92), rgba(14, 8, 10, 0.92));
+    border: 1px solid rgba(255, 91, 110, 0.45);
+    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.55), 0 0 18px rgba(255, 91, 110, 0.18);
+    animation: banner-in 0.32s var(--ease-out-soft) both;
+    pointer-events: none;
+  }
+  .loss-banner .lb-icon {
+    display: grid;
+    place-items: center;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: rgba(255, 91, 110, 0.12);
+    animation: lb-pulse 0.9s ease-out 1;
+  }
+  .loss-banner .lb-text {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.25;
+  }
+  .loss-banner strong {
+    font-family: var(--font-display);
+    font-size: 0.95rem;
+    letter-spacing: 0.06em;
+    color: #ff8b9c;
+  }
+  .loss-banner small {
+    color: var(--text-muted);
+    font-size: 0.72rem;
+  }
+  @keyframes banner-in {
+    from { opacity: 0; transform: translateX(-50%) translateY(14px); }
+    to { opacity: 1; transform: translateX(-50%) translateY(0); }
+  }
+  @keyframes lb-pulse {
+    0% { box-shadow: 0 0 0 0 rgba(255, 91, 110, 0.5); }
+    100% { box-shadow: 0 0 0 14px rgba(255, 91, 110, 0); }
   }
   .error {
     color: var(--danger);

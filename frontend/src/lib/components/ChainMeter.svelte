@@ -158,6 +158,13 @@
   }
   .wire.lit {
     background: rgba(61, 214, 181, 0.3);
+    animation: wire-fill 0.28s var(--ease-out-soft) both;
+    transform-origin: left center;
+  }
+  /* energy travels through the connector as the chain advances */
+  @keyframes wire-fill {
+    from { transform: scaleX(0.05); filter: brightness(1.9); }
+    to { transform: scaleX(1); filter: brightness(1); }
   }
   .wire.lit::after {
     content: '';
