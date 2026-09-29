@@ -1,5 +1,6 @@
 <script lang="ts">
   import gsap from 'gsap';
+  import Icon from './Icon.svelte';
   import { WIN_TIER_BIG, WIN_TIER_GOOD, WIN_TIER_MEGA } from '@crypto-mines/shared';
 
   interface Props {
@@ -140,14 +141,9 @@
     <span class="win-shock" aria-hidden="true"></span>
     <canvas class="burst" bind:this={canvas} aria-hidden="true"></canvas>
     <div class="content">
-      <img
-        class="hero"
-        bind:this={hero}
-        src="./assets/game/crypto/diamond.svg"
-        alt=""
-        width="96"
-        height="96"
-      />
+      <span class="hero-wrap" bind:this={hero}>
+        <Icon name="diamond" size={96} class="hero" />
+      </span>
       <p class="title" bind:this={titleEl}>{tierLabel}</p>
       {#if chainMult > 0}
         <p class="chain">Chain Bonus +{chainMult.toFixed(2)}×</p>
@@ -203,10 +199,14 @@
     padding: var(--space-md);
     max-width: min(92vw, 420px);
   }
-  .hero {
+  .hero-wrap {
+    display: block;
     width: clamp(72px, 20vw, 108px);
-    height: auto;
     margin: 0 auto 0.5rem;
+  }
+  .hero {
+    width: 100%;
+    height: auto;
     filter: drop-shadow(0 0 28px rgba(201, 162, 39, 0.45));
   }
   .win.mega .hero {

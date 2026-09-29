@@ -11,7 +11,7 @@
 <section class="features" aria-label="Bonus features">
   <article>
     <div class="head">
-      <Icon name="chain-link" size={18} />
+      <Icon name="chain" size={18} />
       <h3>Crypto Chain</h3>
       <span class="stat">{chainStreak} / 5</span>
     </div>
@@ -19,7 +19,7 @@
   </article>
   <article>
     <div class="head">
-      <Icon name="vault-key" size={18} />
+      <Icon name="vault" size={18} />
       <h3>Crypto Vault Bonus</h3>
       <span class="stat">{vaultTokens} / 3</span>
     </div>
@@ -30,19 +30,21 @@
 <style>
   .features {
     display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
     gap: var(--space-sm);
     font-size: 0.72rem;
   }
   article {
-    background: linear-gradient(165deg, rgba(21, 32, 25, 0.9), rgba(10, 15, 13, 0.95));
+    background: linear-gradient(165deg, rgba(19, 31, 38, 0.85), rgba(8, 13, 18, 0.95));
     border: 1px solid var(--border);
     border-radius: var(--radius-md);
     padding: var(--space-sm) var(--space-md);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
   }
   .head {
     display: flex;
     align-items: center;
-    gap: 0.4rem;
+    gap: 0.45rem;
     margin-bottom: 0.25rem;
   }
   h3 {

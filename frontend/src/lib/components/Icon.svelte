@@ -1,20 +1,24 @@
 <script lang="ts">
   /**
-   * Shared icon component. Icons are sourced from Icons8 (https://icons8.com/icons)
-   * and bundled locally under public/assets/game/ui/icons for offline + in-canvas use.
+   * Central Icon component. Every icon in the game resolves through the
+   * registry in src/lib/icons.ts — custom, locally authored SVG assets only.
    */
+  import { ICONS, type IconName } from '../icons';
+
   interface Props {
-    name: string;
+    name: IconName;
     size?: number;
     label?: string;
     class?: string;
   }
   let { name, size = 20, label = '', class: cls = '' }: Props = $props();
+
+  const src = $derived(ICONS[name]);
 </script>
 
 <img
   class="icon {cls}"
-  src="./assets/game/ui/icons/{name}.png"
+  {src}
   width={size}
   height={size}
   alt={label}
@@ -30,6 +34,5 @@
     object-fit: contain;
     flex-shrink: 0;
     pointer-events: none;
-    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.35));
   }
 </style>

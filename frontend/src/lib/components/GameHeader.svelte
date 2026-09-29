@@ -1,4 +1,6 @@
 <script lang="ts">
+  import Icon from './Icon.svelte';
+
   interface Props {
     balance: number;
     soundOn: boolean;
@@ -11,21 +13,20 @@
 <header class="header">
   <div class="brand">
     <span class="mark" aria-hidden="true">
-      <svg viewBox="0 0 24 24" width="18" height="18" fill="none">
-        <rect x="3.5" y="6.5" width="17" height="13" rx="2.5" fill="#1a2220" stroke="#c9a227" stroke-width="1.4" />
-        <circle cx="12" cy="13" r="3.4" fill="none" stroke="#3dd6b5" stroke-width="1.4" />
-        <circle cx="12" cy="13" r="1.1" fill="#e8c547" />
-        <path d="M12 9.6v-1.4M12 17.8v-1.4M8.6 13H7.2M16.8 13h-1.4" stroke="#3dd6b5" stroke-width="1.2" stroke-linecap="round" />
+      <svg viewBox="0 0 64 64" width="22" height="22">
+        <polygon points="32,7 54,20 54,44 32,57 10,44 10,20" fill="#0c1a18" stroke="#d4af5a" stroke-width="2.4" />
+        <polygon points="32,17 45,25 45,39 32,47 19,39 19,25" fill="none" stroke="#3dd6b5" stroke-width="2" opacity=".85" />
+        <circle cx="32" cy="32" r="4.6" fill="#e8c547" />
       </svg>
     </span>
-    <h1>Crypto Mines</h1>
+    <h1>Crypto<span>Mines</span></h1>
   </div>
   <div class="actions">
-    <div class="balance">
+    <div class="balance" data-balance-chip role="status" aria-label={`Balance ${balance.toFixed(2)}`}>
       <span class="label">Balance</span>
       <span class="value">
-        <img class="coin" src="./assets/game/ui/icons/usdt.png" alt="" width="16" height="16" />
-        {balance.toFixed(2)}
+        <Icon name="tether" size={15} class="coin" />
+        <strong>{balance.toFixed(2)}</strong>
       </span>
     </div>
     <button
@@ -36,10 +37,10 @@
       aria-label={soundOn ? 'Mute sound' : 'Enable sound'}
       onclick={onToggleSound}
     >
-      <img src="./assets/game/ui/icons/{soundOn ? 'sound' : 'mute'}.png" alt="" width="20" height="20" />
+      <Icon name={soundOn ? 'sound' : 'mute'} size={18} />
     </button>
     <button type="button" class="icon-btn" title="Game rules" aria-label="Game rules" onclick={onRules}>
-      <img src="./assets/game/ui/icons/rules.png" alt="" width="20" height="20" />
+      <Icon name="info" size={18} />
     </button>
   </div>
 </header>
@@ -55,64 +56,80 @@
   .brand {
     display: flex;
     align-items: center;
-    gap: var(--space-sm);
+    gap: 0.55rem;
   }
   .mark {
     display: grid;
     place-items: center;
-    width: 30px;
-    height: 30px;
-    border-radius: 8px;
-    background: linear-gradient(160deg, rgba(201, 162, 39, 0.18), rgba(13, 61, 50, 0.5));
-    border: 1px solid rgba(201, 162, 39, 0.35);
-    box-shadow: 0 0 14px var(--glow-emerald);
+    width: 34px;
+    height: 34px;
+    border-radius: 9px;
+    background: linear-gradient(160deg, rgba(212, 175, 90, 0.16), rgba(12, 58, 48, 0.55));
+    border: 1px solid rgba(212, 175, 90, 0.4);
+    box-shadow:
+      0 0 16px rgba(61, 214, 181, 0.14),
+      inset 0 1px 0 rgba(255, 255, 255, 0.08);
   }
   h1 {
     margin: 0;
     font-family: var(--font-display);
-    font-size: clamp(0.95rem, 3.5vw, 1.15rem);
-    letter-spacing: 0.12em;
+    font-size: clamp(0.95rem, 3.5vw, 1.18rem);
+    letter-spacing: 0.14em;
     font-weight: 700;
-    color: var(--text-primary);
+    text-transform: uppercase;
+    color: #f4ead0;
+    text-shadow: 0 1px 0 rgba(0, 0, 0, 0.6);
+  }
+  h1 span {
+    color: var(--accent-primary);
   }
   .actions {
     display: flex;
     align-items: center;
     gap: var(--space-sm);
   }
+  /* HUD-style balance */
   .balance {
     display: flex;
     flex-direction: column;
     align-items: flex-end;
-    line-height: 1.1;
+    line-height: 1.15;
     margin-right: var(--space-xs);
+    padding: 0.3rem 0.65rem;
+    border-radius: 10px;
+    background: linear-gradient(180deg, rgba(19, 31, 38, 0.9), rgba(8, 13, 18, 0.9));
+    border: 1px solid rgba(61, 214, 181, 0.22);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.05),
+      0 4px 14px rgba(0, 0, 0, 0.4);
   }
   .label {
-    font-size: 0.62rem;
+    font-size: 0.58rem;
     text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: var(--text-secondary);
+    letter-spacing: 0.14em;
+    color: var(--text-muted);
   }
   .value {
     display: inline-flex;
     align-items: center;
-    gap: 0.3rem;
-    font-family: var(--font-display);
-    font-size: 0.95rem;
-    color: var(--accent-primary);
-    font-variant-numeric: tabular-nums;
+    gap: 0.35rem;
+    font-size: 1rem;
+    color: var(--text-primary);
   }
-  .coin {
-    object-fit: contain;
+  .value strong {
+    font-family: var(--font-display);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.03em;
+    color: var(--accent-secondary);
   }
   .icon-btn {
     display: grid;
     place-items: center;
     width: 40px;
     height: 40px;
-    border: 1px solid var(--border);
-    background: linear-gradient(165deg, var(--graphite-light) 0%, var(--surface) 60%, #0a0f0d 100%);
-    border-radius: var(--radius-sm);
+    border: 1px solid rgba(120, 150, 165, 0.2);
+    background: linear-gradient(165deg, rgba(34, 48, 60, 0.85) 0%, rgba(13, 21, 27, 0.9) 60%, rgba(6, 10, 14, 0.95) 100%);
+    border-radius: 10px;
     padding: 0;
     transition:
       border-color 0.15s,
@@ -120,10 +137,10 @@
       transform 0.1s ease;
   }
   .icon-btn:hover {
-    border-color: rgba(61, 214, 181, 0.4);
-    box-shadow: 0 0 12px rgba(61, 214, 181, 0.15);
+    border-color: rgba(61, 214, 181, 0.45);
+    box-shadow: 0 0 14px rgba(61, 214, 181, 0.16);
   }
   .icon-btn:active {
-    transform: scale(0.94);
+    transform: scale(0.93);
   }
 </style>

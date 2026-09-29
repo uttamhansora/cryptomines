@@ -1,6 +1,8 @@
 <script lang="ts">
   import { BUY_VAULT_COST_MULTIPLIER } from '@crypto-mines/shared';
   import { apiToDisplay } from '../rgs';
+  import Icon from './Icon.svelte';
+  import ChainMeter from './ChainMeter.svelte';
 
   interface Props {
     bet: number;
@@ -8,12 +10,15 @@
     mines: number;
     multiplier: number;
     potential: number;
+    chainStreak: number;
+    pulseGen?: number;
     replayMode: boolean;
     roundActive: boolean;
     terminal: boolean;
     canCashOut: boolean;
     buyMode: boolean;
     canPlaceBets: boolean;
+    starting?: boolean;
     walletConfig?: import('../rgs').WalletConfig | null;
     onBetChange: (v: number) => void;
     onMinesChange: (v: number) => void;
@@ -27,12 +32,15 @@
     mines,
     multiplier,
     potential,
+    chainStreak,
+    pulseGen = 0,
     replayMode,
     roundActive,
     terminal,
     canCashOut,
     buyMode,
     canPlaceBets = false,
+    starting = false,
     walletConfig = null,
     onBetChange,
     onMinesChange,
@@ -50,6 +58,7 @@
      honours prefers-reduced-motion). The authoritative value is always `multiplier`. */
   let displayMult = $state(multiplier);
   let rafId = 0;
+  let multKey = $state(0);
 
   $effect(() => {
     const target = multiplier;
@@ -61,9 +70,11 @@
     }
     const from = displayMult;
     if (from === target) return;
+    const jump = Math.abs(target - from);
     const start = performance.now();
-    const dur = 420;
+    const dur = jump >= 0.5 ? 520 : 380;
     cancelAnimationFrame(rafId);
+    multKey += 1;
     const tick = (now: number) => {
       const t = Math.min(1, (now - start) / dur);
       const ease = 1 - Math.pow(1 - t, 3);
@@ -73,6 +84,9 @@
     rafId = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(rafId);
   });
+
+  /* circular energy ring: fill proportional to progress toward a big multiplier */
+  const ringPct = $derived(Math.min(100, ((displayMult - 1) / 9) * 100));
 
   const betMin = $derived(walletConfig ? apiToDisplay(walletConfig.minBet) : 0.1);
   const betMax = $derived(walletConfig ? apiToDisplay(walletConfig.maxBet) : 100);
@@ -96,25 +110,43 @@
 
 <section class="panel" aria-label="Game controls">
   <div class="section mult-hero">
-    <span class="label">Current multiplier</span>
-    <div class="mult-ring">
-      <span class="ring" aria-hidden="true"></span>
-      <span class="ring-energy" aria-hidden="true"></span>
-      <strong data-multiplier-display>{displayMult.toFixed(2)}×</strong>
+    <span class="label">
+      <Icon name="multiplier" size={14} />
+      Current multiplier
+    </span>
+    <div class="mult-ring" data-multiplier-ring>
+      <svg class="ring-svg" viewBox="0 0 100 100" aria-hidden="true">
+        <circle class="ring-track" cx="50" cy="50" r="44"></circle>
+        <circle
+          class="ring-fill"
+          cx="50"
+          cy="50"
+          r="44"
+          stroke-dasharray="276.5"
+          stroke-dashoffset={276.5 * (1 - ringPct / 100)}
+        ></circle>
+      </svg>
+      <span class="ring-orbit" aria-hidden="true"></span>
+      <strong key={multKey} data-multiplier-display>{displayMult.toFixed(2)}×</strong>
     </div>
+  </div>
+
+  <!-- Mobile/tablet: chain rail shown between board and controls -->
+  <div class="chain-slot">
+    <ChainMeter {chainStreak} {pulseGen} />
   </div>
 
   <div class="section grid2">
     <div class="stat-card">
       <span class="label">
-        <img src="./assets/game/ui/icons/trophy.png" alt="" width="14" height="14" />
+        <Icon name="trophy" size={14} />
         Potential win
       </span>
       <strong class="potential">{potential.toFixed(2)}</strong>
     </div>
     <div class="stat-card">
       <span class="label">
-        <img src="./assets/game/ui/icons/usdt.png" alt="" width="14" height="14" />
+        <Icon name="bet" size={14} />
         Bet
       </span>
       <strong class="bet-val">{bet.toFixed(2)}</strong>
@@ -123,18 +155,18 @@
 
   <div class="section">
     <span class="label">
-      <img src="./assets/game/ui/icons/usdt.png" alt="" width="14" height="14" />
+      <Icon name="bet" size={14} />
       Bet amount
     </span>
     <div class="stepper">
       <button type="button" disabled={roundActive} title="Minimum bet" onclick={() => onBetChange(betMin)}>MIN</button>
       <button type="button" disabled={roundActive} title="Halve bet" onclick={() => onBetChange(Math.max(betMin, +(bet / 2).toFixed(2)))}>½</button>
       <button type="button" class="step-btn" disabled={roundActive} aria-label="Decrease bet" onclick={() => adjustBet(-1)}>
-        <img src="./assets/game/ui/icons/minus.png" alt="" width="18" height="18" />
+        <Icon name="minus" size={16} />
       </button>
       <span class="value">{bet.toFixed(2)}</span>
       <button type="button" class="step-btn" disabled={roundActive} aria-label="Increase bet" onclick={() => adjustBet(1)}>
-        <img src="./assets/game/ui/icons/plus.png" alt="" width="18" height="18" />
+        <Icon name="plus" size={16} />
       </button>
       <button type="button" disabled={roundActive} title="Double bet" onclick={() => onBetChange(Math.min(betMax, +(bet * 2).toFixed(2)))}>2×</button>
       <button type="button" disabled={roundActive} title="Maximum bet" onclick={() => onBetChange(betMax)}>MAX</button>
@@ -143,16 +175,16 @@
 
   <div class="section">
     <span class="label">
-      <img src="./assets/game/ui/icons/mines.png" alt="" width="14" height="14" />
+      <Icon name="mines" size={14} />
       Mines
     </span>
     <div class="stepper">
       <button type="button" class="step-btn" disabled={roundActive} aria-label="Fewer mines" onclick={() => onMinesChange(Math.max(1, mines - 1))}>
-        <img src="./assets/game/ui/icons/minus.png" alt="" width="18" height="18" />
+        <Icon name="minus" size={16} />
       </button>
       <span class="value">{mines}</span>
       <button type="button" class="step-btn" disabled={roundActive} aria-label="More mines" onclick={() => onMinesChange(Math.min(24, mines + 1))}>
-        <img src="./assets/game/ui/icons/plus.png" alt="" width="18" height="18" />
+        <Icon name="plus" size={16} />
       </button>
     </div>
     <div class="presets">
@@ -171,7 +203,7 @@
       {#if canCashOut}
         <button type="button" class="cashout" data-cashout-btn onclick={onCashout}>
           <span class="cta">
-            <img src="./assets/game/ui/icons/cashout.png" alt="" width="16" height="16" />
+            <Icon name="cashout" size={16} />
             Cash Out
           </span>
           <span class="amt">{potential.toFixed(2)}</span>
@@ -180,9 +212,17 @@
         <p class="note reveal-hint">Tap a tile on the board to reveal</p>
       {/if}
     {:else}
-      <button type="button" class="play" disabled={!canPlaceBets} onclick={onStart}>
-        <img src="./assets/game/ui/icons/start.png" alt="" width="20" height="20" />
-        Start Round · Reveal Tiles
+      <button type="button" class="play" data-start-btn disabled={!canPlaceBets || starting} onclick={onStart}>
+        <span class="play-face">
+          {#if starting}
+            <span class="spinner" aria-hidden="true"></span>
+            <span>Starting…</span>
+          {:else}
+            <Icon name="play" size={20} />
+            <span>Start Round<small>Reveal Tiles</small></span>
+          {/if}
+        </span>
+        <span class="energy-sweep" aria-hidden="true"></span>
       </button>
     {/if}
   </div>
@@ -190,19 +230,20 @@
   {#if !replayMode && !roundActive}
     <div class="section bonus-buy">
       <button type="button" class="buy" disabled={!canPlaceBets} onclick={() => (showBuyConfirm = true)}>
-        <img class="buy-icon" src="./assets/game/ui/icons/vault-symbol.png" alt="" width="40" height="40" />
+        <span class="buy-vault">
+          <Icon name="vault" size={40} />
+        </span>
         <span class="buy-kicker">Buy Crypto Vault</span>
         <span class="buy-mult">{BUY_VAULT_COST_MULTIPLIER}× BET</span>
         <span class="buy-main">Instant vault bonus entry</span>
       </button>
-      <p class="buy-hint">Enter the Crypto Vault Bonus immediately.</p>
     </div>
   {/if}
 
   {#if showBuyConfirm}
     <div class="confirm" role="dialog" aria-label="Confirm buy bonus">
       <p class="confirm-tag">
-        <img src="./assets/game/ui/icons/warning.png" alt="" width="14" height="14" />
+        <Icon name="warning" size={14} />
         Buy Crypto Vault
       </p>
       <p class="confirm-cost">{BUY_VAULT_COST_MULTIPLIER}× BET</p>
@@ -233,14 +274,27 @@
 
 <style>
   .panel {
-    background: linear-gradient(180deg, rgba(21, 32, 25, 0.96), rgba(8, 12, 10, 0.98));
+    background: linear-gradient(180deg, rgba(19, 31, 38, 0.94), rgba(8, 13, 18, 0.97));
     border: 1px solid var(--border);
     border-radius: var(--radius-lg);
     padding: var(--space-md);
     display: flex;
     flex-direction: column;
     gap: var(--space-md);
-    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
+    box-shadow:
+      0 16px 40px rgba(0, 0, 0, 0.45),
+      inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    position: relative;
+  }
+  .panel::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 18%;
+    right: 18%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(61, 214, 181, 0.5), transparent);
+    pointer-events: none;
   }
   .section {
     display: flex;
@@ -251,50 +305,58 @@
     align-items: center;
     text-align: center;
     padding-bottom: 0.25rem;
-    border-bottom: 1px solid rgba(46, 230, 214, 0.08);
+    border-bottom: 1px solid rgba(61, 214, 181, 0.1);
   }
   .mult-ring {
     position: relative;
     display: grid;
     place-items: center;
+    width: 108px;
+    height: 108px;
+    margin-top: 0.15rem;
+  }
+  .ring-svg {
+    position: absolute;
+    inset: 0;
     width: 100%;
-    min-height: 3.2rem;
+    height: 100%;
+    transform: rotate(-90deg);
   }
-  .ring {
-    position: absolute;
-    width: 92px;
-    height: 92px;
-    border-radius: 50%;
-    border: 1px solid rgba(61, 214, 181, 0.22);
-    box-shadow: 0 0 20px rgba(42, 157, 122, 0.12);
+  .ring-track {
+    fill: none;
+    stroke: rgba(120, 150, 165, 0.14);
+    stroke-width: 3;
   }
-  .ring-energy {
+  .ring-fill {
+    fill: none;
+    stroke: var(--accent-primary);
+    stroke-width: 3;
+    stroke-linecap: round;
+    filter: drop-shadow(0 0 4px rgba(61, 214, 181, 0.5));
+    transition: stroke-dashoffset 0.4s var(--ease-out-soft);
+  }
+  .ring-orbit {
     position: absolute;
-    width: 104px;
-    height: 104px;
+    inset: 8px;
     border-radius: 50%;
-    border: 2px dashed rgba(61, 214, 181, 0.2);
-    opacity: 0;
+    border: 1px dashed rgba(61, 214, 181, 0.22);
+    animation: orbit-spin 14s linear infinite;
     pointer-events: none;
   }
+  @keyframes orbit-spin {
+    to { transform: rotate(360deg); } }
   .mult-ring strong {
     position: relative;
     font-family: var(--font-display);
-    font-size: clamp(1.55rem, 5vw, 1.95rem);
+    font-size: clamp(1.5rem, 4.5vw, 1.8rem);
     color: var(--accent-secondary);
-    text-shadow: 0 0 18px rgba(61, 214, 181, 0.22);
+    text-shadow: 0 0 18px rgba(61, 214, 181, 0.25);
     font-variant-numeric: tabular-nums;
-    animation: mult-count 0.42s cubic-bezier(0.22, 0.61, 0.36, 1);
+    animation: mult-pop 0.38s var(--ease-out-soft);
   }
-  @keyframes mult-count {
-    from {
-      opacity: 0.55;
-      transform: scale(0.94);
-    }
-    to {
-      opacity: 1;
-      transform: scale(1);
-    }
+  @keyframes mult-pop {
+    0% { opacity: 0.5; transform: scale(0.92); filter: brightness(1.5); }
+    100% { opacity: 1; transform: scale(1); filter: brightness(1); }
   }
   .grid2 {
     display: grid;
@@ -302,24 +364,27 @@
     gap: var(--space-sm);
   }
   .stat-card {
-    background: rgba(10, 15, 13, 0.6);
+    background: linear-gradient(170deg, rgba(19, 31, 38, 0.85), rgba(8, 13, 18, 0.9));
     border: 1px solid var(--border);
     border-radius: var(--radius-sm);
-    padding: 0.4rem 0.55rem;
+    padding: 0.45rem 0.6rem;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
   }
   .potential {
     font-family: var(--font-display);
     font-size: 1.1rem;
     color: var(--accent-secondary);
+    font-variant-numeric: tabular-nums;
   }
   .bet-val {
     font-family: var(--font-display);
     font-size: 1.1rem;
+    font-variant-numeric: tabular-nums;
   }
   .label {
     display: flex;
     align-items: center;
-    gap: 0.3rem;
+    gap: 0.35rem;
     font-size: 0.62rem;
     text-transform: uppercase;
     letter-spacing: 0.1em;
@@ -336,9 +401,10 @@
     min-width: 44px;
     min-height: 44px;
     border-radius: var(--radius-sm);
-    border: 1px solid rgba(201, 162, 39, 0.22);
-    background: linear-gradient(165deg, #2a3532 0%, #141f1b 45%, #0a0f0d 100%);
+    border: 1px solid rgba(120, 150, 165, 0.2);
+    background: linear-gradient(165deg, #24313c 0%, #131d26 45%, #0a1015 100%);
     color: var(--text-primary);
+    font-weight: 600;
     box-shadow:
       inset 0 1px 0 rgba(255, 255, 255, 0.06),
       0 2px 6px rgba(0, 0, 0, 0.35);
@@ -346,14 +412,14 @@
   }
   .stepper button:hover:not(:disabled),
   .presets button:hover:not(:disabled) {
-    border-color: rgba(61, 214, 181, 0.35);
+    border-color: rgba(61, 214, 181, 0.4);
     box-shadow:
       inset 0 1px 0 rgba(255, 255, 255, 0.08),
-      0 0 12px rgba(61, 214, 181, 0.12);
+      0 0 12px rgba(61, 214, 181, 0.14);
   }
   .stepper button:active:not(:disabled),
   .presets button:active:not(:disabled) {
-    transform: scale(0.96);
+    transform: scale(0.95);
   }
   .stepper button:disabled,
   .presets button:disabled {
@@ -365,7 +431,7 @@
     gap: 0.3rem;
   }
   .presets button.active {
-    border-color: rgba(61, 214, 181, 0.6);
+    border-color: rgba(61, 214, 181, 0.65);
     color: var(--accent-secondary);
     box-shadow:
       inset 0 1px 0 rgba(255, 255, 255, 0.08),
@@ -373,8 +439,9 @@
   }
   .value {
     font-family: var(--font-display);
-    min-width: 3.5rem;
+    min-width: 3.8rem;
     text-align: center;
+    font-variant-numeric: tabular-nums;
   }
   .action {
     margin-top: 0.15rem;
@@ -382,42 +449,90 @@
   .play,
   .cashout {
     width: 100%;
-    min-height: 56px;
+    min-height: 58px;
     border: none;
     border-radius: var(--radius-md);
     font-weight: 700;
     cursor: pointer;
+    position: relative;
+    overflow: hidden;
   }
   .play {
-    display: flex;
+    display: grid;
+    place-items: center;
+    background: linear-gradient(180deg, #1c7f61 0%, #12563f 55%, #0b3a2c 100%);
+    color: #eefaf4;
+    font-size: 1.02rem;
+    border: 1px solid rgba(61, 214, 181, 0.4);
+    box-shadow:
+      0 10px 24px rgba(0, 0, 0, 0.45),
+      inset 0 1px 0 rgba(255, 255, 255, 0.12);
+    transition: transform 0.12s var(--ease-out-soft), box-shadow 0.2s;
+  }
+  .play-face {
+    display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 0.5rem;
-    background: linear-gradient(180deg, var(--emerald-mid), var(--emerald-deep));
-    color: #eef5f1;
-    font-size: 1rem;
-    border: 1px solid rgba(61, 214, 181, 0.35);
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
+    gap: 0.55rem;
+    position: relative;
+    z-index: 1;
+    letter-spacing: 0.04em;
+  }
+  .play-face small {
+    display: block;
+    font-size: 0.6rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: rgba(205, 245, 232, 0.75);
+    font-weight: 600;
+  }
+  .energy-sweep {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: linear-gradient(100deg, transparent 30%, rgba(140, 255, 225, 0.16) 48%, rgba(140, 255, 225, 0.22) 52%, transparent 70%);
+    transform: translateX(-60%);
+    transition: transform 0.5s ease;
+  }
+  .play:hover:not(:disabled) .energy-sweep {
+    transform: translateX(60%);
   }
   .play:active:not(:disabled) {
     transform: scale(0.98);
+    box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.4);
   }
   .play:disabled,
   .buy:disabled {
     opacity: 0.45;
     cursor: not-allowed;
   }
+  .spinner {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    border: 2px solid rgba(238, 250, 244, 0.3);
+    border-top-color: #eefaf4;
+    animation: spin 0.7s linear infinite;
+  }
+  @keyframes spin {
+    to { transform: rotate(360deg); } }
   .cashout {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     gap: 0.15rem;
-    background: linear-gradient(180deg, #2a9d7a, #1a6b55);
-    color: #050807;
+    background: linear-gradient(180deg, #2fae84, #14684e);
+    color: #04120c;
+    border: 1px solid rgba(94, 236, 196, 0.5);
     box-shadow:
-      0 0 0 1px rgba(94, 236, 196, 0.35),
-      0 10px 28px rgba(26, 107, 85, 0.35);
+      0 0 0 1px rgba(94, 236, 196, 0.2),
+      0 10px 28px rgba(20, 104, 78, 0.4);
+    animation: cashout-breathe 1.6s ease-in-out infinite;
+  }
+  @keyframes cashout-breathe {
+    0%, 100% { box-shadow: 0 0 0 1px rgba(94, 236, 196, 0.2), 0 10px 28px rgba(20, 104, 78, 0.4); }
+    50% { box-shadow: 0 0 0 2px rgba(94, 236, 196, 0.35), 0 10px 32px rgba(20, 104, 78, 0.55); }
   }
   .cashout:active {
     transform: scale(0.98);
@@ -433,21 +548,24 @@
   .cashout .amt {
     font-family: var(--font-display);
     font-size: 1.25rem;
+    font-variant-numeric: tabular-nums;
   }
   .buy {
     position: relative;
     width: 100%;
-    min-height: 88px;
+    min-height: 104px;
     border-radius: var(--radius-md);
-    border: 1px solid rgba(201, 162, 39, 0.5);
-    background: linear-gradient(165deg, rgba(201, 162, 39, 0.14), rgba(10, 16, 14, 0.98));
+    border: 1px solid rgba(212, 175, 90, 0.45);
+    background:
+      radial-gradient(ellipse 80% 60% at 50% 0%, rgba(212, 175, 90, 0.12), transparent 70%),
+      linear-gradient(165deg, rgba(24, 34, 40, 0.98), rgba(8, 12, 14, 0.99));
     color: var(--text-primary);
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 0.15rem;
-    padding: 0.55rem 0.65rem;
+    gap: 0.1rem;
+    padding: 0.6rem 0.65rem;
     box-shadow:
       inset 0 1px 0 rgba(255, 255, 255, 0.06),
       0 8px 24px rgba(0, 0, 0, 0.35);
@@ -455,33 +573,38 @@
     cursor: pointer;
     transition: border-color 0.2s, box-shadow 0.2s, transform 0.12s;
   }
-  .buy::before {
+  .buy::after {
     content: '';
     position: absolute;
-    inset: -40%;
-    background: conic-gradient(from 0deg, transparent, rgba(61, 214, 181, 0.08), transparent 35%);
-    animation: buy-idle-spin 8s linear infinite;
+    inset: 0;
+    background: linear-gradient(115deg, transparent 35%, rgba(240, 212, 138, 0.08) 48%, rgba(240, 212, 138, 0.12) 52%, transparent 65%);
+    transform: translateX(-70%);
+    transition: transform 0.6s ease;
     pointer-events: none;
   }
-  @keyframes buy-idle-spin {
-    to {
-      transform: rotate(360deg);
-    }
-  }
   .buy:hover:not(:disabled) {
-    border-color: rgba(61, 214, 181, 0.45);
+    border-color: rgba(240, 212, 138, 0.7);
     box-shadow:
       inset 0 1px 0 rgba(255, 255, 255, 0.08),
-      0 0 20px rgba(201, 162, 39, 0.22),
+      0 0 22px rgba(212, 175, 90, 0.2),
       0 10px 28px rgba(0, 0, 0, 0.4);
+  }
+  .buy:hover:not(:disabled)::after {
+    transform: translateX(70%);
   }
   .buy:active:not(:disabled) {
     transform: scale(0.98);
   }
-  .buy-icon {
+  .buy-vault {
     position: relative;
     z-index: 1;
-    filter: drop-shadow(0 4px 12px rgba(201, 162, 39, 0.4));
+    display: grid;
+    place-items: center;
+    filter: drop-shadow(0 4px 12px rgba(212, 175, 90, 0.4));
+    transition: transform 0.3s var(--ease-out-soft);
+  }
+  .buy:hover:not(:disabled) .buy-vault {
+    transform: scale(1.06);
   }
   .buy-kicker,
   .buy-mult,
@@ -505,12 +628,6 @@
     font-size: 0.72rem;
     color: var(--text-secondary);
   }
-  .buy-hint {
-    margin: 0;
-    font-size: 0.68rem;
-    color: var(--text-secondary);
-    text-align: center;
-  }
   .note {
     margin: 0;
     font-size: 0.8rem;
@@ -521,10 +638,10 @@
     color: var(--accent-primary);
   }
   .confirm {
-    border: 1px solid rgba(201, 162, 39, 0.35);
+    border: 1px solid rgba(212, 175, 90, 0.35);
     border-radius: var(--radius-md);
     padding: var(--space-md);
-    background: rgba(8, 12, 10, 0.98);
+    background: rgba(8, 12, 14, 0.98);
     box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
   }
   .confirm-tag {
@@ -579,9 +696,12 @@
     border-radius: var(--radius-sm);
     font-weight: 600;
   }
+  .chain-slot {
+    display: contents;
+  }
   .confirm-yes {
     flex: 1;
-    background: var(--highlight);
+    background: linear-gradient(180deg, #e3bd63, #a8801f);
     color: #1a1000;
     border: none;
     border-radius: var(--radius-sm);
