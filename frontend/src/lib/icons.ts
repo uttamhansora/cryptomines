@@ -71,3 +71,22 @@ export function symbolIcon(symbol: string | null | undefined): IconName | null {
   if (!symbol) return null;
   return SYMBOL_TO_ICON[symbol.toUpperCase()] ?? null;
 }
+
+/**
+ * Resolve an icon NAME (registry key, e.g. "bitcoin") to its actual imported
+ * SVG asset URL. Returns undefined for unknown names so callers can detect a
+ * mapping failure instead of silently rendering <img src="bitcoin">.
+ */
+export function iconSrc(name: string | null | undefined): string | undefined {
+  if (!name) return undefined;
+  return ICONS[name as IconName];
+}
+
+/**
+ * One-shot game-symbol → asset-URL resolution. This is the ONLY sanctioned way
+ * to feed an <img src> from board data. Never put a raw symbol or icon name in
+ * a src attribute directly.
+ */
+export function symbolAsset(symbol: string | null | undefined): string | undefined {
+  return iconSrc(symbolIcon(symbol));
+}
