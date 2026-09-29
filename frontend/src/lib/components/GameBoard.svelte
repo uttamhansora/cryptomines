@@ -1,16 +1,14 @@
 <script lang="ts">
   import Tile from './Tile.svelte';
-  import SparkBurst from './SparkBurst.svelte';
   import type { BoardViewCell } from '../game/snapshot';
 
   interface Props {
     cells: BoardViewCell[];
     disabled: boolean;
     pickingCell: number | null;
-    mineFlash: number;
     onpick: (index: number) => void;
   }
-  let { cells, disabled, pickingCell, mineFlash, onpick }: Props = $props();
+  let { cells, disabled, pickingCell, onpick }: Props = $props();
 </script>
 
 <div class="board-wrap" data-game-board>
@@ -19,7 +17,6 @@
     <img class="frame-art" src="./assets/game/board/frame.svg" alt="" aria-hidden="true" />
     <div class="board-inset">
       <div class="board" role="grid" aria-label="Crypto vault grid">
-        <SparkBurst trigger={mineFlash} />
         <div class="mine-flash" data-mine-flash aria-hidden="true"></div>
         <div class="shockwave" data-shockwave aria-hidden="true"></div>
         <div class="vault-portal" data-vault-portal aria-hidden="true"></div>

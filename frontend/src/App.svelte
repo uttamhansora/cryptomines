@@ -79,7 +79,6 @@
   let winDisplayMult = $state(0);
   let winDisplayPayout = $state(0);
   let winChainBonusBook = $state(0);
-  let mineFlash = $state(0);
   let chainPulse = $state(0);
 
   const reducedMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -124,7 +123,6 @@
   function bumpFxFromDelta(delta: import('@crypto-mines/shared').GameEvent[]) {
     for (const ev of delta) {
       const type = String(ev.type).toLowerCase();
-      if (type === 'reveal' && ev.revealType === 'tileMine') mineFlash += 1;
       if (type === 'reveal' && ev.chainStreakComplete) chainPulse += 1;
       if (type === 'multiplierupdate' && ev.chainStreakComplete) chainPulse += 1;
     }
@@ -459,7 +457,6 @@
           <div class="vault-dim" data-vault-dim aria-hidden="true"></div>
           <GameBoard
             cells={snap.cells}
-            {mineFlash}
             disabled={boardInteractionBlocked}
             {pickingCell}
             onpick={onPick}

@@ -57,6 +57,15 @@ export function spawnParticles(
   return out;
 }
 
+/** Respect the OS "reduce motion" setting for every canvas FX layer. */
+export function prefersReducedMotion(): boolean {
+  return (
+    typeof window !== 'undefined' &&
+    typeof window.matchMedia === 'function' &&
+    window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  );
+}
+
 export function runParticleBurst(
   canvas: HTMLCanvasElement,
   seed: number,
@@ -66,6 +75,7 @@ export function runParticleBurst(
 ): () => void {
   const ctx = canvas.getContext('2d');
   if (!ctx) return () => undefined;
+  if (prefersReducedMotion()) return () => undefined;
   const w = canvas.clientWidth;
   const h = canvas.clientHeight;
   const dpr = Math.min(window.devicePixelRatio || 1, 2);
