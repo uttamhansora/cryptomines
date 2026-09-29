@@ -25,7 +25,7 @@ export class AnimationController {
       const rt = String(ev.revealType ?? '');
       if (rt === 'tileSafe' && typeof ev.cellIndex === 'number') {
         const kind = ev.symbol === 'VAULT' ? 'vault' : 'crypto';
-        await this.tileReveal(ctx.getCellEl(ev.cellIndex), kind, ev.symbol, ev.index ?? ev.cellIndex);
+        await this.tileReveal(ctx.getCellEl(ev.cellIndex), kind, ev.symbol as string | undefined, ev.index ?? ev.cellIndex);
         if (ev.chainCompletedId) await this.chainComplete(ctx, true);
         return;
       }
