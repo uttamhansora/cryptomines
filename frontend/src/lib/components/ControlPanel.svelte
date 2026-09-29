@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { onDestroy } from 'svelte';
   import { BUY_VAULT_COST_MULTIPLIER } from '@crypto-mines/shared';
   import { apiToDisplay } from '../rgs';
   import Icon from './Icon.svelte';
@@ -59,6 +60,8 @@
   let displayMult = $state(multiplier);
   let rafId = 0;
   let multKey = $state(0);
+
+  onDestroy(() => cancelAnimationFrame(rafId));
 
   $effect(() => {
     const target = multiplier;
@@ -326,6 +329,11 @@
     fill: none;
     stroke: rgba(120, 150, 165, 0.14);
     stroke-width: 3;
+  }
+  /* Immediate press feedback while the RGS pick response is in flight */
+  :global(.tile.is-pending .tile-inner) {
+    transform: translate3d(0, 2px, 0) scale(0.96);
+    box-shadow: inset 0 3px 10px rgba(0, 0, 0, 0.55);
   }
   .ring-fill {
     fill: none;

@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { onDestroy } from 'svelte';
   import type { BoardViewCell } from '../game/snapshot';
   import { symbolIcon, ICONS } from '../icons';
 
@@ -10,20 +11,64 @@
   }
   let { cell, disabled, onpick }: Props = $props();
 
-  const icon = $derived(cell.state === 'mine' ? ICONS.mine : symbolIcon(cell.symbol));
+  /**
+   * IMPORTANT: the server's `symbol` field is a free-text flavour string
+   * (e.g. "Bitcoin"), NOT the registry key. The canonical CryptoSymbolId
+   * (BTC / ETH / SOL / USDT / DIAMOND / VAULT) lives in `data-symbol`, which
+   * apply-event.ts always writes uppercase. We normalize defensively here so
+   * any casing / naming variant still resolves to a local SVG.
+   */
+  function normalizeSymbol(raw: string | null | undefined): string {
+    const s = String(raw ?? '').toUpperCase().replace(/[^A-Z]/g, '');
+    if (!s) return '';
+    if (s.startsWith('BTC') || s.startsWith('BITCOIN')) return 'BTC';
+    if (s.startsWith('ETH') || s.startsWith('ETHEREUM')) return 'ETH';
+    if (s.startsWith('SOL')) return 'SOL';
+    if (s.startsWith('USDT') || s.startsWith('TETHER')) return 'USDT';
+    if (s.startsWith('DIAMOND')) return 'DIAMOND';
+    if (s.startsWith('VAULT')) return 'VAULT';
+    if (s.startsWith('MINE')) return 'MINE';
+    return s;
+  }
+
+  const symId = $derived(normalizeSymbol(cell.symbol));
+  const icon = $derived(cell.state === 'mine' ? ICONS.mine : symbolIcon(symId));
 
   let pressing = $state(false);
 
   const symClass = $derived.by(() => {
-    const s = (cell.symbol ?? '').toUpperCase();
-    if (s === 'BTC') return 'sym-btc';
-    if (s === 'ETH') return 'sym-eth';
-    if (s === 'SOL') return 'sym-sol';
-    if (s === 'USDT') return 'sym-usdt';
-    if (s === 'VAULT') return 'sym-vault';
-    if (s === 'DIAMOND') return 'sym-diamond';
-    return '';
+    switch (symId) {
+      case 'BTC': return 'sym-btc';
+      case 'ETH': return 'sym-eth';
+      case 'SOL': return 'sym-sol';
+      case 'USDT': return 'sym-usdt';
+      case 'VAULT': return 'sym-vault';
+      case 'DIAMOND': return 'sym-diamond';
+      default: return '';
+    }
   });
+
+  /** True when this tile just flipped open — drives the lid flip + glow settle. */
+  let justRevealed = $state(false);
+  let revealTimer: ReturnType<typeof setTimeout> | undefined;
+  let firstRun = true;
+  $effect(() => {
+    const revealed = cell.state !== 'hidden';
+    if (firstRun) {
+      firstRun = false;
+      // Hydrated/resumed rounds should not replay entrance animations.
+      return;
+    }
+    if (revealed && !justRevealed) {
+      justRevealed = true;
+      clearTimeout(revealTimer);
+      revealTimer = setTimeout(() => (justRevealed = false), 700);
+    } else if (!revealed) {
+      justRevealed = false;
+      clearTimeout(revealTimer);
+    }
+  });
+  onDestroy(() => clearTimeout(revealTimer));
 
   function handleClick() {
     if (import.meta.env.DEV) console.info('[TILE] click', cell.index);
@@ -44,9 +89,10 @@
   class:safe={cell.state === 'safe'}
   class:mine={cell.state === 'mine'}
   class:ghost={cell.ghost === true}
-  class:vault={cell.symbol === 'VAULT' && cell.state === 'safe'}
+  class:vault={symId === 'VAULT' && cell.state === 'safe'}
+  class:just-revealed={justRevealed}
   data-tile-index={cell.index}
-  data-symbol={cell.symbol ?? ''}
+  data-symbol={symId || (cell.symbol ?? '')}
   disabled={disabled || cell.state !== 'hidden'}
   aria-label={cell.state === 'hidden' ? `Reveal tile ${cell.index + 1}` : `Tile ${cell.index + 1}`}
   onpointerdown={handlePointerDown}
@@ -60,8 +106,10 @@
     <span class="tile-bevel" aria-hidden="true"></span>
     <span class="tile-glow" aria-hidden="true"></span>
     <span class="tile-burst" aria-hidden="true"></span>
-    {#if cell.state === 'hidden'}
-      <span class="back-mark" aria-hidden="true">
+    <!-- Lid: the premium Crypto Mines tile back. Stays mounted while revealing so
+         GSAP can flip it away; hidden only once fully revealed. -->
+    <span class="tile-lid" aria-hidden="true" style:visibility={cell.state === 'hidden' ? 'visible' : 'hidden'}>
+      <span class="back-mark">
         <svg viewBox="0 0 64 64" width="58%" height="58%">
           <g fill="none" stroke="#3dd6b5" stroke-width="2.2" opacity=".55">
             <polygon points="32,10 52,22 52,42 32,54 12,42 12,22" />
@@ -71,9 +119,10 @@
           <path d="M32 10v10M32 44v10M12 22l9 5M43 27l9-5M12 42l9-5M43 37l9 5" stroke="#d4af5a" stroke-width="1.4" opacity=".35" />
         </svg>
       </span>
-    {:else if icon}
-      <span class="sym-wrap" class:vault-sym={cell.symbol === 'VAULT'} class:mine-sym={cell.state === 'mine'}>
-        <img class="sym" {src} alt={cell.state === 'mine' ? 'Mine' : cell.symbol ?? ''} decoding="async" />
+    </span>
+    {#if cell.state !== 'hidden' && icon}
+      <span class="sym-wrap" class:vault-sym={symId === 'VAULT'} class:mine-sym={cell.state === 'mine'}>
+        <img class="sym" src={icon} alt={cell.state === 'mine' ? 'Mine' : symId} decoding="async" />
       </span>
     {/if}
   </span>
@@ -203,6 +252,16 @@
     background: radial-gradient(circle, rgba(212, 175, 90, 0.48), transparent 68%);
   }
   /* unrevealed lid emblem */
+  .tile-lid {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    border-radius: inherit;
+    z-index: 3;
+    transform-style: preserve-3d;
+    backface-visibility: hidden;
+  }
   .back-mark {
     display: grid;
     place-items: center;
@@ -212,12 +271,41 @@
     transition: opacity 0.16s ease;
     pointer-events: none;
   }
+  /* CSS fallback flip when the tile flips open (GSAP timeline also drives this
+     during playback; both are transform/opacity-only and GPU-friendly). */
+  .tile.just-revealed .tile-lid {
+    animation: lid-flip 0.24s var(--ease-out-soft, cubic-bezier(0.22, 1, 0.36, 1)) both;
+  }
+  @keyframes lid-flip {
+    from { transform: rotateX(0deg); opacity: 1; }
+    to { transform: rotateX(-78deg); opacity: 0; }
+  }
   .sym-wrap {
     display: grid;
     place-items: center;
     width: 70%;
     height: 70%;
-    animation: sym-in 0.26s var(--ease-out-soft) both;
+    perspective: 300px;
+  }
+  .tile.just-revealed .sym-wrap {
+    animation: sym-in 0.3s cubic-bezier(0.22, 1, 0.36, 1) 0.1s both;
+  }
+  /* one-shot reveal glow: peaks ~250ms then settles — never left glowing forever */
+  .tile.just-revealed.safe .tile-glow {
+    animation: glow-settle 0.6s ease-out both;
+  }
+  .tile.just-revealed.mine .tile-glow {
+    animation: danger-flash 0.45s ease-out both;
+  }
+  @keyframes glow-settle {
+    0% { opacity: 0; transform: scale(0.85); }
+    40% { opacity: 0.6; transform: scale(1.05); }
+    100% { opacity: 0.14; transform: scale(1); }
+  }
+  @keyframes danger-flash {
+    0% { opacity: 0; }
+    25% { opacity: 1; }
+    100% { opacity: 0.55; }
   }
   .sym {
     width: 100%;
