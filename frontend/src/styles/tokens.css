@@ -1,0 +1,50 @@
+:root {
+  /* Premium Emerald Crypto Vault */
+  --bg-primary: #050807;
+  --bg-secondary: #0a0f0d;
+  --surface: #0f1613;
+  --surface-elevated: #152019;
+  --emerald-deep: #0d3d32;
+  --emerald-mid: #1a6b55;
+  --emerald-light: #2a9d7a;
+  --graphite: #1a2220;
+  --graphite-light: #2a3532;
+
+  --accent-primary: #3dd6b5;
+  --accent-secondary: #5eecc4;
+  --accent-cyan: #2ec4d6;
+  --highlight: #c9a227;
+  --highlight-soft: #e8c547;
+  --success: #4ade9a;
+  --warning: #d4a017;
+  --danger: #e85d6f;
+
+  --text-primary: #eef5f1;
+  --text-secondary: #8fa89c;
+  --border: rgba(61, 214, 181, 0.14);
+  --glow-emerald: rgba(42, 157, 122, 0.28);
+  --glow-gold: rgba(201, 162, 39, 0.32);
+  --glow-cyan: var(--glow-emerald);
+  --glass: rgba(21, 32, 25, 0.72);
+
+  --shadow-key: rgba(0, 0, 0, 0.55);
+  --shadow-ambient: rgba(13, 61, 50, 0.15);
+  --light-key: rgba(255, 255, 255, 0.08);
+  --light-rim: rgba(94, 236, 196, 0.12);
+
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --space-xs: 0.35rem;
+  --space-sm: 0.5rem;
+  --space-md: 0.75rem;
+  --space-lg: 1rem;
+  --space-xl: 1.5rem;
+
+  --font-display: 'Cinzel', 'Palatino Linotype', serif;
+  --font-ui: 'DM Sans', system-ui, sans-serif;
+
+  --tile-size: min(16vw, 72px);
+  --board-max: 440px;
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+}

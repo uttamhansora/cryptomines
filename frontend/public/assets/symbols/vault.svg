@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80" fill="none">
+  <defs>
+    <linearGradient id="vault-m" x1="24" y1="20" x2="56" y2="62" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#ffd98a"/>
+      <stop offset="1" stop-color="#ffb020"/>
+    </linearGradient>
+  </defs>
+  <circle cx="40" cy="40" r="34" fill="#141c28" stroke="#ffb020" stroke-width="2"/>
+  <rect x="22" y="28" width="36" height="32" rx="4" fill="#1e2836" stroke="url(#vault-m)" stroke-width="1.5"/>
+  <circle cx="40" cy="44" r="6" stroke="url(#vault-m)" stroke-width="2"/>
+  <path stroke="url(#vault-m)" stroke-width="2" d="M40 20v8"/>
+</svg>

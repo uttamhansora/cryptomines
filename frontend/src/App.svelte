@@ -1,0 +1,560 @@
+<script lang="ts">
+  import { onMount } from 'svelte';
+  import {
+    bookToMultiplier,
+    winFromBookMultiplier,
+    WIN_TIER_GOOD,
+  } from '@crypto-mines/shared';
+  import {
+    parseLaunchParams,
+    RgsClient,
+    normalizeRgsBaseUrl,
+    displayToApi,
+    apiToDisplay,
+    extractRoundEvents,
+    snapBetDisplayToConfig,
+    logLaunchDiagnostics,
+    type RgsConnectionState,
+    type WalletConfig,
+  } from './lib/rgs';
+  import { PlaybackCoordinator } from './lib/game/playback-coordinator';
+  import type { PlayerSnapshot } from './lib/game/snapshot';
+  import type { VaultPickResult } from './lib/vault/types';
+  import StageBackground from './lib/components/StageBackground.svelte';
+  import GameHeader from './lib/components/GameHeader.svelte';
+  import HeroPitch from './lib/components/HeroPitch.svelte';
+  import GameBoard from './lib/components/GameBoard.svelte';
+  import ChainMeter from './lib/components/ChainMeter.svelte';
+  import FeatureEducation from './lib/components/FeatureEducation.svelte';
+  import ControlPanel from './lib/components/ControlPanel.svelte';
+  import VaultBonusScene from './lib/components/VaultBonusScene.svelte';
+  import RulesModal from './lib/components/RulesModal.svelte';
+  import LoadingShell from './lib/components/LoadingShell.svelte';
+  import WinCelebration from './lib/components/WinCelebration.svelte';
+  import LossResultPanel from './lib/components/LossResultPanel.svelte';
+  import { setSoundEnabled, getSoundSettings } from './lib/sound/sound-manager';
+  import { playDeltaSounds } from './lib/game/event-sounds';
+
+  const launch = parseLaunchParams(window.location.search);
+  let client: RgsClient | null = null;
+  let clientInitError = '';
+
+  try {
+    if (!launch.replay) {
+      const base = normalizeRgsBaseUrl(launch.rgs_url);
+      client = new RgsClient(base, launch.sessionID, launch.lang);
+    } else {
+      client = new RgsClient(normalizeRgsBaseUrl(launch.rgs_url || '/api/rgs'), launch.sessionID, launch.lang);
+    }
+  } catch (e) {
+    clientInitError = e instanceof Error ? e.message : String(e);
+  }
+
+  const playback = new PlaybackCoordinator();
+
+  let snap = $state<PlayerSnapshot>(playback.getSnapshot() as PlayerSnapshot);
+  let balance = $state(0);
+  let bet = $state(1);
+  let mines = $state(5);
+  let loading = $state(true);
+  let replayMode = $state(!!launch.replay);
+  let roundActive = $state(false);
+  let vaultData = $state<unknown>(null);
+  let vaultTitle = $state('BONUS UNLOCKED');
+  let vaultVariant = $state<'organic' | 'buy'>('organic');
+  let vaultTheatreActive = $state(false);
+  let soundOn = $state(true);
+  let rulesOpen = $state(false);
+  let errorMsg = $state('');
+  let pickInFlight = $state(false);
+  /** Cell index currently awaiting RGS pick response; only that tile is non-clickable. */
+  let pickingCell = $state<number | null>(null);
+  let playInFlight = $state(false);
+  let endingRound = $state(false);
+  let connectionState = $state<RgsConnectionState>('AUTHENTICATING');
+  let walletConfig = $state<WalletConfig | null>(null);
+  let showWin = $state(false);
+  let showLoss = $state(false);
+  let lossPotential = $state(0);
+  let winDisplayMult = $state(0);
+  let winDisplayPayout = $state(0);
+  let winChainBonusBook = $state(0);
+  let mineFlash = $state(0);
+  let chainPulse = $state(0);
+
+  const reducedMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  playback.subscribe((s) => {
+    snap = s as PlayerSnapshot;
+    if (s.vault) vaultData = s.vault;
+    if (s.inVaultBonus) {
+      vaultTheatreActive = true;
+    } else if (!s.inVaultBonus) {
+      vaultTheatreActive = false;
+    }
+  });
+
+  const totalBook = $derived(snap.multiplierBook + snap.chainBonusBook);
+  const multiplier = $derived(bookToMultiplier(snap.multiplierBook));
+  const potential = $derived(winFromBookMultiplier(bet, totalBook));
+  const showVaultScene = $derived(vaultTheatreActive && vaultData && !replayMode);
+  const canCashOut = $derived(
+    roundActive && snap.safePicks > 0 && !snap.inVaultBonus && !snap.terminal && !showVaultScene,
+  );
+  const boardInteractionBlocked = $derived(
+    !roundActive ||
+      snap.terminal ||
+      replayMode ||
+      snap.buyMode ||
+      snap.inVaultBonus ||
+      showVaultScene,
+  );
+  /** Server session is authenticated and idle — new play/buy allowed. */
+  const rgsReadyForNewBet = $derived(
+    !replayMode &&
+      !!client?.isAuthenticated &&
+      connectionState !== 'AUTHENTICATING' &&
+      connectionState !== 'AUTH_FAILED' &&
+      !client?.isServerRoundActive,
+  );
+
+  const canPlaceBets = $derived(
+    rgsReadyForNewBet && !roundActive && !playInFlight && !endingRound,
+  );
+
+  function bumpFxFromDelta(delta: import('@crypto-mines/shared').GameEvent[]) {
+    for (const ev of delta) {
+      const type = String(ev.type).toLowerCase();
+      if (type === 'reveal' && ev.revealType === 'tileMine') mineFlash += 1;
+      if (type === 'reveal' && ev.chainStreakComplete) chainPulse += 1;
+      if (type === 'multiplierupdate' && ev.chainStreakComplete) chainPulse += 1;
+    }
+  }
+
+  async function applyEvents(events: import('@crypto-mines/shared').GameEvent[], animate: boolean) {
+    const prev = playback.getEventCount();
+    const delta = events.slice(prev);
+    bumpFxFromDelta(delta);
+    await playback.ingest(events, {
+      animate,
+      reducedMotion: reducedMotion(),
+      onChainComplete: () => {
+        chainPulse += 1;
+      },
+    });
+    playDeltaSounds(delta);
+  }
+
+  function applyWalletBalance(amount: number) {
+    balance = apiToDisplay(amount);
+  }
+
+  async function restoreActiveRound(round: import('./lib/rgs').RgsRoundPayload) {
+    const events = extractRoundEvents(round);
+    if (events.length === 0) {
+      errorMsg =
+        'Active round could not be restored (no event data from RGS). Reload or contact support.';
+      console.error('[RGS] resume failed: round.active but no events in round.state');
+      return false;
+    }
+    if (import.meta.env.DEV && typeof round.event === 'string') {
+      console.info('[RGS] restore round.event checkpoint', round.event);
+    }
+    if (typeof round.amount === 'number' && round.amount > 0) {
+      bet = apiToDisplay(round.amount);
+    }
+    playback.hydrate(events);
+    await applyEvents(events, false);
+    roundActive = true;
+    connectionState = 'ROUND_ACTIVE';
+    if (round.mode === 'buyVault') {
+      vaultVariant = 'buy';
+      vaultTheatreActive = true;
+    }
+    return true;
+  }
+
+  async function load() {
+    loading = true;
+    errorMsg = clientInitError;
+    try {
+      if (!client) {
+        connectionState = 'AUTH_FAILED';
+        return;
+      }
+      if (replayMode && launch.event) {
+        const data = await client.fetchReplay(
+          launch.game!,
+          launch.version!,
+          launch.mode!,
+          launch.event,
+        );
+        playback.hydrate(extractRoundEvents(data.round));
+        await applyEvents(extractRoundEvents(data.round), !reducedMotion());
+        connectionState = 'ROUND_COMPLETE';
+      } else {
+        connectionState = 'AUTHENTICATING';
+        const auth = await client.authenticate();
+        connectionState = client.connectionState;
+        walletConfig = auth.config;
+        applyWalletBalance(auth.balance.amount);
+        bet = snapBetDisplayToConfig(bet, auth.config);
+        if (auth.config.betLevels.length > 0) {
+          const idx = auth.config.defaultBetLevel;
+          if (idx >= 0 && idx < auth.config.betLevels.length) {
+            bet = apiToDisplay(auth.config.betLevels[idx]!);
+          }
+        }
+        soundOn = getSoundSettings().enabled;
+        if (auth.round?.active) {
+          const resumed = await restoreActiveRound(auth.round);
+          if (!resumed) {
+            connectionState = 'AUTHENTICATED';
+          }
+        }
+        console.info(`[RGS] gameReady = ${client.isAuthenticated}`);
+        console.info(`[RGS] canPlay = ${rgsReadyForNewBet}`);
+        console.info(`[RGS] canPlaceBets = ${canPlaceBets}`);
+      }
+    } catch (e) {
+      errorMsg = e instanceof Error ? e.message : String(e);
+      connectionState = 'AUTH_FAILED';
+      console.error('[RGS] auth state: failed', errorMsg);
+      console.info('[RGS] RGS connection failed. Check browser console and Network → wallet/authenticate.');
+    } finally {
+      loading = false;
+    }
+  }
+
+  async function startRound() {
+    if (!client || !canPlaceBets) return;
+    playInFlight = true;
+    try {
+      playback.resetRound();
+      showWin = false;
+      showLoss = false;
+      vaultTheatreActive = false;
+      const amountApi = displayToApi(bet);
+      const res = await client.play(amountApi, mines, 'base');
+      applyWalletBalance(res.balance.amount);
+      roundActive = true;
+      connectionState = client.connectionState;
+      vaultVariant = 'organic';
+      vaultTitle = 'BONUS UNLOCKED';
+      await applyEvents(extractRoundEvents(res.round), true);
+    } catch (e) {
+      errorMsg = e instanceof Error ? e.message : String(e);
+    } finally {
+      playInFlight = false;
+    }
+  }
+
+  async function startBuyVault() {
+    if (!client || !canPlaceBets) return;
+    playInFlight = true;
+    try {
+      playback.resetRound();
+      showWin = false;
+      showLoss = false;
+      const amountApi = displayToApi(bet);
+      const res = await client.play(amountApi, mines, 'buyVault');
+      applyWalletBalance(res.balance.amount);
+      roundActive = true;
+      connectionState = client.connectionState;
+      vaultVariant = 'buy';
+      vaultTitle = 'BONUS UNLOCKED';
+      vaultTheatreActive = true;
+      await applyEvents(extractRoundEvents(res.round), true);
+    } catch (e) {
+      errorMsg = e instanceof Error ? e.message : String(e);
+    } finally {
+      playInFlight = false;
+    }
+  }
+
+  async function onPick(cellIndex: number) {
+    if (
+      !client ||
+      boardInteractionBlocked ||
+      snap.terminal ||
+      pickingCell !== null
+    ) {
+      return;
+    }
+    if (import.meta.env.DEV) {
+      console.info('[BOARD STATE]', {
+        roundActive,
+        boardInteractionBlocked,
+        pickingCell,
+        inVaultBonus: snap.inVaultBonus,
+        showVaultScene,
+        terminal: snap.terminal,
+      });
+      console.info('[TILE] reveal requested', cellIndex);
+    }
+    pickingCell = cellIndex;
+    try {
+      const res = await client.inRoundDecision({ action: 'pick', cellIndex });
+      applyWalletBalance(res.balance.amount);
+      await applyEvents(extractRoundEvents(res.round), true);
+      connectionState = client.connectionState;
+      if (snap.inVaultBonus) vaultTheatreActive = true;
+      await finishRoundIfNeeded();
+    } catch (e) {
+      errorMsg = e instanceof Error ? e.message : String(e);
+    } finally {
+      pickingCell = null;
+    }
+  }
+
+  async function handleVaultPick(index: number): Promise<VaultPickResult> {
+    if (!client) throw new Error('RGS not connected');
+    const baseMult = multiplier;
+    const res = await client.inRoundDecision({ action: 'vaultPick', vaultIndex: index });
+    applyWalletBalance(res.balance.amount);
+    await applyEvents(extractRoundEvents(res.round), !reducedMotion());
+    connectionState = client.connectionState;
+    const finalMult = bookToMultiplier(snap.multiplierBook);
+    const payout =
+      snap.terminal && snap.payoutBook > 0
+        ? winFromBookMultiplier(bet, snap.payoutBook)
+        : winFromBookMultiplier(bet, snap.multiplierBook);
+    return { baseMult, finalMult, payout, terminal: snap.terminal };
+  }
+
+  function onVaultTheatreComplete() {
+    vaultTheatreActive = false;
+    void finishRoundIfNeeded();
+  }
+
+  async function onCashout() {
+    if (!client || !canCashOut) return;
+    pickInFlight = true;
+    try {
+      const res = await client.inRoundDecision({ action: 'cashout' });
+      applyWalletBalance(res.balance.amount);
+      await applyEvents(extractRoundEvents(res.round), true);
+      connectionState = client.connectionState;
+      await playback.playCashout(
+        document.querySelector('[data-multiplier-display]'),
+        document.querySelector('[data-cashout-btn]'),
+        document.querySelector('[data-cashout-btn] .amt'),
+      );
+      await finishRoundIfNeeded(true);
+    } catch (e) {
+      errorMsg = e instanceof Error ? e.message : String(e);
+    } finally {
+      pickInFlight = false;
+    }
+  }
+
+  async function finishRoundIfNeeded(fromCashout = false) {
+    if (!client || !snap.terminal) return;
+    const mult = bookToMultiplier(snap.payoutBook);
+    const payout = winFromBookMultiplier(bet, snap.payoutBook);
+
+    if (snap.payoutBook > 0) {
+      if (mult >= WIN_TIER_GOOD) {
+        winDisplayMult = mult;
+        winDisplayPayout = payout;
+        winChainBonusBook = snap.chainBonusBook;
+        showWin = true;
+      }
+      if (client.isServerRoundActive) {
+        endingRound = true;
+        try {
+          const end = await client.endRound();
+          applyWalletBalance(end.balance.amount);
+          connectionState = client.connectionState;
+        } catch (e) {
+          errorMsg = e instanceof Error ? e.message : String(e);
+          return;
+        } finally {
+          endingRound = false;
+        }
+      }
+    } else {
+      lossPotential = winFromBookMultiplier(bet, snap.multiplierBook + snap.chainBonusBook);
+      showLoss = true;
+    }
+
+    roundActive = false;
+    connectionState = client.connectionState;
+    if (fromCashout && client.isAuthenticated) {
+      try {
+        const auth = await client.authenticate();
+        applyWalletBalance(auth.balance.amount);
+      } catch {
+        /* balance already updated from end-round */
+      }
+    }
+  }
+
+  function onPlayAgain() {
+    showLoss = false;
+    playback.resetRound();
+    void startRound();
+  }
+
+  function toggleSound() {
+    soundOn = !soundOn;
+    setSoundEnabled(soundOn);
+  }
+
+  function onSpaceAction(e: KeyboardEvent) {
+    if (e.code !== 'Space' && e.key !== ' ') return;
+    const t = e.target as HTMLElement | null;
+    if (t?.closest('input, textarea, select, button, [role="dialog"]')) return;
+    if (loading || replayMode || rulesOpen || showVaultScene) return;
+    e.preventDefault();
+    if (canCashOut) void onCashout();
+    else if (canPlaceBets) void startRound();
+  }
+
+  onMount(() => {
+    logLaunchDiagnostics(launch);
+    console.info('[RGS] auth state: initial');
+    void load();
+    window.addEventListener('keydown', onSpaceAction);
+    return () => window.removeEventListener('keydown', onSpaceAction);
+  });
+</script>
+
+<StageBackground />
+
+{#if showVaultScene}
+  <VaultBonusScene
+    data={vaultData}
+    title={vaultTitle}
+    variant={vaultVariant}
+    {bet}
+    onPick={handleVaultPick}
+    onComplete={onVaultTheatreComplete}
+  />
+{/if}
+
+<WinCelebration
+  multiplier={winDisplayMult}
+  payout={winDisplayPayout}
+  chainBonusBook={winChainBonusBook}
+  active={showWin}
+/>
+<LossResultPanel active={showLoss} {bet} potential={lossPotential} onPlayAgain={onPlayAgain} />
+
+<main class="shell" class:dimmed={showVaultScene}>
+  {#if loading}
+    <LoadingShell />
+  {:else}
+    <GameHeader {balance} {soundOn} onToggleSound={toggleSound} onRules={() => (rulesOpen = true)} />
+
+    {#if errorMsg || connectionState === 'AUTH_FAILED'}
+      <p class="error" role="alert">
+        {errorMsg || 'Unable to connect to the game server. Check rgs_url and sessionID.'}
+      </p>
+    {/if}
+
+    <div class="layout">
+      <section class="board-col">
+        <HeroPitch />
+        <div class="stage" data-game-stage>
+          <div class="vault-dim" data-vault-dim aria-hidden="true"></div>
+          <GameBoard
+            cells={snap.cells}
+            {mineFlash}
+            disabled={boardInteractionBlocked}
+            {pickingCell}
+            onpick={onPick}
+          />
+        </div>
+        <FeatureEducation chainStreak={snap.chainStreak} vaultTokens={snap.vaultTokensCollected} />
+      </section>
+
+      <aside class="controls-col">
+        <ChainMeter chainStreak={snap.chainStreak} pulseGen={chainPulse} />
+        <ControlPanel
+          {bet}
+          {balance}
+          {mines}
+          {multiplier}
+          {potential}
+          {replayMode}
+          {roundActive}
+          terminal={snap.terminal}
+          {canCashOut}
+          buyMode={snap.buyMode}
+          {canPlaceBets}
+          walletConfig={walletConfig}
+          onBetChange={(v) => {
+            if (walletConfig) bet = snapBetDisplayToConfig(v, walletConfig);
+            else bet = v;
+          }}
+          onMinesChange={(v) => (mines = v)}
+          onStart={startRound}
+          onCashout={onCashout}
+          onBuyVault={startBuyVault}
+        />
+      </aside>
+    </div>
+
+    <RulesModal open={rulesOpen} onClose={() => (rulesOpen = false)} />
+  {/if}
+</main>
+
+<style>
+  .shell {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: var(--space-md) var(--space-lg) calc(var(--space-xl) + var(--safe-bottom));
+    min-height: 100dvh;
+    transition: opacity 0.35s ease;
+  }
+  .shell.dimmed {
+    opacity: 0.35;
+    pointer-events: none;
+  }
+  .layout {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+  }
+  .board-col {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+  }
+  .stage {
+    position: relative;
+  }
+  .vault-dim {
+    position: absolute;
+    inset: -8px;
+    border-radius: var(--radius-lg);
+    background: rgba(5, 8, 12, 0.55);
+    opacity: 0;
+    pointer-events: none;
+    z-index: 2;
+  }
+  .error {
+    color: var(--danger);
+    text-align: center;
+  }
+  @media (min-width: 1024px) {
+    .layout {
+      flex-direction: row;
+      align-items: flex-start;
+    }
+    .board-col {
+      flex: 1.2;
+    }
+    .controls-col {
+      flex: 0 0 340px;
+      position: sticky;
+      top: var(--space-md);
+    }
+  }
+  @media (max-width: 480px) {
+    .shell {
+      padding-left: var(--space-md);
+      padding-right: var(--space-md);
+    }
+  }
+</style>

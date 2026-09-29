@@ -1,0 +1,20 @@
+{
+  "gameVersion": "1.0.0",
+  "targetRtp": 0.96,
+  "seed": "phase5-signoff-v1",
+  "configurationHash": "3c7523b06eed9d5d",
+  "theoreticalBuyRtp": 0.96,
+  "seedPhase5B": "phase5b-v1",
+  "note": "Post Phase 5B economics; full matrix via npm run signoff:math",
+  "buyVault_20000000": {
+    "rtp": 0.96001202,
+    "ci95Low": 0.030398898368680528,
+    "ci95High": 0.030404622235495515,
+    "meanPayout": 1.5200880151044012,
+    "maxObservedPayoutBook": 200
+  },
+  "cashoutFirstSafe_100000": { "rtp": 0.9600959999986064 },
+  "cashoutFirstSafe_1000000": { "rtp": 0.9603431999866692 },
+  "buyVault_100000": { "rtp": 0.9604344 },
+  "vaultSeeking_1000000": { "rtp": 1.8382030799993543, "vaultTriggerRate": 0.211851 }
+}

@@ -1,0 +1,27 @@
+{
+  "name": "@crypto-mines/math-engine",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "vitest run",
+    "sim": "node dist/cli/simulate.js",
+    "signoff": "node dist/cli/signoff.js"
+  },
+  "dependencies": {
+    "@crypto-mines/shared": "*"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.5",
+    "typescript": "^5.7.3",
+    "vitest": "^3.0.5"
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "name": "crypto-mines",
+  "private": true,
+  "version": "1.0.0",
+  "description": "CRYPTO MINES — Stake Engine instant game",
+  "workspaces": [
+    "packages/*",
+    "frontend"
+  ],
+  "scripts": {
+    "build": "npm run build -w @crypto-mines/shared && npm run build -w @crypto-mines/math-engine && npm run build -w @crypto-mines/frontend",
+    "test": "npm run test -w @crypto-mines/shared && npm run test -w @crypto-mines/math-engine && npm run test -w @crypto-mines/rgs-mock && npm run test -w @crypto-mines/frontend",
+    "signoff:math": "npm run build -w @crypto-mines/shared && npm run build -w @crypto-mines/math-engine && node scripts/run-phase5-signoff.mjs",
+    "signoff:phase5c": "npm run build -w @crypto-mines/shared && npm run build -w @crypto-mines/math-engine && node packages/math-engine/dist/cli/phase5c-signoff.js && node scripts/write-math-complete-ladder.mjs && node scripts/phase5c-book-reconciliation.mjs",
+    "signoff:phase5d": "npm run build -w @crypto-mines/shared && npm run build -w @crypto-mines/math-engine && node packages/math-engine/dist/cli/phase5d-signoff.js && node scripts/write-math-complete-ladder.mjs && npm run generate:books",
+    "generate:books": "npm run build -w @crypto-mines/shared && npm run build -w @crypto-mines/math-engine && node scripts/generate-books.mjs",
+    "generate:rtp-ladder": "npm run build -w @crypto-mines/math-engine && node scripts/write-rtp-ladder-doc.mjs",
+    "sim:quick": "npm run sim -w @crypto-mines/math-engine -- --rounds 1000000",
+    "sim:signoff": "npm run sim -w @crypto-mines/math-engine -- --rounds 20000000",
+    "validate:events": "node scripts/validate-rgs-events.mjs --input math/fixtures/sample-round.json --format text",
+    "validate:index": "node scripts/validate-books-index.mjs --index math/index.json --base-dir math --format text",
+    "validate:stake-package": "node scripts/validate-stake-package.mjs --index math/publish_files/index.json --also-index math/index.json --format text",
+    "validate:stake-engine": "python scripts/check-books-package.py --index math/publish_files/index.json",
+    "validate:cross-mode-rtp": "npm run build -w @crypto-mines/math-engine && node scripts/cross-mode-rtp-report.mjs",
+    "validate:rgs-flow": "npm run test -w @crypto-mines/rgs-mock -- src/flow.test.ts"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

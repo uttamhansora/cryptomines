@@ -1,0 +1,30 @@
+gameId: crypto-mines
+version: "1.0.0"
+rtp: 96.0
+volatility: medium-high
+maxWinMultiplier: 5000
+grid:
+  rows: 5
+  cols: 5
+modes:
+  - id: base
+    mineRange: [1, 24]
+    defaultMines: 5
+rtpAllocation:
+  baseSurvival: 0.9345
+  chainFeatures: 0.04
+  vaultBonus: 0.04
+symbols:
+  - id: BTC
+    weight: 22
+  - id: ETH
+    weight: 22
+  - id: SOL
+    weight: 18
+  - id: USDT
+    weight: 18
+  - id: DIAMOND
+    weight: 12
+  - id: VAULT
+    weight: 8
+    triggersBonus: cryptoVault

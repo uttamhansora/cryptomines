@@ -1,0 +1,16 @@
+{
+    "modes": [
+        {
+            "name": "base",
+            "cost": 1,
+            "events": "books_base.jsonl.zst",
+            "weights": "lookUpTable_base_0.csv"
+        },
+        {
+            "name": "buyVault",
+            "cost": 50,
+            "events": "books_buyVault.jsonl.zst",
+            "weights": "lookUpTable_buyVault_0.csv"
+        }
+    ]
+}
