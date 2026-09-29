@@ -1,37 +1,49 @@
 :root {
-  /* Premium Emerald Crypto Vault */
-  --bg-primary: #050807;
-  --bg-secondary: #0a0f0d;
-  --surface: #0f1613;
-  --surface-elevated: #152019;
-  --emerald-deep: #0d3d32;
-  --emerald-mid: #1a6b55;
+  /* ── Premium Dark Crypto Casino palette ─────────────────────────── */
+  --bg-primary: #04070a;
+  --bg-secondary: #080d12;
+  --surface: #0d151b;
+  --surface-elevated: #131f26;
+  --emerald-deep: #0c3a30;
+  --emerald-mid: #17694f;
   --emerald-light: #2a9d7a;
-  --graphite: #1a2220;
-  --graphite-light: #2a3532;
+  --graphite: #16202a;
+  --graphite-light: #22303c;
 
   --accent-primary: #3dd6b5;
-  --accent-secondary: #5eecc4;
-  --accent-cyan: #2ec4d6;
-  --highlight: #c9a227;
-  --highlight-soft: #e8c547;
+  --accent-secondary: #6df0d0;
+  --accent-cyan: #35c4d8;
+  --highlight: #d4af5a;
+  --highlight-soft: #f0d48a;
   --success: #4ade9a;
   --warning: #d4a017;
-  --danger: #e85d6f;
+  --danger: #ff5b6e;
+  --danger-deep: #b3122a;
 
-  --text-primary: #eef5f1;
-  --text-secondary: #8fa89c;
-  --text-muted: #6f867a;
+  --text-primary: #edf6f2;
+  --text-secondary: #8ea6b0;
+  --text-muted: #5f7480;
   --border: rgba(61, 214, 181, 0.14);
   --glow-emerald: rgba(42, 157, 122, 0.28);
-  --glow-gold: rgba(201, 162, 39, 0.32);
+  --glow-gold: rgba(212, 175, 90, 0.3);
   --glow-cyan: var(--glow-emerald);
-  --glass: rgba(21, 32, 25, 0.72);
+  --glass: rgba(13, 21, 27, 0.78);
 
-  --shadow-key: rgba(0, 0, 0, 0.55);
-  --shadow-ambient: rgba(13, 61, 50, 0.15);
-  --light-key: rgba(255, 255, 255, 0.08);
-  --light-rim: rgba(94, 236, 196, 0.12);
+  --shadow-key: rgba(0, 0, 0, 0.6);
+  --shadow-ambient: rgba(6, 20, 18, 0.35);
+  --light-key: rgba(255, 255, 255, 0.07);
+  --light-rim: rgba(109, 240, 208, 0.12);
+
+  /* metallic frame gradient (shared by board + panel chrome) */
+  --metal-frame: linear-gradient(
+    160deg,
+    #2c3a44 0%,
+    #10191f 22%,
+    #1d2a33 48%,
+    #0a1116 74%,
+    #223038 100%
+  );
+  --tile-face: linear-gradient(168deg, #26343f 0%, #17222b 46%, #0c141a 100%);
 
   --radius-sm: 8px;
   --radius-md: 12px;
@@ -45,7 +57,9 @@
   --font-display: 'Cinzel', 'Palatino Linotype', serif;
   --font-ui: 'DM Sans', system-ui, sans-serif;
 
+  --ease-out-soft: cubic-bezier(0.22, 0.61, 0.36, 1);
+
   --tile-size: min(16vw, 72px);
-  --board-max: 440px;
+  --board-max: 460px;
   --safe-bottom: env(safe-area-inset-bottom, 0px);
 }

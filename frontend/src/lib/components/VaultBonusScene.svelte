@@ -1,4 +1,5 @@
 <script lang="ts">
+  import Icon from './Icon.svelte';
   import { onMount } from 'svelte';
   import gsap from 'gsap';
   import { animateCurrencyCount, animateMultiplierCount } from '../vault/animate-payout';
@@ -168,7 +169,7 @@
   {#if phase === 'resolve' || phase === 'complete'}
     <div class="resolve">
       <div class="capsule-open">
-        <img src="./assets/game/crypto/vault.svg" alt="" width="64" height="64" />
+        <Icon name="vault" size={64} />
       </div>
       <p class="mult-label">Multiplier</p>
       <p class="mult" data-vault-mult>{result ? `${result.baseMult.toFixed(2)}×` : '—'}</p>

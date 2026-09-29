@@ -24,9 +24,9 @@
   import GameHeader from './lib/components/GameHeader.svelte';
   import HeroPitch from './lib/components/HeroPitch.svelte';
   import GameBoard from './lib/components/GameBoard.svelte';
-  import ChainMeter from './lib/components/ChainMeter.svelte';
   import FeatureEducation from './lib/components/FeatureEducation.svelte';
   import ControlPanel from './lib/components/ControlPanel.svelte';
+  import ChainMeter from './lib/components/ChainMeter.svelte';
   import VaultBonusScene from './lib/components/VaultBonusScene.svelte';
   import RulesModal from './lib/components/RulesModal.svelte';
   import LoadingShell from './lib/components/LoadingShell.svelte';
@@ -451,22 +451,7 @@
     {/if}
 
     <div class="layout">
-      <section class="board-col">
-        <HeroPitch />
-        <div class="stage" data-game-stage>
-          <div class="vault-dim" data-vault-dim aria-hidden="true"></div>
-          <GameBoard
-            cells={snap.cells}
-            disabled={boardInteractionBlocked}
-            {pickingCell}
-            onpick={onPick}
-          />
-        </div>
-        <FeatureEducation chainStreak={snap.chainStreak} vaultTokens={snap.vaultTokensCollected} />
-      </section>
-
       <aside class="controls-col">
-        <ChainMeter chainStreak={snap.chainStreak} pulseGen={chainPulse} />
         <ControlPanel
           {bet}
           {balance}
@@ -479,6 +464,9 @@
           {canCashOut}
           buyMode={snap.buyMode}
           {canPlaceBets}
+          chainStreak={snap.chainStreak}
+          pulseGen={chainPulse}
+          starting={playInFlight}
           walletConfig={walletConfig}
           onBetChange={(v) => {
             if (walletConfig) bet = snapBetDisplayToConfig(v, walletConfig);
@@ -490,6 +478,23 @@
           onBuyVault={startBuyVault}
         />
       </aside>
+
+      <section class="board-col">
+        <div class="chain-desktop">
+          <ChainMeter chainStreak={snap.chainStreak} pulseGen={chainPulse} />
+        </div>
+        <HeroPitch />
+        <div class="stage" data-game-stage>
+          <div class="vault-dim" data-vault-dim aria-hidden="true"></div>
+          <GameBoard
+            cells={snap.cells}
+            disabled={boardInteractionBlocked}
+            {pickingCell}
+            onpick={onPick}
+          />
+        </div>
+        <FeatureEducation chainStreak={snap.chainStreak} vaultTokens={snap.vaultTokensCollected} />
+      </section>
     </div>
 
     <RulesModal open={rulesOpen} onClose={() => (rulesOpen = false)} />
@@ -534,18 +539,30 @@
     color: var(--danger);
     text-align: center;
   }
+  /* Mobile/tablet (<1024px): chain rail lives inside the control panel slot */
+  .chain-desktop {
+    display: none;
+  }
   @media (min-width: 1024px) {
+    .chain-desktop {
+      display: block;
+    }
+    .controls-col :global(.chain-slot) {
+      display: none;
+    }
     .layout {
       flex-direction: row;
       align-items: flex-start;
     }
     .board-col {
       flex: 1.2;
+      order: 1;
     }
     .controls-col {
       flex: 0 0 340px;
       position: sticky;
       top: var(--space-md);
+      order: 2;
     }
   }
   @media (max-width: 480px) {

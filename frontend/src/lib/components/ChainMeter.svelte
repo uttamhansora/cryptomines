@@ -1,5 +1,6 @@
 <script lang="ts">
   import { CHAIN_STREAK_MAX } from '@crypto-mines/shared';
+  import Icon from './Icon.svelte';
 
   interface Props {
     chainStreak: number;
@@ -12,18 +13,18 @@
 <section class="chain" aria-label="Crypto Chain" data-chain-meter class:pulse={pulseGen > 0}>
   <div class="head">
     <div class="title-wrap">
-      <img class="title-icon" src="./assets/game/ui/icons/chain-link.png" alt="" width="16" height="16" />
-      <div>
-        <h3>Crypto Chain</h3>
-        <p>Safe picks in a row charge the chain.</p>
-      </div>
+      <Icon name="chain" size={16} class="title-icon" />
+      <h3>Crypto Chain</h3>
     </div>
-    <span class="count">{chainStreak} / {CHAIN_STREAK_MAX}</span>
+    <span class="count">{chainStreak}<i>/{CHAIN_STREAK_MAX}</i></span>
   </div>
   <div class="track">
     {#each steps as step, i}
-      <div class="link" class:lit={step <= chainStreak}>
-        <span class="dot" class:active={step <= chainStreak} class:next={step === chainStreak + 1}></span>
+      <div class="link" class:lit={step <= chainStreak} class:current={step === chainStreak + 1}>
+        <span class="node" class:active={step <= chainStreak} class:next={step === chainStreak + 1}>
+          <span class="node-num">{step}</span>
+          <span class="node-core" aria-hidden="true"></span>
+        </span>
       </div>
       {#if i < CHAIN_STREAK_MAX - 1}
         <div class="wire" class:lit={step < chainStreak} aria-hidden="true"></div>
@@ -36,128 +37,138 @@
 
 <style>
   .chain {
-    background: linear-gradient(180deg, var(--surface-elevated), var(--surface));
+    background: linear-gradient(180deg, rgba(19, 31, 38, 0.9), rgba(10, 16, 21, 0.95));
     border: 1px solid var(--border);
     border-radius: var(--radius-md);
-    padding: var(--space-sm) var(--space-md);
+    padding: var(--space-sm) var(--space-md) 0.85rem;
     position: relative;
     overflow: hidden;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
   }
   .chain.pulse {
     animation: chain-pulse 0.45s ease-out;
   }
   @keyframes chain-pulse {
-    0% {
-      box-shadow: 0 0 0 rgba(46, 230, 214, 0);
-    }
-    40% {
-      box-shadow: 0 0 0 2px rgba(46, 230, 214, 0.35);
-    }
-    100% {
-      box-shadow: 0 0 0 rgba(46, 230, 214, 0);
-    }
+    0% { box-shadow: 0 0 0 rgba(61, 214, 181, 0), inset 0 1px 0 rgba(255, 255, 255, 0.04); }
+    40% { box-shadow: 0 0 0 2px rgba(61, 214, 181, 0.32), inset 0 0 24px rgba(61, 214, 181, 0.12); }
+    100% { box-shadow: 0 0 0 rgba(61, 214, 181, 0), inset 0 1px 0 rgba(255, 255, 255, 0.04); }
   }
   .head {
     display: flex;
     justify-content: space-between;
+    align-items: center;
     gap: var(--space-sm);
-    margin-bottom: var(--space-sm);
+    margin-bottom: 0.6rem;
   }
   .title-wrap {
     display: flex;
-    align-items: flex-start;
+    align-items: center;
     gap: 0.45rem;
-  }
-  .title-icon {
-    margin-top: 1px;
   }
   h3 {
     margin: 0;
-    font-size: 0.68rem;
-    letter-spacing: 0.12em;
+    font-size: 0.66rem;
+    letter-spacing: 0.16em;
     text-transform: uppercase;
-    color: var(--text-primary);
-  }
-  .head p {
-    margin: 0.15rem 0 0;
-    font-size: 0.65rem;
     color: var(--text-secondary);
+    font-weight: 600;
   }
   .count {
     font-family: var(--font-display);
-    color: var(--highlight);
+    font-size: 0.95rem;
+    color: var(--highlight-soft);
     white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+  }
+  .count i {
+    font-style: normal;
+    color: var(--text-muted);
+    font-size: 0.72rem;
   }
   .track {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 0;
   }
   .link {
     flex: 0 0 auto;
     display: grid;
     place-items: center;
   }
-  .dot {
-    width: 14px;
-    height: 14px;
+  .node {
+    position: relative;
+    width: 22px;
+    height: 22px;
     border-radius: 50%;
-    border: 2px solid rgba(138, 155, 176, 0.45);
-    background: #0a1018;
-    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.5);
-    transition:
-      border-color 0.2s,
-      box-shadow 0.2s,
-      background 0.2s;
+    display: grid;
+    place-items: center;
+    border: 1.5px solid rgba(120, 150, 165, 0.3);
+    background: radial-gradient(circle at 50% 30%, #101a20, #060b0e);
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.6);
+    transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s var(--ease-out-soft);
   }
-  .dot.active {
-    border-color: var(--highlight);
-    background: radial-gradient(circle at 35% 30%, #5fffe8, #157a72);
+  .node-num {
+    font-size: 0.55rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    transition: color 0.2s;
+    z-index: 1;
+  }
+  .node-core {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    opacity: 0;
+    background: radial-gradient(circle at 40% 32%, #8ffce6, #2aa98a 60%, #0c3a30);
+    transition: opacity 0.2s;
+  }
+  .node.active {
+    border-color: rgba(61, 214, 181, 0.8);
+    transform: scale(1.08);
     box-shadow:
-      0 0 12px rgba(61, 214, 181, 0.5),
-      0 0 5px rgba(201, 162, 39, 0.28),
+      0 0 12px rgba(61, 214, 181, 0.45),
+      0 0 4px rgba(212, 175, 90, 0.25),
       inset 0 1px 0 rgba(255, 255, 255, 0.25);
+    animation: node-charge 0.35s var(--ease-out-soft);
   }
-  .dot.next {
-    border-color: var(--highlight);
-    animation: dot-next 1.2s ease-in-out infinite;
+  .node.active .node-core { opacity: 1; }
+  .node.active .node-num { color: #04221b; }
+  @keyframes node-charge {
+    0% { transform: scale(0.7); filter: brightness(1.8); }
+    60% { transform: scale(1.18); }
+    100% { transform: scale(1.08); }
   }
-  @keyframes dot-next {
-    0%,
-    100% {
-      transform: scale(1);
-    }
-    50% {
-      transform: scale(1.12);
-    }
+  .node.next {
+    border-color: rgba(212, 175, 90, 0.6);
+    animation: node-next 1.3s ease-in-out infinite;
+  }
+  @keyframes node-next {
+    0%, 100% { box-shadow: inset 0 2px 4px rgba(0,0,0,.6), 0 0 0 rgba(212,175,90,0); }
+    50% { box-shadow: inset 0 2px 4px rgba(0,0,0,.6), 0 0 10px rgba(212,175,90,.35); }
   }
   .wire {
     flex: 1;
-    height: 3px;
-    margin: 0 2px;
+    height: 4px;
+    margin: 0 1px;
     border-radius: 2px;
-    background: rgba(138, 155, 176, 0.2);
+    background: rgba(120, 150, 165, 0.14);
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.5);
     position: relative;
     overflow: hidden;
   }
   .wire.lit {
-    background: rgba(46, 230, 214, 0.25);
+    background: rgba(61, 214, 181, 0.3);
   }
   .wire.lit::after {
     content: '';
     position: absolute;
     inset: 0;
-    background: linear-gradient(90deg, transparent, rgba(46, 230, 214, 0.85), transparent);
+    background: linear-gradient(90deg, transparent, rgba(109, 240, 208, 0.9), transparent);
     animation: energy-slide 1.4s linear infinite;
   }
   @keyframes energy-slide {
-    from {
-      transform: translateX(-100%);
-    }
-    to {
-      transform: translateX(100%);
-    }
+    from { transform: translateX(-100%); }
+    to { transform: translateX(100%); }
   }
   .burst {
     position: absolute;
@@ -170,13 +181,13 @@
     color: var(--accent-primary);
     opacity: 0;
     pointer-events: none;
-    background: rgba(7, 11, 16, 0.72);
+    background: rgba(6, 10, 14, 0.78);
   }
   .energy {
     position: absolute;
     inset: 0;
     pointer-events: none;
-    background: radial-gradient(circle at 50% 50%, rgba(46, 230, 214, 0.12), transparent 65%);
+    background: radial-gradient(circle at 50% 50%, rgba(61, 214, 181, 0.12), transparent 65%);
     opacity: 0;
   }
 </style>

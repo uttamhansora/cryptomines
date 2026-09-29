@@ -1,5 +1,6 @@
 <script lang="ts">
   import { BUY_VAULT_COST_MULTIPLIER, CHAIN_STREAK_MAX, VAULT_TOKENS_TO_TRIGGER } from '@crypto-mines/shared';
+  import Icon from './Icon.svelte';
 
   interface Props {
     open: boolean;
@@ -22,11 +23,11 @@
   <aside class="modal" role="dialog" aria-modal="true" aria-label="Rules">
     <header>
       <h2>
-        <img src="./assets/game/ui/icons/rules.png" alt="" width="20" height="20" />
+        <Icon name="info" size={20} />
         Rules
       </h2>
       <button type="button" class="close" aria-label="Close rules" onclick={onClose}>
-        <img src="./assets/game/ui/icons/close.png" alt="" width="18" height="18" />
+        <Icon name="close" size={18} />
       </button>
     </header>
 
@@ -41,7 +42,7 @@
 
     <section>
       <h3>
-        <img src="./assets/game/ui/icons/chain-link.png" alt="" width="16" height="16" />
+        <Icon name="chain" size={16} />
         Crypto Chain
       </h3>
       <p>
@@ -52,7 +53,7 @@
 
     <section>
       <h3>
-        <img src="./assets/game/ui/icons/vault-key.png" alt="" width="16" height="16" />
+        <Icon name="vault" size={16} />
         Crypto Vault Bonus
       </h3>
       <p>
@@ -63,7 +64,7 @@
 
     <section>
       <h3>
-        <img src="./assets/game/ui/icons/vault-symbol.png" alt="" width="16" height="16" />
+        <Icon name="vault" size={16} />
         Buy Crypto Vault
       </h3>
       <p>
@@ -74,7 +75,7 @@
 
     <section>
       <h3>
-        <img src="./assets/game/ui/icons/trophy.png" alt="" width="16" height="16" />
+        <Icon name="trophy" size={16} />
         RTP &amp; information
       </h3>
       <p>
@@ -86,7 +87,7 @@
 
     <section>
       <h3>
-        <img src="./assets/game/ui/icons/warning.png" alt="" width="16" height="16" />
+        <Icon name="warning" size={16} />
         Disclaimer
       </h3>
       <p>
