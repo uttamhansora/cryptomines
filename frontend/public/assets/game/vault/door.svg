@@ -2,7 +2,7 @@
   <defs>
     <linearGradient id="vdoor-rim" x1="160" y1="16" x2="160" y2="304"><stop stop-color="#fde68a"/><stop offset="0.5" stop-color="#c9a227"/><stop offset="1" stop-color="#78350f"/></linearGradient>
     <linearGradient id="vdoor-leaf" x1="160" y1="40" x2="160" y2="280"><stop stop-color="#3d3520"/><stop offset="0.5" stop-color="#1a1810"/><stop offset="1" stop-color="#080806"/></linearGradient>
-    <radialGradient id="vdoor-glow" cx="0.5" cy="0.48" r="0.42"><stop stop-color="#3dd6b5" stop-opacity="0.35"/><stop offset="1" stop-opacity="0"/></radialGradient>
+    <radialGradient id="vdoor-glow" cx="0.5" cy="0.48" r="0.42"><stop stop-color="#2563eb" stop-opacity="0.35"/><stop offset="1" stop-opacity="0"/></radialGradient>
   </defs>
   <circle cx="160" cy="160" r="152" fill="#050807" stroke="url(#vdoor-rim)" stroke-width="4"/>
   <circle cx="160" cy="160" r="132" fill="url(#vdoor-leaf)"/>
@@ -10,6 +10,6 @@
   <path fill="#121a17" stroke="url(#vdoor-rim)" stroke-opacity="0.5" d="M160 48c-58 0-105 47-105 105v36c0 58 47 105 105 105V48z"/>
   <path fill="#0a0f0d" stroke="url(#vdoor-rim)" stroke-opacity="0.5" d="M160 48c58 0 105 47 105 105v36c0 58-47 105-105 105V48z"/>
   <circle cx="160" cy="160" r="26" stroke="url(#vdoor-rim)" stroke-width="3" fill="#0a0f0d"/>
-  <circle cx="160" cy="160" r="10" fill="#3dd6b5"/>
+  <circle cx="160" cy="160" r="10" fill="#2563eb"/>
   <ellipse cx="130" cy="100" rx="24" ry="10" fill="#fff" opacity="0.06"/>
 </svg>
