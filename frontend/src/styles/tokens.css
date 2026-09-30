@@ -4,15 +4,15 @@
   --bg-secondary: #080d12;
   --surface: #0d151b;
   --surface-elevated: #131f26;
-  --emerald-deep: #0c3a30;
-  --emerald-mid: #17694f;
-  --emerald-light: #2a9d7a;
+  --blue-deep: #1e3a8a;
+  --blue-mid: #1e40af;
+  --blue-light: #1d4ed8;
   --graphite: #16202a;
   --graphite-light: #22303c;
 
-  --accent-primary: #3dd6b5;
-  --accent-secondary: #6df0d0;
-  --accent-cyan: #35c4d8;
+  --accent-primary: #2563eb;
+  --accent-secondary: #3b82f6;
+  --accent-cyan: #3b82f6;
   --highlight: #d4af5a;
   --highlight-soft: #f0d48a;
   --success: #4ade9a;
@@ -23,16 +23,16 @@
   --text-primary: #edf6f2;
   --text-secondary: #8ea6b0;
   --text-muted: #5f7480;
-  --border: rgba(61, 214, 181, 0.14);
-  --glow-emerald: rgba(42, 157, 122, 0.28);
+  --border: rgba(37, 99, 235, 0.14);
+  --glow-blue: rgba(37, 99, 235, 0.3);
   --glow-gold: rgba(212, 175, 90, 0.3);
-  --glow-cyan: var(--glow-emerald);
+  --glow-cyan: var(--glow-blue);
   --glass: rgba(13, 21, 27, 0.78);
 
   --shadow-key: rgba(0, 0, 0, 0.6);
   --shadow-ambient: rgba(6, 20, 18, 0.35);
   --light-key: rgba(255, 255, 255, 0.07);
-  --light-rim: rgba(109, 240, 208, 0.12);
+  --light-rim: rgba(59, 130, 246, 0.12);
 
   /* metallic frame gradient (shared by board + panel chrome) */
   --metal-frame: linear-gradient(
