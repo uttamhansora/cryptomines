@@ -103,10 +103,10 @@
             tier === 'good'
               ? p.life > 0.5
                 ? '#67e8f9'
-                : '#22c55e'
+                : '#f5c542'
               : p.life > 0.5
                 ? '#e8c547'
-                : '#22c55e';
+                : '#f5c542';
           ctx.beginPath();
           ctx.arc(p.x, p.y, tier === 'mega' ? 2.5 : 2, 0, Math.PI * 2);
           ctx.fill();
@@ -164,13 +164,13 @@
     pointer-events: none;
   }
   .win.good {
-    background: radial-gradient(ellipse 65% 50% at 50% 45%, rgba(8, 14, 12, 0.45), rgba(4, 8, 7, 0.72));
+    background: radial-gradient(ellipse 65% 50% at 50% 45%, rgba(14, 13, 8, 0.45), rgba(8, 7, 4, 0.72));
   }
   .win.big {
-    background: radial-gradient(ellipse 75% 58% at 50% 45%, rgba(6, 12, 10, 0.62), rgba(3, 6, 5, 0.88));
+    background: radial-gradient(ellipse 75% 58% at 50% 45%, rgba(12, 11, 6, 0.62), rgba(6, 5, 3, 0.88));
   }
   .win.mega {
-    background: radial-gradient(ellipse 80% 62% at 50% 42%, rgba(20, 83, 45, 0.35), rgba(2, 5, 4, 0.92));
+    background: radial-gradient(ellipse 80% 62% at 50% 42%, rgba(77, 83, 20, 0.35), rgba(5, 4, 2, 0.92));
   }
   .win-shock {
     position: absolute;
@@ -183,7 +183,7 @@
     border: 2px solid rgba(103, 232, 249, 0.55);
     opacity: 0;
     pointer-events: none;
-    box-shadow: 0 0 40px rgba(34, 197, 94, 0.35);
+    box-shadow: 0 0 40px rgba(245, 197, 66, 0.35);
   }
   .burst {
     position: absolute;
@@ -234,7 +234,7 @@
     font-family: var(--font-display);
     font-size: clamp(1.75rem, 7vw, 2.65rem);
     color: var(--accent-secondary);
-    text-shadow: 0 0 24px rgba(34, 197, 94, 0.28);
+    text-shadow: 0 0 24px rgba(245, 197, 66, 0.28);
   }
   .win.mega .mult {
     font-size: clamp(2rem, 8vw, 3.1rem);

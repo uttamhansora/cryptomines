@@ -15,7 +15,7 @@
     <span class="mark" aria-hidden="true">
       <svg viewBox="0 0 64 64" width="22" height="22">
         <polygon points="32,7 54,20 54,44 32,57 10,44 10,20" fill="#0c1626" stroke="#d4af5a" stroke-width="2.4" />
-        <polygon points="32,17 45,25 45,39 32,47 19,39 19,25" fill="none" stroke="#22c55e" stroke-width="2" opacity=".85" />
+        <polygon points="32,17 45,25 45,39 32,47 19,39 19,25" fill="none" stroke="#f5c542" stroke-width="2" opacity=".85" />
         <circle cx="32" cy="32" r="4.6" fill="#e8c547" />
       </svg>
     </span>
@@ -64,10 +64,10 @@
     width: 34px;
     height: 34px;
     border-radius: 9px;
-    background: linear-gradient(160deg, rgba(212, 175, 90, 0.16), rgba(12, 58, 48, 0.55));
+    background: linear-gradient(160deg, rgba(212, 175, 90, 0.16), rgba(36, 58, 12, 0.55));
     border: 1px solid rgba(212, 175, 90, 0.4);
     box-shadow:
-      0 0 16px rgba(34, 197, 94, 0.14),
+      0 0 16px rgba(245, 197, 66, 0.14),
       inset 0 1px 0 rgba(255, 255, 255, 0.08);
   }
   h1 {
@@ -98,7 +98,7 @@
     padding: 0.3rem 0.65rem;
     border-radius: 10px;
     background: linear-gradient(180deg, rgba(19, 31, 38, 0.9), rgba(8, 13, 18, 0.9));
-    border: 1px solid rgba(34, 197, 94, 0.22);
+    border: 1px solid rgba(245, 197, 66, 0.22);
     box-shadow:
       inset 0 1px 0 rgba(255, 255, 255, 0.05),
       0 4px 14px rgba(0, 0, 0, 0.4);
@@ -137,8 +137,8 @@
       transform 0.1s ease;
   }
   .icon-btn:hover {
-    border-color: rgba(34, 197, 94, 0.45);
-    box-shadow: 0 0 14px rgba(34, 197, 94, 0.16);
+    border-color: rgba(245, 197, 66, 0.45);
+    box-shadow: 0 0 14px rgba(245, 197, 66, 0.16);
   }
   .icon-btn:active {
     transform: scale(0.93);
