@@ -114,11 +114,11 @@
     <span class="tile-lid" aria-hidden="true" style:visibility={cell.state === 'hidden' ? 'visible' : 'hidden'}>
       <span class="back-mark">
         <svg viewBox="0 0 64 64" width="58%" height="58%">
-          <g fill="none" stroke="#3dd6b5" stroke-width="2.2" opacity=".55">
+          <g fill="none" stroke="#22c55e" stroke-width="2.2" opacity=".55">
             <polygon points="32,10 52,22 52,42 32,54 12,42 12,22" />
             <polygon points="32,20 43,27 43,37 32,44 21,37 21,27" opacity=".7" />
           </g>
-          <circle cx="32" cy="32" r="4.2" fill="#3dd6b5" opacity=".5" />
+          <circle cx="32" cy="32" r="4.2" fill="#22c55e" opacity=".5" />
           <path d="M32 10v10M32 44v10M12 22l9 5M43 27l9-5M12 42l9-5M43 37l9 5" stroke="#d4af5a" stroke-width="1.4" opacity=".35" />
         </svg>
       </span>
@@ -179,10 +179,10 @@
   }
   .tile:not(:disabled):hover .tile-inner {
     transform: translate3d(0, -3px, 0);
-    border-color: rgba(61, 214, 181, 0.4);
+    border-color: rgba(34, 197, 94, 0.4);
     box-shadow:
       0 6px 14px rgba(0, 0, 0, 0.5),
-      0 0 16px rgba(61, 214, 181, 0.12),
+      0 0 16px rgba(34, 197, 94, 0.12),
       inset 0 1px 0 rgba(255, 255, 255, 0.12);
   }
   .tile:not(:disabled):hover .back-mark {
@@ -206,7 +206,7 @@
     inset: 0;
     opacity: 0;
     pointer-events: none;
-    background: radial-gradient(circle at 50% 30%, var(--glow-emerald), transparent 70%);
+    background: radial-gradient(circle at 50% 30%, var(--glow-blue), transparent 70%);
   }
   .tile.vault .tile-glow {
     background: radial-gradient(circle at 50% 30%, var(--glow-gold), transparent 70%);
@@ -228,7 +228,7 @@
     inset: 0;
     opacity: 0;
     pointer-events: none;
-    background: radial-gradient(circle, rgba(61, 214, 181, 0.3), transparent 65%);
+    background: radial-gradient(circle, rgba(34, 197, 94, 0.3), transparent 65%);
   }
   .tile.sym-btc .tile-glow,
   .tile.sym-btc .tile-burst {
@@ -236,7 +236,7 @@
   }
   .tile.sym-eth .tile-glow,
   .tile.sym-eth .tile-burst {
-    background: radial-gradient(circle, rgba(120, 170, 230, 0.42), transparent 68%);
+    background: radial-gradient(circle, rgba(134, 239, 172, 0.28), transparent 68%);
   }
   .tile.sym-sol .tile-glow,
   .tile.sym-sol .tile-burst {
@@ -338,12 +338,12 @@
     }
   }
   .tile.revealed.safe .tile-inner {
-    border-color: rgba(61, 214, 181, 0.38);
-    background: linear-gradient(168deg, #14231f 0%, #0a1512 100%);
+    border-color: rgba(34, 197, 94, 0.38);
+    background: linear-gradient(168deg, #12291a 0%, #08170d 100%);
     box-shadow:
-      0 0 0 1px rgba(61, 214, 181, 0.1),
+      0 0 0 1px rgba(34, 197, 94, 0.1),
       0 4px 12px rgba(0, 0, 0, 0.45),
-      inset 0 1px 0 rgba(140, 255, 225, 0.1);
+      inset 0 1px 0 rgba(74, 222, 128, 0.1);
   }
   .tile.mine .tile-inner {
     border-color: rgba(255, 91, 110, 0.55);
@@ -368,7 +368,7 @@
     border-color: rgba(255, 91, 110, 0.28);
   }
   .tile.ghost.safe .tile-inner {
-    border-color: rgba(61, 214, 181, 0.12);
+    border-color: rgba(34, 197, 94, 0.12);
   }
   .tile.mine:not(.ghost) .tile-inner {
     z-index: 2;

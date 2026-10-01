@@ -192,7 +192,7 @@
     font-family: var(--font-display);
     font-size: 0.62rem;
     color: var(--bg-primary);
-    background: linear-gradient(160deg, var(--accent-secondary), var(--emerald-light));
+    background: linear-gradient(160deg, var(--accent-secondary), var(--blue-light));
   }
   p {
     margin: 0;
