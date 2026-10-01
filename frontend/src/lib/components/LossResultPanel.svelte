@@ -134,8 +134,8 @@
     width: 100%;
     min-height: 48px;
     border-radius: var(--radius-md);
-    border: 1px solid rgba(245, 197, 66, 0.45);
-    background: linear-gradient(180deg, #7a5c00, #4d3a00);
+    border: 1px solid rgba(255, 122, 26, 0.45);
+    background: linear-gradient(180deg, #8a3a05, #5c2400);
     color: #fdfaf0;
     font-weight: 700;
     font-size: 0.95rem;
@@ -145,7 +145,7 @@
     box-shadow: 0 8px 22px rgba(0, 0, 0, 0.4);
   }
   .again:hover {
-    box-shadow: 0 0 18px rgba(245, 197, 66, 0.3);
+    box-shadow: 0 0 18px rgba(255, 122, 26, 0.3);
   }
   .again:active {
     transform: scale(0.97);

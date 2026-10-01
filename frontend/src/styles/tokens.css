@@ -5,42 +5,42 @@
   --surface: #0d151b;
   --surface-elevated: #131f26;
 
-  /* Primary accent theme (premium gold) — single source of truth */
-  --primary: #f5c542;
-  --primary-light: #ffd54a;
-  --primary-dark: #a67c00;
-  --primary-glow: rgba(245, 197, 66, 0.30);
+  /* Primary accent theme (orange) — single source of truth */
+  --primary: #ff7a1a;
+  --primary-light: #ffa040;
+  --primary-dark: #d9560b;
+  --primary-glow: rgba(255, 122, 26, 0.30);
 
-  --blue-deep: #4d3a00;
-  --blue-mid: #7a5c00;
-  --blue-light: #d4a017;
+  --blue-deep: #5c2400;
+  --blue-mid: #8a3a05;
+  --blue-light: #ff8c2e;
   --graphite: #16202a;
   --graphite-light: #22303c;
 
-  --accent-primary: var(--primary);        /* #f5c542 */
-  --accent-secondary: var(--primary-light); /* #ffd54a */
+  --accent-primary: var(--primary);        /* #ff7a1a */
+  --accent-secondary: var(--primary-light); /* #ffa040 */
   --accent-cyan: var(--primary-light);
-  --highlight: #d4af5a;
-  --highlight-soft: #f0d48a;
-  --success: #ffd54a; /* was mint-green semantic; now matches premium gold theme */
-  --warning: #d4a017;
+  --highlight: #ffa040;
+  --highlight-soft: #ffc07a;
+  --success: #ffa040; /* was mint-green semantic; now matches orange primary theme */
+  --warning: #d9560b;
   --danger: #ff5b6e;
   --danger-deep: #b3122a;
 
   --text-primary: #edf6f2;
   --text-secondary: #8ea6b0;
   --text-muted: #5f7480;
-  --border: rgba(245, 197, 66, 0.14);
-  --glow-blue: var(--primary-glow);        /* gold glow, legacy name kept */
+  --border: rgba(255, 122, 26, 0.14);
+  --glow-blue: var(--primary-glow);        /* orange glow, legacy name kept */
   --glow-green: var(--primary-glow);
-  --glow-gold: rgba(212, 175, 90, 0.3);
+  --glow-gold: rgba(212, 175, 90, 0.3); /* reserved for the gold vault-bonus scene */
   --glow-cyan: var(--glow-blue);
   --glass: rgba(13, 21, 27, 0.78);
 
   --shadow-key: rgba(0, 0, 0, 0.6);
-  --shadow-ambient: rgba(18, 15, 6, 0.35);
+  --shadow-ambient: rgba(20, 10, 3, 0.35);
   --light-key: rgba(255, 255, 255, 0.07);
-  --light-rim: rgba(255, 213, 74, 0.12);
+  --light-rim: rgba(255, 160, 64, 0.12);
 
   /* metallic frame gradient (shared by board + panel chrome) */
   --metal-frame: linear-gradient(
