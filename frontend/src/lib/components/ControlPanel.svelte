@@ -296,7 +296,7 @@
     left: 18%;
     right: 18%;
     height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(37, 99, 235, 0.5), transparent);
+    background: linear-gradient(90deg, transparent, rgba(34, 197, 94, 0.5), transparent);
     pointer-events: none;
   }
   .section {
@@ -308,7 +308,7 @@
     align-items: center;
     text-align: center;
     padding-bottom: 0.25rem;
-    border-bottom: 1px solid rgba(37, 99, 235, 0.1);
+    border-bottom: 1px solid rgba(34, 197, 94, 0.1);
   }
   .mult-ring {
     position: relative;
@@ -340,14 +340,14 @@
     stroke: var(--accent-primary);
     stroke-width: 3;
     stroke-linecap: round;
-    filter: drop-shadow(0 0 4px rgba(37, 99, 235, 0.5));
+    filter: drop-shadow(0 0 4px rgba(34, 197, 94, 0.5));
     transition: stroke-dashoffset 0.4s var(--ease-out-soft);
   }
   .ring-orbit {
     position: absolute;
     inset: 8px;
     border-radius: 50%;
-    border: 1px dashed rgba(37, 99, 235, 0.22);
+    border: 1px dashed rgba(34, 197, 94, 0.22);
     animation: orbit-spin 14s linear infinite;
     pointer-events: none;
   }
@@ -358,7 +358,7 @@
     font-family: var(--font-display);
     font-size: clamp(1.5rem, 4.5vw, 1.8rem);
     color: var(--accent-secondary);
-    text-shadow: 0 0 18px rgba(37, 99, 235, 0.25);
+    text-shadow: 0 0 18px rgba(34, 197, 94, 0.25);
     font-variant-numeric: tabular-nums;
     animation: mult-pop 0.38s var(--ease-out-soft);
   }
@@ -420,10 +420,10 @@
   }
   .stepper button:hover:not(:disabled),
   .presets button:hover:not(:disabled) {
-    border-color: rgba(37, 99, 235, 0.4);
+    border-color: rgba(34, 197, 94, 0.4);
     box-shadow:
       inset 0 1px 0 rgba(255, 255, 255, 0.08),
-      0 0 12px rgba(37, 99, 235, 0.14);
+      0 0 12px rgba(34, 197, 94, 0.14);
   }
   .stepper button:active:not(:disabled),
   .presets button:active:not(:disabled) {
@@ -439,11 +439,11 @@
     gap: 0.3rem;
   }
   .presets button.active {
-    border-color: rgba(37, 99, 235, 0.65);
+    border-color: rgba(34, 197, 94, 0.65);
     color: var(--accent-secondary);
     box-shadow:
       inset 0 1px 0 rgba(255, 255, 255, 0.08),
-      0 0 14px rgba(37, 99, 235, 0.25);
+      0 0 14px rgba(34, 197, 94, 0.25);
   }
   .value {
     font-family: var(--font-display);
@@ -468,10 +468,10 @@
   .play {
     display: grid;
     place-items: center;
-    background: linear-gradient(180deg, #1e40af 0%, #1e3a8a 55%, #1e3a8a 100%);
-    color: #eff6ff;
+    background: linear-gradient(180deg, #16a34a 0%, #22c55e 100%);
+    color: #f0fdf4;
     font-size: 1.02rem;
-    border: 1px solid rgba(37, 99, 235, 0.4);
+    border: 1px solid rgba(34, 197, 94, 0.55);
     box-shadow:
       0 10px 24px rgba(0, 0, 0, 0.45),
       inset 0 1px 0 rgba(255, 255, 255, 0.12);
@@ -498,7 +498,7 @@
     position: absolute;
     inset: 0;
     pointer-events: none;
-    background: linear-gradient(100deg, transparent 30%, rgba(96, 165, 250, 0.16) 48%, rgba(96, 165, 250, 0.22) 52%, transparent 70%);
+    background: linear-gradient(100deg, transparent 30%, rgba(74, 222, 128, 0.16) 48%, rgba(74, 222, 128, 0.22) 52%, transparent 70%);
     transform: translateX(-60%);
     transition: transform 0.5s ease;
   }
@@ -519,7 +519,7 @@
     height: 18px;
     border-radius: 50%;
     border: 2px solid rgba(238, 250, 244, 0.3);
-    border-top-color: #eff6ff;
+    border-top-color: #f0fdf4;
     animation: spin 0.7s linear infinite;
   }
   @keyframes spin {
@@ -530,17 +530,17 @@
     align-items: center;
     justify-content: center;
     gap: 0.15rem;
-    background: linear-gradient(180deg, #1d4ed8, #1e40af);
-    color: #0a122e;
-    border: 1px solid rgba(59, 130, 246, 0.5);
+    background: linear-gradient(180deg, #16a34a, #166534);
+    color: #08170e;
+    border: 1px solid rgba(74, 222, 128, 0.5);
     box-shadow:
-      0 0 0 1px rgba(59, 130, 246, 0.2),
-      0 10px 28px rgba(30, 64, 175, 0.4);
+      0 0 0 1px rgba(74, 222, 128, 0.2),
+      0 10px 28px rgba(21, 128, 61, 0.4);
     animation: cashout-breathe 1.6s ease-in-out infinite;
   }
   @keyframes cashout-breathe {
-    0%, 100% { box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.2), 0 10px 28px rgba(30, 64, 175, 0.4); }
-    50% { box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.35), 0 10px 32px rgba(30, 64, 175, 0.55); }
+    0%, 100% { box-shadow: 0 0 0 1px rgba(74, 222, 128, 0.2), 0 10px 28px rgba(21, 128, 61, 0.4); }
+    50% { box-shadow: 0 0 0 2px rgba(74, 222, 128, 0.35), 0 10px 32px rgba(21, 128, 61, 0.55); }
   }
   .cashout:active {
     transform: scale(0.98);
