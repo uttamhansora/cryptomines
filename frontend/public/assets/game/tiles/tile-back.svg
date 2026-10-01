@@ -3,14 +3,14 @@
     <linearGradient id="tb-outer" x1="40" y1="4" x2="40" y2="76"><stop stop-color="#403c2a"/><stop offset="0.4" stop-color="#141c26"/><stop offset="1" stop-color="#090806"/></linearGradient>
     <linearGradient id="tb-bevel-hi" x1="40" y1="8" x2="40" y2="40"><stop stop-color="#fff" stop-opacity="0.14"/><stop offset="1" stop-opacity="0"/></linearGradient>
     <linearGradient id="tb-bevel-lo" x1="40" y1="40" x2="40" y2="72"><stop stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity="0.55"/></linearGradient>
-    <radialGradient id="tb-glass" cx="0.28" cy="0.22" r="0.65"><stop stop-color="#f5c542" stop-opacity="0.08"/><stop offset="1" stop-opacity="0"/></radialGradient>
-    <linearGradient id="tb-rim" x1="8" y1="8" x2="72" y2="72"><stop stop-color="#c9a227" stop-opacity="0.35"/><stop offset="0.5" stop-color="#7a5c00" stop-opacity="0.25"/><stop offset="1" stop-color="#c9a227" stop-opacity="0.2"/></linearGradient>
+    <radialGradient id="tb-glass" cx="0.28" cy="0.22" r="0.65"><stop stop-color="#ef4444" stop-opacity="0.08"/><stop offset="1" stop-opacity="0"/></radialGradient>
+    <linearGradient id="tb-rim" x1="8" y1="8" x2="72" y2="72"><stop stop-color="#c9a227" stop-opacity="0.35"/><stop offset="0.5" stop-color="#7f1d1d" stop-opacity="0.25"/><stop offset="1" stop-color="#c9a227" stop-opacity="0.2"/></linearGradient>
   </defs>
   <rect x="3" y="3" width="74" height="74" rx="12" fill="#050503" stroke="url(#tb-rim)" stroke-width="1.4"/>
   <rect x="6" y="6" width="68" height="68" rx="10" fill="url(#tb-outer)"/>
   <rect x="6" y="6" width="68" height="68" rx="10" fill="url(#tb-bevel-hi)"/>
   <rect x="6" y="6" width="68" height="68" rx="10" fill="url(#tb-bevel-lo)"/>
   <rect x="10" y="10" width="60" height="60" rx="8" fill="url(#tb-glass)"/>
-  <rect x="14" y="14" width="52" height="52" rx="6" fill="#12100a" stroke="#7a5c00" stroke-opacity="0.2" stroke-width="1"/>
-  <path d="M40 24v32M24 40h32" stroke="#f5c542" stroke-opacity="0.08" stroke-width="1"/>
+  <rect x="14" y="14" width="52" height="52" rx="6" fill="#12100a" stroke="#7f1d1d" stroke-opacity="0.2" stroke-width="1"/>
+  <path d="M40 24v32M24 40h32" stroke="#ef4444" stroke-opacity="0.08" stroke-width="1"/>
 </svg>

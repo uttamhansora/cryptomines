@@ -103,10 +103,10 @@
             tier === 'good'
               ? p.life > 0.5
                 ? '#67e8f9'
-                : '#f5c542'
+                : '#ef4444'
               : p.life > 0.5
                 ? '#e8c547'
-                : '#f5c542';
+                : '#ef4444';
           ctx.beginPath();
           ctx.arc(p.x, p.y, tier === 'mega' ? 2.5 : 2, 0, Math.PI * 2);
           ctx.fill();
@@ -183,7 +183,7 @@
     border: 2px solid rgba(103, 232, 249, 0.55);
     opacity: 0;
     pointer-events: none;
-    box-shadow: 0 0 40px rgba(245, 197, 66, 0.35);
+    box-shadow: 0 0 40px rgba(239, 68, 68, 0.35);
   }
   .burst {
     position: absolute;
@@ -234,7 +234,7 @@
     font-family: var(--font-display);
     font-size: clamp(1.75rem, 7vw, 2.65rem);
     color: var(--accent-secondary);
-    text-shadow: 0 0 24px rgba(245, 197, 66, 0.28);
+    text-shadow: 0 0 24px rgba(239, 68, 68, 0.28);
   }
   .win.mega .mult {
     font-size: clamp(2rem, 8vw, 3.1rem);

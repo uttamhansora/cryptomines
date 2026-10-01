@@ -134,9 +134,9 @@
     width: 100%;
     min-height: 48px;
     border-radius: var(--radius-md);
-    border: 1px solid rgba(245, 197, 66, 0.45);
-    background: linear-gradient(180deg, #7a5c00, #4d3a00);
-    color: #fdfaf0;
+    border: 1px solid rgba(239, 68, 68, 0.45);
+    background: linear-gradient(180deg, #7f1d1d, #450a0a);
+    color: #fef2f2;
     font-weight: 700;
     font-size: 0.95rem;
     letter-spacing: 0.05em;
@@ -145,7 +145,7 @@
     box-shadow: 0 8px 22px rgba(0, 0, 0, 0.4);
   }
   .again:hover {
-    box-shadow: 0 0 18px rgba(245, 197, 66, 0.3);
+    box-shadow: 0 0 18px rgba(239, 68, 68, 0.3);
   }
   .again:active {
     transform: scale(0.97);
