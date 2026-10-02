@@ -102,9 +102,9 @@
     padding: clamp(8px, 2.4vw, 14px);
     border-radius: 12px;
     background:
-      radial-gradient(ellipse 90% 70% at 50% -10%, rgba(239, 68, 68, 0.07), transparent 65%),
+      radial-gradient(ellipse 90% 70% at 50% -10%, rgba(249, 115, 22, 0.07), transparent 65%),
       linear-gradient(180deg, #0a1218 0%, #04070a 100%);
-    border: 1px solid rgba(239, 68, 68, 0.16);
+    border: 1px solid rgba(249, 115, 22, 0.16);
     box-shadow:
       inset 0 14px 34px rgba(0, 0, 0, 0.55),
       inset 0 0 0 1px rgba(0, 0, 0, 0.4),
@@ -118,8 +118,8 @@
     pointer-events: none;
     opacity: 0.5;
     background-image:
-      linear-gradient(rgba(239, 68, 68, 0.05) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(239, 68, 68, 0.05) 1px, transparent 1px);
+      linear-gradient(rgba(249, 115, 22, 0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(249, 115, 22, 0.05) 1px, transparent 1px);
     background-size: 26px 26px;
     mask-image: radial-gradient(ellipse 75% 70% at 50% 45%, #000 20%, transparent 78%);
   }
@@ -147,7 +147,7 @@
     height: 40%;
     margin: -20% 0 0 -20%;
     border-radius: 50%;
-    border: 2px solid rgba(239, 68, 68, 0.45);
+    border: 2px solid rgba(249, 115, 22, 0.45);
     opacity: 0;
     pointer-events: none;
     z-index: 4;

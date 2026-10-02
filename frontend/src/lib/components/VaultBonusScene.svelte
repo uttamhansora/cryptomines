@@ -273,10 +273,10 @@
     height: 55%;
     transform: translate(-50%, -50%);
     border-radius: 50%;
-    border: 2px solid rgba(239, 68, 68, 0.35);
+    border: 2px solid rgba(249, 115, 22, 0.35);
     opacity: 0;
     pointer-events: none;
-    box-shadow: 0 0 24px rgba(239, 68, 68, 0.25);
+    box-shadow: 0 0 24px rgba(249, 115, 22, 0.25);
   }
   .door-light {
     position: absolute;
@@ -286,7 +286,7 @@
     height: 40%;
     transform: translate(-50%, -50%);
     border-radius: 50%;
-    background: radial-gradient(circle, rgba(239, 68, 68, 0.45), rgba(201, 162, 39, 0.25) 45%, transparent 72%);
+    background: radial-gradient(circle, rgba(249, 115, 22, 0.45), rgba(201, 162, 39, 0.25) 45%, transparent 72%);
     opacity: 0;
   }
   .title-block {
@@ -320,8 +320,8 @@
     color: var(--highlight);
   }
   .badge.organic {
-    border-color: rgba(248, 113, 113, 0.35);
-    background: rgba(248, 113, 113, 0.08);
+    border-color: rgba(251, 146, 60, 0.35);
+    background: rgba(251, 146, 60, 0.08);
     color: var(--accent-primary);
   }
   .hint {

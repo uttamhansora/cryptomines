@@ -170,7 +170,7 @@ export class AnimationController {
       }
       tl.fromTo(multEl, { scale: 1.08, filter: 'brightness(1.15)' }, { scale: 1, filter: 'brightness(1)', duration: 0.42, ease: 'power2.out' }, '-=0.25');
       if (ring) {
-        tl.to(ring, { boxShadow: '0 0 32px rgba(239, 68, 68, 0.45)', duration: 0.12, yoyo: true, repeat: 1 }, '-=0.38');
+        tl.to(ring, { boxShadow: '0 0 32px rgba(249, 115, 22, 0.45)', duration: 0.12, yoyo: true, repeat: 1 }, '-=0.38');
       }
     });
   }

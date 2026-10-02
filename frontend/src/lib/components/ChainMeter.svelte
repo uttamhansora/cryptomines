@@ -49,9 +49,9 @@
     animation: chain-pulse 0.45s ease-out;
   }
   @keyframes chain-pulse {
-    0% { box-shadow: 0 0 0 rgba(239, 68, 68, 0), inset 0 1px 0 rgba(255, 255, 255, 0.04); }
-    40% { box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.32), inset 0 0 24px rgba(239, 68, 68, 0.12); }
-    100% { box-shadow: 0 0 0 rgba(239, 68, 68, 0), inset 0 1px 0 rgba(255, 255, 255, 0.04); }
+    0% { box-shadow: 0 0 0 rgba(249, 115, 22, 0), inset 0 1px 0 rgba(255, 255, 255, 0.04); }
+    40% { box-shadow: 0 0 0 2px rgba(249, 115, 22, 0.32), inset 0 0 24px rgba(249, 115, 22, 0.12); }
+    100% { box-shadow: 0 0 0 rgba(249, 115, 22, 0), inset 0 1px 0 rgba(255, 255, 255, 0.04); }
   }
   .head {
     display: flex;
@@ -119,20 +119,20 @@
     inset: 0;
     border-radius: 50%;
     opacity: 0;
-    background: radial-gradient(circle at 40% 32%, #fecaca, #dc2626 60%, #450a0a);
+    background: radial-gradient(circle at 40% 32%, #fed7aa, #ea580c 60%, #431407);
     transition: opacity 0.2s;
   }
   .node.active {
-    border-color: rgba(239, 68, 68, 0.8);
+    border-color: rgba(249, 115, 22, 0.8);
     transform: scale(1.08);
     box-shadow:
-      0 0 12px rgba(239, 68, 68, 0.45),
+      0 0 12px rgba(249, 115, 22, 0.45),
       0 0 4px rgba(212, 175, 90, 0.25),
       inset 0 1px 0 rgba(255, 255, 255, 0.25);
     animation: node-charge 0.35s var(--ease-out-soft);
   }
   .node.active .node-core { opacity: 1; }
-  .node.active .node-num { color: #3f1010; }
+  .node.active .node-num { color: #3a1e05; }
   @keyframes node-charge {
     0% { transform: scale(0.7); filter: brightness(1.8); }
     60% { transform: scale(1.18); }
@@ -157,7 +157,7 @@
     overflow: hidden;
   }
   .wire.lit {
-    background: rgba(239, 68, 68, 0.3);
+    background: rgba(249, 115, 22, 0.3);
     animation: wire-fill 0.28s var(--ease-out-soft) both;
     transform-origin: left center;
   }
@@ -170,7 +170,7 @@
     content: '';
     position: absolute;
     inset: 0;
-    background: linear-gradient(90deg, transparent, rgba(248, 113, 113, 0.9), transparent);
+    background: linear-gradient(90deg, transparent, rgba(251, 146, 60, 0.9), transparent);
     animation: energy-slide 1.4s linear infinite;
   }
   @keyframes energy-slide {
@@ -194,7 +194,7 @@
     position: absolute;
     inset: 0;
     pointer-events: none;
-    background: radial-gradient(circle at 50% 50%, rgba(239, 68, 68, 0.12), transparent 65%);
+    background: radial-gradient(circle at 50% 50%, rgba(249, 115, 22, 0.12), transparent 65%);
     opacity: 0;
   }
 </style>
