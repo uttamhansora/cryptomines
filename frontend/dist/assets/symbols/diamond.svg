@@ -1,10 +1,10 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80" fill="none">
   <defs>
     <linearGradient id="dia-m" x1="40" y1="12" x2="40" y2="68" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#e8f7ff"/>
-      <stop offset="1" stop-color="#6ec5ff"/>
+      <stop stop-color="#fff7ed"/>
+      <stop offset="1" stop-color="#fdba74"/>
     </linearGradient>
   </defs>
-  <circle cx="40" cy="40" r="34" fill="#141c28" stroke="#8fd4ff" stroke-width="2"/>
+  <circle cx="40" cy="40" r="34" fill="#1a1714" stroke="#fed7aa" stroke-width="2"/>
   <path fill="url(#dia-m)" d="M40 16 18 34l22 34 22-34L40 16zm0 12 12 18H28L40 28z"/>
 </svg>

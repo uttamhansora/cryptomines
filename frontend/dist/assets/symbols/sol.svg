@@ -5,6 +5,6 @@
       <stop offset="1" stop-color="#3dff9a"/>
     </linearGradient>
   </defs>
-  <circle cx="40" cy="40" r="34" fill="#141c28" stroke="#3dff9a" stroke-width="2"/>
+  <circle cx="40" cy="40" r="34" fill="#1a1714" stroke="#3dff9a" stroke-width="2"/>
   <path fill="url(#sol-m)" d="M22 48h36l-8 12H14l8-12zm8-18h36l-8-12H22l8 12zm-8 9h36l-8 12H14l8-12z"/>
 </svg>

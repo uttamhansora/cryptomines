@@ -1,13 +1,13 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" fill="none">
   <defs>
-    <linearGradient id="eth-body" x1="48" y1="12" x2="48" y2="84"><stop stop-color="#fb923c"/><stop offset="0.5" stop-color="#f97316"/><stop offset="1" stop-color="#431407"/></linearGradient>
+    <linearGradient id="eth-body" x1="48" y1="12" x2="48" y2="84"><stop stop-color="#fb923c"/><stop offset="0.5" stop-color="#ff7a00"/><stop offset="1" stop-color="#3a2306"/></linearGradient>
     <linearGradient id="eth-facet" x1="30" y1="20" x2="66" y2="76"><stop stop-color="#fed7aa" stop-opacity="0.9"/><stop offset="1" stop-color="#ea580c" stop-opacity="0.2"/></linearGradient>
     <radialGradient id="eth-glow" cx="0.5" cy="0.35" r="0.55"><stop stop-color="#fdba74" stop-opacity="0.45"/><stop offset="1" stop-opacity="0"/></radialGradient>
   </defs>
-  <polygon points="48,14 72,48 48,82 24,48" fill="#0f172a" stroke="#9a3412" stroke-width="2"/>
+  <polygon points="48,14 72,48 48,82 24,48" fill="#1c1917" stroke="#9a3412" stroke-width="2"/>
   <polygon points="48,14 72,48 48,82 24,48" fill="url(#eth-body)"/>
   <polygon points="48,14 72,48 48,58 24,48" fill="url(#eth-facet)" opacity="0.85"/>
-  <polygon points="48,14 48,58 24,48" fill="#431407" opacity="0.55"/>
+  <polygon points="48,14 48,58 24,48" fill="#3a2306" opacity="0.55"/>
   <polygon points="48,14 72,48 48,58" fill="#fed7aa" opacity="0.25"/>
   <circle cx="48" cy="48" r="42" fill="url(#eth-glow)"/>
   <path d="M48 22v26l20 10-20-36z" fill="#ffedd5" opacity="0.35"/>

@@ -277,7 +277,7 @@
 
 <style>
   .panel {
-    background: linear-gradient(180deg, rgba(19, 31, 38, 0.94), rgba(8, 13, 18, 0.97));
+    background: linear-gradient(180deg, rgba(24, 21, 18, 0.94), rgba(8, 13, 18, 0.97));
     border: 1px solid var(--border);
     border-radius: var(--radius-lg);
     padding: var(--space-md);
@@ -296,7 +296,7 @@
     left: 18%;
     right: 18%;
     height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(249, 115, 22, 0.5), transparent);
+    background: linear-gradient(90deg, transparent, rgba(255, 122, 0, 0.5), transparent);
     pointer-events: none;
   }
   .section {
@@ -308,7 +308,7 @@
     align-items: center;
     text-align: center;
     padding-bottom: 0.25rem;
-    border-bottom: 1px solid rgba(249, 115, 22, 0.1);
+    border-bottom: 1px solid rgba(255, 122, 0, 0.1);
   }
   .mult-ring {
     position: relative;
@@ -327,7 +327,7 @@
   }
   .ring-track {
     fill: none;
-    stroke: rgba(120, 150, 165, 0.14);
+    stroke: rgba(165, 150, 120, 0.14);
     stroke-width: 3;
   }
   /* Immediate press feedback while the RGS pick response is in flight */
@@ -340,14 +340,14 @@
     stroke: var(--accent-primary);
     stroke-width: 3;
     stroke-linecap: round;
-    filter: drop-shadow(0 0 4px rgba(249, 115, 22, 0.5));
+    filter: drop-shadow(0 0 4px rgba(255, 122, 0, 0.5));
     transition: stroke-dashoffset 0.4s var(--ease-out-soft);
   }
   .ring-orbit {
     position: absolute;
     inset: 8px;
     border-radius: 50%;
-    border: 1px dashed rgba(249, 115, 22, 0.22);
+    border: 1px dashed rgba(255, 122, 0, 0.22);
     animation: orbit-spin 14s linear infinite;
     pointer-events: none;
   }
@@ -358,7 +358,7 @@
     font-family: var(--font-display);
     font-size: clamp(1.5rem, 4.5vw, 1.8rem);
     color: var(--accent-secondary);
-    text-shadow: 0 0 18px rgba(249, 115, 22, 0.25);
+    text-shadow: 0 0 18px rgba(255, 122, 0, 0.25);
     font-variant-numeric: tabular-nums;
     animation: mult-pop 0.38s var(--ease-out-soft);
   }
@@ -372,7 +372,7 @@
     gap: var(--space-sm);
   }
   .stat-card {
-    background: linear-gradient(170deg, rgba(19, 31, 38, 0.85), rgba(8, 13, 18, 0.9));
+    background: linear-gradient(170deg, rgba(24, 21, 18, 0.85), rgba(8, 13, 18, 0.9));
     border: 1px solid var(--border);
     border-radius: var(--radius-sm);
     padding: 0.45rem 0.6rem;
@@ -409,8 +409,8 @@
     min-width: 44px;
     min-height: 44px;
     border-radius: var(--radius-sm);
-    border: 1px solid rgba(120, 150, 165, 0.2);
-    background: linear-gradient(165deg, #24313c 0%, #131d26 45%, #0a1015 100%);
+    border: 1px solid rgba(165, 150, 120, 0.2);
+    background: linear-gradient(165deg, #2a2622 0%, #191613 45%, #0a1015 100%);
     color: var(--text-primary);
     font-weight: 600;
     box-shadow:
@@ -420,10 +420,10 @@
   }
   .stepper button:hover:not(:disabled),
   .presets button:hover:not(:disabled) {
-    border-color: rgba(249, 115, 22, 0.4);
+    border-color: rgba(255, 122, 0, 0.4);
     box-shadow:
       inset 0 1px 0 rgba(255, 255, 255, 0.08),
-      0 0 12px rgba(249, 115, 22, 0.14);
+      0 0 12px rgba(255, 122, 0, 0.14);
   }
   .stepper button:active:not(:disabled),
   .presets button:active:not(:disabled) {
@@ -439,11 +439,11 @@
     gap: 0.3rem;
   }
   .presets button.active {
-    border-color: rgba(249, 115, 22, 0.65);
+    border-color: rgba(255, 122, 0, 0.65);
     color: var(--accent-secondary);
     box-shadow:
       inset 0 1px 0 rgba(255, 255, 255, 0.08),
-      0 0 14px rgba(249, 115, 22, 0.25);
+      0 0 14px rgba(255, 122, 0, 0.25);
   }
   .value {
     font-family: var(--font-display);
@@ -468,10 +468,10 @@
   .play {
     display: grid;
     place-items: center;
-    background: linear-gradient(180deg, #ea580c 0%, #f97316 100%);
+    background: linear-gradient(180deg, #ea580c 0%, #ff7a00 100%);
     color: #fff7ed;
     font-size: 1.02rem;
-    border: 1px solid rgba(249, 115, 22, 0.55);
+    border: 1px solid rgba(255, 122, 0, 0.55);
     box-shadow:
       0 10px 24px rgba(0, 0, 0, 0.45),
       inset 0 1px 0 rgba(255, 255, 255, 0.12);
@@ -566,7 +566,7 @@
     border: 1px solid rgba(212, 175, 90, 0.45);
     background:
       radial-gradient(ellipse 80% 60% at 50% 0%, rgba(212, 175, 90, 0.12), transparent 70%),
-      linear-gradient(165deg, rgba(24, 34, 40, 0.98), rgba(8, 12, 14, 0.99));
+      linear-gradient(165deg, rgba(30, 27, 23, 0.98), rgba(8, 12, 14, 0.99));
     color: var(--text-primary);
     display: flex;
     flex-direction: column;

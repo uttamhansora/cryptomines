@@ -37,7 +37,7 @@
 
 <style>
   .chain {
-    background: linear-gradient(180deg, rgba(19, 31, 38, 0.9), rgba(10, 16, 21, 0.95));
+    background: linear-gradient(180deg, rgba(24, 21, 18, 0.9), rgba(10, 16, 21, 0.95));
     border: 1px solid var(--border);
     border-radius: var(--radius-md);
     padding: var(--space-sm) var(--space-md) 0.85rem;
@@ -49,9 +49,9 @@
     animation: chain-pulse 0.45s ease-out;
   }
   @keyframes chain-pulse {
-    0% { box-shadow: 0 0 0 rgba(249, 115, 22, 0), inset 0 1px 0 rgba(255, 255, 255, 0.04); }
-    40% { box-shadow: 0 0 0 2px rgba(249, 115, 22, 0.32), inset 0 0 24px rgba(249, 115, 22, 0.12); }
-    100% { box-shadow: 0 0 0 rgba(249, 115, 22, 0), inset 0 1px 0 rgba(255, 255, 255, 0.04); }
+    0% { box-shadow: 0 0 0 rgba(255, 122, 0, 0), inset 0 1px 0 rgba(255, 255, 255, 0.04); }
+    40% { box-shadow: 0 0 0 2px rgba(255, 122, 0, 0.32), inset 0 0 24px rgba(255, 122, 0, 0.12); }
+    100% { box-shadow: 0 0 0 rgba(255, 122, 0, 0), inset 0 1px 0 rgba(255, 255, 255, 0.04); }
   }
   .head {
     display: flex;
@@ -102,8 +102,8 @@
     border-radius: 50%;
     display: grid;
     place-items: center;
-    border: 1.5px solid rgba(120, 150, 165, 0.3);
-    background: radial-gradient(circle at 50% 30%, #101a20, #060b0e);
+    border: 1.5px solid rgba(165, 150, 120, 0.3);
+    background: radial-gradient(circle at 50% 30%, #151310, #060b0e);
     box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.6);
     transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s var(--ease-out-soft);
   }
@@ -119,14 +119,14 @@
     inset: 0;
     border-radius: 50%;
     opacity: 0;
-    background: radial-gradient(circle at 40% 32%, #fed7aa, #ea580c 60%, #431407);
+    background: radial-gradient(circle at 40% 32%, #fed7aa, #ea580c 60%, #3a2306);
     transition: opacity 0.2s;
   }
   .node.active {
-    border-color: rgba(249, 115, 22, 0.8);
+    border-color: rgba(255, 122, 0, 0.8);
     transform: scale(1.08);
     box-shadow:
-      0 0 12px rgba(249, 115, 22, 0.45),
+      0 0 12px rgba(255, 122, 0, 0.45),
       0 0 4px rgba(212, 175, 90, 0.25),
       inset 0 1px 0 rgba(255, 255, 255, 0.25);
     animation: node-charge 0.35s var(--ease-out-soft);
@@ -151,13 +151,13 @@
     height: 4px;
     margin: 0 1px;
     border-radius: 2px;
-    background: rgba(120, 150, 165, 0.14);
+    background: rgba(165, 150, 120, 0.14);
     box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.5);
     position: relative;
     overflow: hidden;
   }
   .wire.lit {
-    background: rgba(249, 115, 22, 0.3);
+    background: rgba(255, 122, 0, 0.3);
     animation: wire-fill 0.28s var(--ease-out-soft) both;
     transform-origin: left center;
   }
@@ -194,7 +194,7 @@
     position: absolute;
     inset: 0;
     pointer-events: none;
-    background: radial-gradient(circle at 50% 50%, rgba(249, 115, 22, 0.12), transparent 65%);
+    background: radial-gradient(circle at 50% 50%, rgba(255, 122, 0, 0.12), transparent 65%);
     opacity: 0;
   }
 </style>
