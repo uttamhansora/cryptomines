@@ -64,8 +64,8 @@
     width: 34px;
     height: 34px;
     border-radius: 9px;
-    background: linear-gradient(160deg, rgba(212, 175, 90, 0.16), rgba(36, 58, 12, 0.55));
-    border: 1px solid rgba(212, 175, 90, 0.4);
+    background: linear-gradient(160deg, rgba(255, 160, 64, 0.16), rgba(58, 30, 8, 0.55));
+    border: 1px solid rgba(255, 160, 64, 0.4);
     box-shadow:
       0 0 16px rgba(16, 185, 129, 0.14),
       inset 0 1px 0 rgba(255, 255, 255, 0.08);
@@ -77,7 +77,7 @@
     letter-spacing: 0.14em;
     font-weight: 700;
     text-transform: uppercase;
-    color: #f4ead0;
+    color: #f7ece0;
     text-shadow: 0 1px 0 rgba(0, 0, 0, 0.6);
   }
   h1 span {

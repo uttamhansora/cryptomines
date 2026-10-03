@@ -260,7 +260,7 @@
   }
   .tile.sym-vault .tile-glow,
   .tile.sym-vault .tile-burst {
-    background: radial-gradient(circle, rgba(212, 175, 90, 0.48), transparent 68%);
+    background: radial-gradient(circle, rgba(255, 160, 64, 0.48), transparent 68%);
   }
   /* unrevealed lid emblem */
   .tile-lid {
@@ -326,7 +326,7 @@
     filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.5));
   }
   .sym-wrap.vault-sym .sym {
-    filter: drop-shadow(0 4px 12px rgba(212, 175, 90, 0.5));
+    filter: drop-shadow(0 4px 12px rgba(255, 160, 64, 0.5));
   }
   .sym-wrap.mine-sym .sym {
     filter: drop-shadow(0 4px 14px rgba(16, 185, 129, 0.55));

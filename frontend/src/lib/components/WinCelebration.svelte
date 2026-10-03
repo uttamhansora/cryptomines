@@ -207,10 +207,10 @@
   .hero {
     width: 100%;
     height: auto;
-    filter: drop-shadow(0 0 28px rgba(201, 162, 39, 0.45));
+    filter: drop-shadow(0 0 28px rgba(217, 86, 11, 0.45));
   }
   .win.mega .hero {
-    filter: drop-shadow(0 0 40px rgba(232, 197, 71, 0.55));
+    filter: drop-shadow(0 0 40px rgba(255, 140, 46, 0.55));
   }
   .title {
     margin: 0;

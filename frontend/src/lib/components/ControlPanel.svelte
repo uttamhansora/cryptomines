@@ -490,6 +490,12 @@
       inset 0 1px 0 rgba(255, 255, 255, 0.12);
     transition: transform 0.12s var(--ease-out-soft), box-shadow 0.2s;
   }
+  .play:hover:not(:disabled) {
+    box-shadow:
+      0 10px 24px rgba(0, 0, 0, 0.45),
+      0 0 22px rgba(255, 122, 26, 0.55),
+      inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  }
   .play-face {
     display: inline-flex;
     align-items: center;
@@ -504,7 +510,7 @@
     font-size: 0.6rem;
     letter-spacing: 0.18em;
     text-transform: uppercase;
-    color: rgba(230, 245, 205, 0.75);
+    color: rgba(255, 240, 225, 0.78);
     font-weight: 600;
   }
   .energy-sweep {
@@ -576,7 +582,7 @@
     width: 100%;
     min-height: 104px;
     border-radius: var(--radius-md);
-    border: 1px solid rgba(212, 175, 90, 0.45);
+    border: 1px solid rgba(255, 160, 64, 0.45);
     background:
       radial-gradient(ellipse 80% 60% at 50% 0%, rgba(212, 175, 90, 0.12), transparent 70%),
       linear-gradient(165deg, rgba(30, 27, 23, 0.98), rgba(8, 12, 14, 0.99));
@@ -598,16 +604,16 @@
     content: '';
     position: absolute;
     inset: 0;
-    background: linear-gradient(115deg, transparent 35%, rgba(240, 220, 138, 0.08) 48%, rgba(240, 220, 138, 0.12) 52%, transparent 65%);
+    background: linear-gradient(115deg, transparent 35%, rgba(255, 220, 180, 0.08) 48%, rgba(255, 220, 180, 0.12) 52%, transparent 65%);
     transform: translateX(-70%);
     transition: transform 0.6s ease;
     pointer-events: none;
   }
   .buy:hover:not(:disabled) {
-    border-color: rgba(240, 220, 138, 0.7);
+    border-color: rgba(255, 220, 180, 0.7);
     box-shadow:
       inset 0 1px 0 rgba(255, 255, 255, 0.08),
-      0 0 22px rgba(212, 175, 90, 0.2),
+      0 0 22px rgba(255, 160, 64, 0.2),
       0 10px 28px rgba(0, 0, 0, 0.4);
   }
   .buy:hover:not(:disabled)::after {
@@ -621,7 +627,7 @@
     z-index: 1;
     display: grid;
     place-items: center;
-    filter: drop-shadow(0 4px 12px rgba(212, 175, 90, 0.4));
+    filter: drop-shadow(0 4px 12px rgba(255, 160, 64, 0.4));
     transition: transform 0.3s var(--ease-out-soft);
   }
   .buy:hover:not(:disabled) .buy-vault {
@@ -659,7 +665,7 @@
     color: var(--accent-primary);
   }
   .confirm {
-    border: 1px solid rgba(212, 175, 90, 0.35);
+    border: 1px solid rgba(255, 160, 64, 0.35);
     border-radius: var(--radius-md);
     padding: var(--space-md);
     background: rgba(8, 12, 14, 0.98);

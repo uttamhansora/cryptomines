@@ -33,12 +33,12 @@
   --border: rgba(16, 185, 129, 0.14);
   --glow-blue: var(--primary-glow);        /* green glow, legacy name kept */
   --glow-green: var(--primary-glow);
-  --glow-gold: rgba(212, 175, 90, 0.3);
+  --glow-gold: rgba(212, 175, 90, 0.3); /* reserved for the gold vault-bonus scene */
   --glow-cyan: var(--glow-blue);
   --glass: rgba(20, 17, 13, 0.78);
 
   --shadow-key: rgba(0, 0, 0, 0.6);
-  --shadow-ambient: rgba(18, 15, 6, 0.35);
+  --shadow-ambient: rgba(20, 10, 3, 0.35);
   --light-key: rgba(255, 255, 255, 0.07);
   --light-rim: rgba(52, 211, 153, 0.12);
 
