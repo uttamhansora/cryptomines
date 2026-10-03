@@ -277,7 +277,7 @@
 
 <style>
   .panel {
-    background: linear-gradient(180deg, rgba(24, 21, 18, 0.94), rgba(8, 13, 18, 0.97));
+    background: linear-gradient(180deg, rgba(24, 21, 18, 0.94), rgba(10, 9, 7, 0.97));
     border: 1px solid var(--border);
     border-radius: var(--radius-lg);
     padding: var(--space-md);
@@ -372,7 +372,7 @@
     gap: var(--space-sm);
   }
   .stat-card {
-    background: linear-gradient(170deg, rgba(24, 21, 18, 0.85), rgba(8, 13, 18, 0.9));
+    background: linear-gradient(170deg, rgba(24, 21, 18, 0.85), rgba(10, 9, 7, 0.9));
     border: 1px solid var(--border);
     border-radius: var(--radius-sm);
     padding: 0.45rem 0.6rem;
