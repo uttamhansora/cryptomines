@@ -114,11 +114,11 @@
     <span class="tile-lid" aria-hidden="true" style:visibility={cell.state === 'hidden' ? 'visible' : 'hidden'}>
       <span class="back-mark">
         <svg viewBox="0 0 64 64" width="58%" height="58%">
-          <g fill="none" stroke="#22c55e" stroke-width="2.2" opacity=".55">
+          <g fill="none" stroke="#10b981" stroke-width="2.2" opacity=".55">
             <polygon points="32,10 52,22 52,42 32,54 12,42 12,22" />
             <polygon points="32,20 43,27 43,37 32,44 21,37 21,27" opacity=".7" />
           </g>
-          <circle cx="32" cy="32" r="4.2" fill="#22c55e" opacity=".5" />
+          <circle cx="32" cy="32" r="4.2" fill="#10b981" opacity=".5" />
           <path d="M32 10v10M32 44v10M12 22l9 5M43 27l9-5M12 42l9-5M43 37l9 5" stroke="#d4af5a" stroke-width="1.4" opacity=".35" />
         </svg>
       </span>
@@ -179,10 +179,10 @@
   }
   .tile:not(:disabled):hover .tile-inner {
     transform: translate3d(0, -3px, 0);
-    border-color: rgba(34, 197, 94, 0.4);
+    border-color: rgba(16, 185, 129, 0.4);
     box-shadow:
       0 6px 14px rgba(0, 0, 0, 0.5),
-      0 0 16px rgba(34, 197, 94, 0.12),
+      0 0 16px rgba(16, 185, 129, 0.12),
       inset 0 1px 0 rgba(255, 255, 255, 0.12);
   }
   .tile:not(:disabled):hover .back-mark {
@@ -212,7 +212,7 @@
     background: radial-gradient(circle at 50% 30%, var(--glow-gold), transparent 70%);
   }
   .tile.mine .tile-glow {
-    background: radial-gradient(circle at 50% 50%, rgba(34, 197, 94, 0.45), transparent 72%);
+    background: radial-gradient(circle at 50% 50%, rgba(16, 185, 129, 0.45), transparent 72%);
     opacity: 0.9;
   }
   .tile-fx {
@@ -228,7 +228,7 @@
     inset: 0;
     opacity: 0;
     pointer-events: none;
-    background: radial-gradient(circle, rgba(34, 197, 94, 0.3), transparent 65%);
+    background: radial-gradient(circle, rgba(16, 185, 129, 0.3), transparent 65%);
   }
   .tile.sym-btc .tile-glow,
   .tile.sym-btc .tile-burst {
@@ -321,7 +321,7 @@
     filter: drop-shadow(0 4px 12px rgba(212, 175, 90, 0.5));
   }
   .sym-wrap.mine-sym .sym {
-    filter: drop-shadow(0 4px 14px rgba(34, 197, 94, 0.55));
+    filter: drop-shadow(0 4px 14px rgba(16, 185, 129, 0.55));
   }
   @keyframes sym-in {
     from {
@@ -338,18 +338,18 @@
     }
   }
   .tile.revealed.safe .tile-inner {
-    border-color: rgba(34, 197, 94, 0.38);
+    border-color: rgba(16, 185, 129, 0.38);
     background: linear-gradient(168deg, #292412 0%, #171408 100%);
     box-shadow:
-      0 0 0 1px rgba(34, 197, 94, 0.1),
+      0 0 0 1px rgba(16, 185, 129, 0.1),
       0 4px 12px rgba(0, 0, 0, 0.45),
       inset 0 1px 0 rgba(52, 211, 153, 0.1);
   }
   .tile.mine .tile-inner {
-    border-color: rgba(34, 197, 94, 0.55);
+    border-color: rgba(16, 185, 129, 0.55);
     background: linear-gradient(160deg, #241418, #0c0a0c);
     box-shadow:
-      0 0 18px rgba(34, 197, 94, 0.25),
+      0 0 18px rgba(16, 185, 129, 0.25),
       inset 0 1px 0 rgba(110, 231, 183, 0.12);
     animation: mine-shake 0.3s ease-out;
   }
@@ -365,10 +365,10 @@
   }
   .tile.ghost.mine .tile-inner {
     opacity: 0.92;
-    border-color: rgba(34, 197, 94, 0.28);
+    border-color: rgba(16, 185, 129, 0.28);
   }
   .tile.ghost.safe .tile-inner {
-    border-color: rgba(34, 197, 94, 0.12);
+    border-color: rgba(16, 185, 129, 0.12);
   }
   .tile.mine:not(.ghost) .tile-inner {
     z-index: 2;

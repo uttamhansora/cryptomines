@@ -6,31 +6,31 @@
   --surface-elevated: #1b1815;
 
   /* Primary accent theme (premium green) — single source of truth */
-  --primary: #22c55e;
+  --primary: #10b981;
   --primary-light: #34d399;
-  --primary-dark: #166534;
-  --primary-glow: rgba(34, 197, 94, 0.30);
+  --primary-dark: #065F46;
+  --primary-glow: rgba(16, 185, 129, 0.30);
 
-  --blue-deep: #0c2b16;
-  --blue-mid: #14532d;
-  --blue-light: #16a34a;
+  --blue-deep: #052e22;
+  --blue-mid: #064e3b;
+  --blue-light: #059669;
   --graphite: #1c1917;
   --graphite-light: #2b2724;
 
-  --accent-primary: var(--primary);        /* #22c55e */
+  --accent-primary: var(--primary);        /* #10b981 */
   --accent-secondary: var(--primary-light); /* #34d399 */
   --accent-cyan: var(--primary-light);
   --highlight: #d4af5a;
   --highlight-soft: #f0d48a;
   --success: #34d399; /* follows the primary accent theme */
-  --warning: #16a34a;
-  --danger: #22c55e;
-  --danger-deep: #166534;
+  --warning: #059669;
+  --danger: #10b981;
+  --danger-deep: #065F46;
 
   --text-primary: #edf6f2;
   --text-secondary: #b0a89e;
   --text-muted: #5f7480;
-  --border: rgba(34, 197, 94, 0.14);
+  --border: rgba(16, 185, 129, 0.14);
   --glow-blue: var(--primary-glow);        /* green glow, legacy name kept */
   --glow-green: var(--primary-glow);
   --glow-gold: rgba(212, 175, 90, 0.3);

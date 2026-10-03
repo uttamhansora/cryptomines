@@ -4,17 +4,17 @@ export type ParticlePalette = 'btc' | 'eth' | 'sol' | 'usdt' | 'diamond' | 'vaul
 
 const PALETTE: Record<ParticlePalette, string[]> = {
   btc: ['#f59e0b', '#fcd34d', '#fffbeb'],
-  eth: ['#22c55e', '#34d399', '#a7f3d0'],
+  eth: ['#10b981', '#34d399', '#a7f3d0'],
   sol: ['#a855f7', '#c084fc', '#e9d5ff'],
   usdt: ['#34d399', '#6ee7b7', '#ecfdf5'],
-  diamond: ['#67e8f9', '#bae6fd', '#e0f2fe'],
-  vault: ['#c9a227', '#22c55e', '#fde68a'],
-  mine: ['#22c55e', '#34d399', '#6ee7b7'],
-  chain: ['#22c55e', '#34d399', '#c9a227'],
-  cashout: ['#22c55e', '#c9a227', '#34d399'],
-  good: ['#34d399', '#22c55e', '#fff'],
-  big: ['#c9a227', '#22c55e', '#fff'],
-  mega: ['#6ee7b7', '#c9a227', '#22c55e', '#fff'],
+  diamond: ['#6ee7b7', '#a7f3d0', '#ecfdf5'],
+  vault: ['#c9a227', '#10b981', '#fde68a'],
+  mine: ['#10b981', '#34d399', '#6ee7b7'],
+  chain: ['#10b981', '#34d399', '#c9a227'],
+  cashout: ['#10b981', '#c9a227', '#34d399'],
+  good: ['#34d399', '#10b981', '#fff'],
+  big: ['#c9a227', '#10b981', '#fff'],
+  mega: ['#6ee7b7', '#c9a227', '#10b981', '#fff'],
 };
 
 function hashSeed(seed: number, i: number): number {

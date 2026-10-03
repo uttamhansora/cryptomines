@@ -296,7 +296,7 @@
     left: 18%;
     right: 18%;
     height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(34, 197, 94, 0.5), transparent);
+    background: linear-gradient(90deg, transparent, rgba(16, 185, 129, 0.5), transparent);
     pointer-events: none;
   }
   .section {
@@ -308,7 +308,7 @@
     align-items: center;
     text-align: center;
     padding-bottom: 0.25rem;
-    border-bottom: 1px solid rgba(34, 197, 94, 0.1);
+    border-bottom: 1px solid rgba(16, 185, 129, 0.1);
   }
   .mult-ring {
     position: relative;
@@ -340,14 +340,14 @@
     stroke: var(--accent-primary);
     stroke-width: 3;
     stroke-linecap: round;
-    filter: drop-shadow(0 0 4px rgba(34, 197, 94, 0.5));
+    filter: drop-shadow(0 0 4px rgba(16, 185, 129, 0.5));
     transition: stroke-dashoffset 0.4s var(--ease-out-soft);
   }
   .ring-orbit {
     position: absolute;
     inset: 8px;
     border-radius: 50%;
-    border: 1px dashed rgba(34, 197, 94, 0.22);
+    border: 1px dashed rgba(16, 185, 129, 0.22);
     animation: orbit-spin 14s linear infinite;
     pointer-events: none;
   }
@@ -358,7 +358,7 @@
     font-family: var(--font-display);
     font-size: clamp(1.5rem, 4.5vw, 1.8rem);
     color: var(--accent-secondary);
-    text-shadow: 0 0 18px rgba(34, 197, 94, 0.25);
+    text-shadow: 0 0 18px rgba(16, 185, 129, 0.25);
     font-variant-numeric: tabular-nums;
     animation: mult-pop 0.38s var(--ease-out-soft);
   }
@@ -420,10 +420,10 @@
   }
   .stepper button:hover:not(:disabled),
   .presets button:hover:not(:disabled) {
-    border-color: rgba(34, 197, 94, 0.4);
+    border-color: rgba(16, 185, 129, 0.4);
     box-shadow:
       inset 0 1px 0 rgba(255, 255, 255, 0.08),
-      0 0 12px rgba(34, 197, 94, 0.14);
+      0 0 12px rgba(16, 185, 129, 0.14);
   }
   .stepper button:active:not(:disabled),
   .presets button:active:not(:disabled) {
@@ -439,11 +439,11 @@
     gap: 0.3rem;
   }
   .presets button.active {
-    border-color: rgba(34, 197, 94, 0.65);
+    border-color: rgba(16, 185, 129, 0.65);
     color: var(--accent-secondary);
     box-shadow:
       inset 0 1px 0 rgba(255, 255, 255, 0.08),
-      0 0 14px rgba(34, 197, 94, 0.25);
+      0 0 14px rgba(16, 185, 129, 0.25);
   }
   .value {
     font-family: var(--font-display);
@@ -468,10 +468,10 @@
   .play {
     display: grid;
     place-items: center;
-    background: linear-gradient(180deg, #16a34a 0%, #22c55e 100%);
+    background: linear-gradient(180deg, #059669 0%, #10b981 100%);
     color: #ecfdf5;
     font-size: 1.02rem;
-    border: 1px solid rgba(34, 197, 94, 0.55);
+    border: 1px solid rgba(16, 185, 129, 0.55);
     box-shadow:
       0 10px 24px rgba(0, 0, 0, 0.45),
       inset 0 1px 0 rgba(255, 255, 255, 0.12);
@@ -530,17 +530,17 @@
     align-items: center;
     justify-content: center;
     gap: 0.15rem;
-    background: linear-gradient(180deg, #16a34a, #14532d);
+    background: linear-gradient(180deg, #059669, #064e3b);
     color: #171408;
     border: 1px solid rgba(52, 211, 153, 0.5);
     box-shadow:
       0 0 0 1px rgba(52, 211, 153, 0.2),
-      0 10px 28px rgba(22, 163, 74, 0.4);
+      0 10px 28px rgba(5, 150, 105, 0.4);
     animation: cashout-breathe 1.6s ease-in-out infinite;
   }
   @keyframes cashout-breathe {
-    0%, 100% { box-shadow: 0 0 0 1px rgba(52, 211, 153, 0.2), 0 10px 28px rgba(22, 163, 74, 0.4); }
-    50% { box-shadow: 0 0 0 2px rgba(52, 211, 153, 0.35), 0 10px 32px rgba(22, 163, 74, 0.55); }
+    0%, 100% { box-shadow: 0 0 0 1px rgba(52, 211, 153, 0.2), 0 10px 28px rgba(5, 150, 105, 0.4); }
+    50% { box-shadow: 0 0 0 2px rgba(52, 211, 153, 0.35), 0 10px 32px rgba(5, 150, 105, 0.55); }
   }
   .cashout:active {
     transform: scale(0.98);
