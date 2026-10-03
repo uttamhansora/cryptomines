@@ -69,28 +69,30 @@ export class AnimationController {
     const innerLight = el.querySelector('.tile-inner-light');
     const lid = el.querySelector('.tile-lid') as HTMLElement | null;
     const palette = kind === 'vault' ? 'vault' : symbolPalette(symbol);
+    // Keep the reveal snappy (~0.3s to full symbol): the tail of the timeline is
+    // a non-blocking polish fade whose promise we intentionally do not await,
+    // so the NEXT queued reveal (e.g. multi-tile loss disclosure) starts sooner.
+    const tl = gsap.timeline();
+    tl.to(target, { y: 3, scale: 0.94, duration: 0.06, ease: 'power2.in' })
+      .to(target, { y: -2, scale: 1.01, duration: 0.08, ease: 'power1.out' });
+    if (lid) tl.to(lid, { rotateX: -72, opacity: 0, duration: 0.14, transformOrigin: '50% 0%' }, '-=0.02');
+    if (innerLight) {
+      tl.fromTo(innerLight, { opacity: 0 }, { opacity: kind === 'vault' ? 0.85 : 0.65, duration: 0.1 }, '-=0.06')
+        .to(innerLight, { opacity: kind === 'vault' ? 0.35 : 0.18, duration: 0.28 }, '-=0.04');
+    }
+    tl.fromTo(sym, { scale: 0.5, opacity: 0, y: 10, rotate: -8 }, { scale: 1, opacity: 1, y: 0, rotate: 0, duration: 0.32, ease: 'back.out(1.7)' }, '-=0.05');
+    if (glow) {
+      tl.fromTo(glow, { opacity: 0, scale: 0.85 }, { opacity: kind === 'vault' ? 0.75 : 0.55, scale: 1.05, duration: 0.18 }, '-=0.28')
+        .to(glow, { opacity: kind === 'vault' ? 0.3 : 0.16, scale: 1, duration: 0.32 });
+    }
+    const burst = el.querySelector('.tile-burst');
+    if (burst) {
+      tl.fromTo(burst, { opacity: 0.85, scale: 0.7 }, { opacity: 0, scale: 1.25, duration: 0.38, ease: 'power2.out' }, '-=0.32');
+    }
+    tl.to(target, { y: 0, scale: 1, duration: 0.12, ease: 'power2.out' }, '-=0.08');
+    this.burstOnTile(el, seed, palette);
     return new Promise((resolve) => {
-      const tl = gsap.timeline({ onComplete: () => {
-        this.burstOnTile(el, seed, palette);
-        resolve();
-      }});
-      tl.to(target, { y: 3, scale: 0.94, duration: 0.06, ease: 'power2.in' })
-        .to(target, { y: -2, scale: 1.01, duration: 0.08, ease: 'power1.out' });
-      if (lid) tl.to(lid, { rotateX: -72, opacity: 0, duration: 0.14, transformOrigin: '50% 0%' }, '-=0.02');
-      if (innerLight) {
-        tl.fromTo(innerLight, { opacity: 0 }, { opacity: kind === 'vault' ? 0.85 : 0.65, duration: 0.1 }, '-=0.06')
-          .to(innerLight, { opacity: kind === 'vault' ? 0.35 : 0.18, duration: 0.28 }, '-=0.04');
-      }
-      tl.fromTo(sym, { scale: 0.5, opacity: 0, y: 10, rotate: -8 }, { scale: 1, opacity: 1, y: 0, rotate: 0, duration: 0.32, ease: 'back.out(1.7)' }, '-=0.05');
-      if (glow) {
-        tl.fromTo(glow, { opacity: 0, scale: 0.85 }, { opacity: kind === 'vault' ? 0.75 : 0.55, scale: 1.05, duration: 0.18 }, '-=0.28')
-          .to(glow, { opacity: kind === 'vault' ? 0.3 : 0.16, scale: 1, duration: 0.32 });
-      }
-      const burst = el.querySelector('.tile-burst');
-      if (burst) {
-        tl.fromTo(burst, { opacity: 0.85, scale: 0.7 }, { opacity: 0, scale: 1.25, duration: 0.38, ease: 'power2.out' }, '-=0.32');
-      }
-      tl.to(target, { y: 0, scale: 1, duration: 0.12, ease: 'power2.out' }, '-=0.08');
+      window.setTimeout(resolve, 300);
     });
   }
 
@@ -132,7 +134,9 @@ export class AnimationController {
         tl.to(board, { scale: 0.985, duration: 0.05, ease: 'power2.in', yoyo: true, repeat: 1 }, '-=0.5');
       }
       if (neighbors.length) {
-        tl.to(neighbors, { scale: 0.98, duration: 0.08, stagger: 0.012, yoyo: true, repeat: 1 }, '-=0.45');
+        // Animate only the nearest tiles (max 8): tweening all 24 board tiles
+        // forced a full-board repaint for a barely-visible effect.
+        tl.to(Array.prototype.slice.call(neighbors, 0, 8), { scale: 0.98, duration: 0.08, stagger: 0.012, yoyo: true, repeat: 1 }, '-=0.45');
       }
       tl.to(target, { scale: 1, y: 0, duration: 0.22, ease: 'power2.out' }, '-=0.35')
         .to({}, { duration: 0.1 });
@@ -152,27 +156,31 @@ export class AnimationController {
   }
 
   private multiplierBump(multEl: HTMLElement | null, chainEl: HTMLElement | null): Promise<void> {
+    // Lightweight bump: don't block the event pipeline on this purely cosmetic
+    // pulse — resolve immediately and let GSAP finish in the background.
     if (!multEl) return Promise.resolve();
-    const ring = multEl.closest('.mult-ring')?.querySelector('.ring') as HTMLElement | null;
-    const energy = multEl.closest('.mult-ring')?.querySelector('.ring-energy') as HTMLElement | null;
-    return new Promise((resolve) => {
-      const tl = gsap.timeline({ onComplete: resolve });
-      if (chainEl) {
-        const pulse = chainEl.querySelector('[data-chain-energy]') as HTMLElement | null;
-        if (pulse) {
-          tl.fromTo(pulse, { opacity: 0, scaleX: 0.15 }, { opacity: 1, scaleX: 1, duration: 0.24, ease: 'power2.out' })
-            .to(pulse, { opacity: 0, duration: 0.28, delay: 0.04 });
-        }
+    const ring = multEl.closest('.mult-ring')?.querySelector('.ring-svg') as HTMLElement | null;
+    const energy = multEl.closest('.mult-ring')?.querySelector('.ring-orbit') as HTMLElement | null;
+    const tl = gsap.timeline();
+    if (chainEl) {
+      const pulse = chainEl.querySelector('[data-chain-energy]') as HTMLElement | null;
+      if (pulse) {
+        tl.fromTo(pulse, { opacity: 0, scaleX: 0.15 }, { opacity: 1, scaleX: 1, duration: 0.24, ease: 'power2.out' })
+          .to(pulse, { opacity: 0, duration: 0.28, delay: 0.04 });
       }
-      if (energy) {
-        tl.fromTo(energy, { rotate: 0, opacity: 0.3 }, { rotate: 180, opacity: 0.85, duration: 0.35, ease: 'power1.out' }, '-=0.2')
-          .to(energy, { opacity: 0.25, duration: 0.25 });
-      }
-      tl.fromTo(multEl, { scale: 1.08, filter: 'brightness(1.15)' }, { scale: 1, filter: 'brightness(1)', duration: 0.42, ease: 'power2.out' }, '-=0.25');
-      if (ring) {
-        tl.to(ring, { boxShadow: '0 0 32px rgba(16, 185, 129, 0.45)', duration: 0.12, yoyo: true, repeat: 1 }, '-=0.38');
-      }
-    });
+    }
+    if (energy) {
+      tl.fromTo(energy, { rotate: 0, opacity: 0.3 }, { rotate: 180, opacity: 0.85, duration: 0.35, ease: 'power1.out' }, '-=0.2')
+        .to(energy, { opacity: 0.25, duration: 0.25 });
+    }
+    // transform/opacity only (GPU-friendly). The previous `filter: brightness()`
+    // tween forced per-frame repaints of the whole ring layer during gameplay.
+    tl.fromTo(multEl, { scale: 1.08 }, { scale: 1, duration: 0.42, ease: 'power2.out' }, '-=0.25');
+    if (ring) {
+      tl.to(ring, { scale: 1.03, duration: 0.12, yoyo: true, repeat: 1, transformOrigin: '50% 50%' }, '-=0.38');
+    }
+    void tl;
+    return Promise.resolve();
   }
 
   private chainComplete(ctx: AnimContext, major: boolean): Promise<void> {

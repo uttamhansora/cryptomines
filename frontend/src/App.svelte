@@ -85,7 +85,22 @@
   let winChainBonusBook = $state(0);
   let chainPulse = $state(0);
 
-  const reducedMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const reducedMotionMq = window.matchMedia('(prefers-reduced-motion: reduce)');
+  const reducedMotion = () => reducedMotionMq.matches;
+
+  // Memoize the stable callbacks passed to children. Previously inline arrow
+  // props re-created every render, and App re-renders on EVERY snapshot
+  // emission (each pick/animation step), which forced ControlPanel /
+  // GameHeader / GameBoard / FeatureEducation to re-evaluate their bodies and
+  // cascade updates they did not need.
+  const openRules = () => (rulesOpen = true);
+  const closeRules = () => (rulesOpen = false);
+  const handleBetChange = (v: number) => {
+    if (walletConfig) bet = snapBetDisplayToConfig(v, walletConfig);
+    else bet = v;
+  };
+  const handleMinesChange = (v: number) => (mines = v);
+
   playback.subscribe((s) => {
     snap = s as PlayerSnapshot;
     if (s.vault) vaultData = s.vault;
@@ -464,7 +479,7 @@
   {#if loading}
     <LoadingShell />
   {:else}
-    <GameHeader {balance} {soundOn} onToggleSound={toggleSound} onRules={() => (rulesOpen = true)} />
+    <GameHeader {balance} {soundOn} onToggleSound={toggleSound} onRules={openRules} />
 
     {#if errorMsg || connectionState === 'AUTH_FAILED'}
       <p class="error" role="alert">
@@ -490,11 +505,8 @@
           pulseGen={chainPulse}
           starting={playInFlight}
           walletConfig={walletConfig}
-          onBetChange={(v) => {
-            if (walletConfig) bet = snapBetDisplayToConfig(v, walletConfig);
-            else bet = v;
-          }}
-          onMinesChange={(v) => (mines = v)}
+          onBetChange={handleBetChange}
+          onMinesChange={handleMinesChange}
           onStart={startRound}
           onCashout={onCashout}
           onBuyVault={startBuyVault}

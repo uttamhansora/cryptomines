@@ -61,12 +61,18 @@
   let rafId = 0;
   let multKey = $state(0);
 
+  const rmQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+
   onDestroy(() => cancelAnimationFrame(rafId));
 
+  // Derived so this effect ONLY re-runs when the multiplier actually changes —
+  // previously it re-ran (and cancelled/restarted a rAF tween) on every snapshot
+  // emission, balance update, bet change, etc.
+  const multTarget = $derived(multiplier);
+
   $effect(() => {
-    const target = multiplier;
-    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (reduced) {
+    const target = multTarget;
+    if (rmQuery.matches) {
       cancelAnimationFrame(rafId);
       displayMult = target;
       return;
@@ -75,7 +81,7 @@
     if (from === target) return;
     const jump = Math.abs(target - from);
     const start = performance.now();
-    const dur = jump >= 0.5 ? 520 : 380;
+    const dur = jump >= 0.5 ? 420 : 300;
     cancelAnimationFrame(rafId);
     multKey += 1;
     const tick = (now: number) => {
@@ -118,7 +124,9 @@
       Current multiplier
     </span>
     <div class="mult-ring" data-multiplier-ring>
-      <svg class="ring-svg" viewBox="0 0 100 100" aria-hidden="true">
+      <!-- transform:rotate() (not the `rotate` property) so GSAP's multiplier
+           bump can read/write this transform without fighting the CSS value -->
+      <svg class="ring-svg" style="transform: rotate(-90deg)" viewBox="0 0 100 100" aria-hidden="true">
         <circle class="ring-track" cx="50" cy="50" r="44"></circle>
         <circle
           class="ring-fill"
@@ -130,7 +138,7 @@
         ></circle>
       </svg>
       <span class="ring-orbit" aria-hidden="true"></span>
-      <strong key={multKey} data-multiplier-display>{displayMult.toFixed(2)}×</strong>
+      <span class="mult-value" key={multKey} data-multiplier-display>{displayMult.toFixed(2)}×</span>
     </div>
   </div>
 
@@ -323,7 +331,8 @@
     inset: 0;
     width: 100%;
     height: 100%;
-    transform: rotate(-90deg);
+    /* rotation lives in an inline style attribute (see markup) so GSAP can
+       animate scale on this element without clobbering the -90deg offset */
   }
   .ring-track {
     fill: none;
@@ -353,18 +362,22 @@
   }
   @keyframes orbit-spin {
     to { transform: rotate(360deg); } }
-  .mult-ring strong {
+  .mult-ring .mult-value {
     position: relative;
+    font-weight: bold;
     font-family: var(--font-display);
     font-size: clamp(1.5rem, 4.5vw, 1.8rem);
     color: var(--accent-secondary);
     text-shadow: 0 0 18px rgba(16, 185, 129, 0.25);
     font-variant-numeric: tabular-nums;
+    /* transform/opacity only — the old `filter: brightness()` keyframe repainted
+       this layer every frame of its pop-in */
     animation: mult-pop 0.38s var(--ease-out-soft);
+    will-change: transform;
   }
   @keyframes mult-pop {
-    0% { opacity: 0.5; transform: scale(0.92); filter: brightness(1.5); }
-    100% { opacity: 1; transform: scale(1); filter: brightness(1); }
+    0% { opacity: 0.5; transform: scale(0.92); }
+    100% { opacity: 1; transform: scale(1); }
   }
   .grid2 {
     display: grid;

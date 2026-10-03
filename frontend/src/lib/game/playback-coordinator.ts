@@ -37,15 +37,42 @@ export class PlaybackCoordinator {
   }
 
   /**
+   * Cached DOM lookups for the animation context. The board/header/panel markup is
+   * stable during a round, so we query at most once per element and re-verify only
+   * when the cached node has left the document (remounts / round resets). This keeps
+   * per-reveal work off the critical path instead of running document-wide selector
+   * scans inside the awaited animation sequence after every click.
+   */
+  private domCache: Partial<Record<'board' | 'mult' | 'stage' | 'chain', HTMLElement>> = {};
+
+  private cached<T extends HTMLElement>(key: 'board' | 'mult' | 'stage' | 'chain', sel: string): T | null {
+    const hit = this.domCache[key] as T | undefined;
+    if (hit && hit.isConnected) return hit;
+    const fresh = document.querySelector(sel) as T | null;
+    if (fresh) this.domCache[key] = fresh;
+    return fresh;
+  }
+
+  /**
    * Authoritative server stream update: apply full state immediately, animate only new tail.
    */
   async ingest(
     events: GameEvent[],
     opts: { animate: boolean; reducedMotion: boolean; onChainComplete?: () => void },
   ): Promise<void> {
-    const prefixOk =
+    // Fast-path for the normal case: the server always returns the previous
+    // event log with new events appended. Compare lengths + last index first
+    // so we never re-scan the whole history on every pick.
+    let prefixOk =
       this.events.length <= events.length &&
-      this.events.every((e, i) => events[i]?.index === e.index && events[i]?.type === e.type);
+      (this.events.length === 0 || events[this.events.length - 1]?.index === this.events[this.events.length - 1]?.index);
+    if (prefixOk && this.events.length > 0) {
+      // Defensive verification only when the cheap check could not prove it
+      // (e.g. streams without monotonic `index` fields).
+      if (events[this.events.length - 1]?.index === undefined) {
+        prefixOk = this.events.every((e, i) => events[i]?.type === e.type);
+      }
+    }
 
     if (!prefixOk) {
       this.snap = snapshotFromEvents(events);
@@ -57,26 +84,29 @@ export class PlaybackCoordinator {
     const delta = events.slice(this.events.length);
     if (delta.length === 0) return;
 
+    this.events = events;
+
+    if (!opts.animate || opts.reducedMotion) {
+      // No animations requested: fold the whole delta into ONE synchronous
+      // snapshot update + emit instead of notifying subscribers per event.
+      for (const ev of delta) applyEventToSnapshot(this.snap, ev);
+      this.emit();
+      return;
+    }
+
     for (const ev of delta) {
       applyEventToSnapshot(this.snap, ev);
-      this.events = events;
-      this.emitPatch(ev);
-      if (opts.animate && !opts.reducedMotion) {
-        await this.anim.playEvent(ev, {
-          getCellEl: (idx) => document.querySelector(`[data-tile-index="${idx}"]`) as HTMLElement | null,
-          getBoardEl: () => document.querySelector('[data-game-board]') as HTMLElement | null,
-          getMultiplierEl: () => document.querySelector('[data-multiplier-display]') as HTMLElement | null,
-          getStageEl: () => document.querySelector('[data-game-stage]') as HTMLElement | null,
-          getChainEl: () => document.querySelector('[data-chain-meter]') as HTMLElement | null,
-          onChainComplete: opts.onChainComplete,
-        });
-      }
+      // One notification per revealed tile — keyed tiles update locally.
+      this.emit();
+      await this.anim.playEvent(ev, {
+        getCellEl: (idx) => document.querySelector(`[data-tile-index="${idx}"]`) as HTMLElement | null,
+        getBoardEl: () => this.cached('board', '[data-game-board]'),
+        getMultiplierEl: () => this.cached('mult', '[data-multiplier-display]'),
+        getStageEl: () => this.cached('stage', '[data-game-stage]'),
+        getChainEl: () => this.cached('chain', '[data-chain-meter]'),
+        onChainComplete: opts.onChainComplete,
+      });
     }
-  }
-
-  /** Emit once per delta event — stores can optimize; board uses keyed tiles. */
-  private emitPatch(_ev: GameEvent): void {
-    this.emit();
   }
 
   cancelAnimations(): void {

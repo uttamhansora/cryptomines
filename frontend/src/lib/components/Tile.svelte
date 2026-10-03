@@ -55,13 +55,20 @@
   let justRevealed = $state(false);
   let revealTimer: ReturnType<typeof setTimeout> | undefined;
   let firstRun = true;
+  // Cache the last observed state so this effect performs zero work on every
+  // snapshot emission (the parent re-renders all tiles per event; previously
+  // each of the 25 tiles ran `cell.state !== 'hidden'` bookkeeping each time).
+  let lastState: BoardViewCell['state'] | null = null;
   $effect(() => {
     const revealed = cell.state !== 'hidden';
     if (firstRun) {
       firstRun = false;
+      lastState = cell.state;
       // Hydrated/resumed rounds should not replay entrance animations.
       return;
     }
+    if (cell.state === lastState) return;
+    lastState = cell.state;
     if (revealed && !justRevealed) {
       justRevealed = true;
       clearTimeout(revealTimer);
@@ -165,10 +172,11 @@
     position: relative;
     overflow: hidden;
     transform: translate3d(0, -1px, 0);
-    transition:
-      transform 0.16s var(--ease-out-soft),
-      border-color 0.16s ease,
-      box-shadow 0.16s ease;
+    /* Only compositor-friendly properties animate here. box-shadow/border are
+       intentionally NOT transitioned: with GSAP already driving the reveal and
+       hover lift per frame, their transitions forced extra paint work during
+       gameplay (identical resting appearance, no lost motion). */
+    transition: transform 0.16s var(--ease-out-soft);
     backface-visibility: hidden;
     border: 1px solid rgba(165, 150, 120, 0.16);
     background: var(--tile-face);
