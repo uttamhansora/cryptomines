@@ -128,7 +128,7 @@
     width: 40px;
     height: 40px;
     border: 1px solid rgba(165, 150, 120, 0.2);
-    background: linear-gradient(165deg, rgba(43, 39, 35, 0.85) 0%, rgba(13, 21, 27, 0.9) 60%, rgba(6, 10, 14, 0.95) 100%);
+    background: linear-gradient(165deg, rgba(43, 39, 35, 0.85) 0%, rgba(20, 17, 13, 0.9) 60%, rgba(10, 8, 6), 0.95) 100%);
     border-radius: 10px;
     padding: 0;
     transition:

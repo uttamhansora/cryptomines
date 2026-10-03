@@ -103,7 +103,7 @@
     border-radius: 12px;
     background:
       radial-gradient(ellipse 90% 70% at 50% -10%, rgba(16, 185, 129, 0.07), transparent 65%),
-      linear-gradient(180deg, #0a1218 0%, #04070a 100%);
+      linear-gradient(180deg, #15110d 0%, #090705 100%);
     border: 1px solid rgba(16, 185, 129, 0.16);
     box-shadow:
       inset 0 14px 34px rgba(0, 0, 0, 0.55),

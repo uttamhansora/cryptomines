@@ -103,7 +103,7 @@
     display: grid;
     place-items: center;
     border: 1.5px solid rgba(165, 150, 120, 0.3);
-    background: radial-gradient(circle at 50% 30%, #151310, #060b0e);
+    background: radial-gradient(circle at 50% 30%, #151310, #0c0a08);
     box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.6);
     transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s var(--ease-out-soft);
   }

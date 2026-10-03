@@ -150,7 +150,7 @@
     position: absolute;
     inset: 2px;
     border-radius: 12px;
-    background: #03070a;
+    background: #080605;
     box-shadow:
       inset 0 3px 8px rgba(0, 0, 0, 0.7),
       inset 0 -1px 0 rgba(255, 255, 255, 0.03);
@@ -240,7 +240,7 @@
   }
   .tile.sym-sol .tile-glow,
   .tile.sym-sol .tile-burst {
-    background: radial-gradient(circle, rgba(168, 85, 247, 0.4), transparent 68%);
+    background: radial-gradient(circle, rgba(16, 185, 129, 0.4), transparent 68%);
   }
   .tile.sym-usdt .tile-glow,
   .tile.sym-usdt .tile-burst {

@@ -410,7 +410,7 @@
     min-height: 44px;
     border-radius: var(--radius-sm);
     border: 1px solid rgba(165, 150, 120, 0.2);
-    background: linear-gradient(165deg, #2a2622 0%, #191613 45%, #0a1015 100%);
+    background: linear-gradient(165deg, #2a2622 0%, #191613 45%, #13100c 100%);
     color: var(--text-primary);
     font-weight: 600;
     box-shadow:
