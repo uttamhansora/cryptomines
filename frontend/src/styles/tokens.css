@@ -5,33 +5,33 @@
   --surface: #0d151b;
   --surface-elevated: #1b1815;
 
-  /* Primary accent theme (vibrant orange) — single source of truth */
-  --primary: #ff7a00;
-  --primary-light: #fb923c;
-  --primary-dark: #c2410c;
-  --primary-glow: rgba(255, 122, 0, 0.30);
+  /* Primary accent theme (premium green) — single source of truth */
+  --primary: #22c55e;
+  --primary-light: #34d399;
+  --primary-dark: #166534;
+  --primary-glow: rgba(34, 197, 94, 0.30);
 
-  --blue-deep: #3a2306;
-  --blue-mid: #9a3412;
-  --blue-light: #ea580c;
+  --blue-deep: #0c2b16;
+  --blue-mid: #14532d;
+  --blue-light: #16a34a;
   --graphite: #1c1917;
   --graphite-light: #2b2724;
 
-  --accent-primary: var(--primary);        /* #ff7a00 */
-  --accent-secondary: var(--primary-light); /* #fb923c */
+  --accent-primary: var(--primary);        /* #22c55e */
+  --accent-secondary: var(--primary-light); /* #34d399 */
   --accent-cyan: var(--primary-light);
   --highlight: #d4af5a;
   --highlight-soft: #f0d48a;
-  --success: #fb923c; /* follows the primary accent theme */
-  --warning: #ea580c;
-  --danger: #ff7a00;
-  --danger-deep: #c2410c;
+  --success: #34d399; /* follows the primary accent theme */
+  --warning: #16a34a;
+  --danger: #22c55e;
+  --danger-deep: #166534;
 
   --text-primary: #edf6f2;
   --text-secondary: #b0a89e;
   --text-muted: #5f7480;
-  --border: rgba(255, 122, 0, 0.14);
-  --glow-blue: var(--primary-glow);        /* orange glow, legacy name kept */
+  --border: rgba(34, 197, 94, 0.14);
+  --glow-blue: var(--primary-glow);        /* green glow, legacy name kept */
   --glow-green: var(--primary-glow);
   --glow-gold: rgba(212, 175, 90, 0.3);
   --glow-cyan: var(--glow-blue);
@@ -40,7 +40,7 @@
   --shadow-key: rgba(0, 0, 0, 0.6);
   --shadow-ambient: rgba(18, 15, 6, 0.35);
   --light-key: rgba(255, 255, 255, 0.07);
-  --light-rim: rgba(251, 146, 60, 0.12);
+  --light-rim: rgba(52, 211, 153, 0.12);
 
   /* metallic frame gradient (shared by board + panel chrome) */
   --metal-frame: linear-gradient(

@@ -1,7 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" fill="none">
   <defs>
     <linearGradient id="hall-bg" x1="400" y1="0" x2="400" y2="600"><stop stop-color="#12100a"/><stop offset="1" stop-color="#040402"/></linearGradient>
-    <radialGradient id="hall-glow" cx="0.5" cy="0.42" r="0.55"><stop stop-color="#ff7a00" stop-opacity="0.18"/><stop offset="1" stop-opacity="0"/></radialGradient>
+    <radialGradient id="hall-glow" cx="0.5" cy="0.42" r="0.55"><stop stop-color="#22c55e" stop-opacity="0.18"/><stop offset="1" stop-opacity="0"/></radialGradient>
     <linearGradient id="hall-pillar" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#35332a"/><stop offset="1" stop-color="#0f0e0a"/></linearGradient>
   </defs>
   <rect width="800" height="600" fill="url(#hall-bg)"/>

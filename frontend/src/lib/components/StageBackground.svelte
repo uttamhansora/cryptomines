@@ -31,7 +31,7 @@
         d.y -= d.v / h;
         if (d.y < 0) d.y = 1;
         ctx.globalAlpha = 0.08;
-        ctx.fillStyle = '#ff7a00';
+        ctx.fillStyle = '#22c55e';
         const px = d.x * w;
         const py = d.y * h;
         ctx.fillRect(px, py, d.s, d.s * 2.5);
