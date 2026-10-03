@@ -97,7 +97,7 @@
     margin-right: var(--space-xs);
     padding: 0.3rem 0.65rem;
     border-radius: 10px;
-    background: linear-gradient(180deg, rgba(24, 21, 18, 0.9), rgba(8, 13, 18, 0.9));
+    background: linear-gradient(180deg, rgba(24, 21, 18, 0.9), rgba(10, 9, 7, 0.9));
     border: 1px solid rgba(16, 185, 129, 0.22);
     box-shadow:
       inset 0 1px 0 rgba(255, 255, 255, 0.05),

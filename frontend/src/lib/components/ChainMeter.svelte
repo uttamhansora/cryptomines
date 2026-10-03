@@ -188,7 +188,7 @@
     color: var(--accent-primary);
     opacity: 0;
     pointer-events: none;
-    background: rgba(6, 10, 14, 0.78);
+    background: rgba(8, 7, 5, 0.78);
   }
   .energy {
     position: absolute;

@@ -5,7 +5,7 @@
     <filter id="mine-blur"><feGaussianBlur stdDeviation="3"/></filter>
   </defs>
   <circle cx="48" cy="48" r="22" fill="#10b981" opacity="0.25" filter="url(#mine-blur)"/>
-  <circle cx="48" cy="48" r="28" fill="url(#mine-body)" stroke="#4b5563" stroke-width="2"/>
+  <circle cx="48" cy="48" r="28" fill="url(#mine-body)" stroke="#63574b" stroke-width="2"/>
   <circle cx="48" cy="48" r="14" fill="url(#mine-core)"/>
   <circle cx="48" cy="48" r="14" fill="#fff" opacity="0.12"/>
   <path stroke="#9ca3af" stroke-width="3" stroke-linecap="round" d="M48 20v-8M48 76v8M20 48h-8M76 48h8M28 28l-6-6M68 68l6 6M68 28l6-6M28 68l-6 6"/>
