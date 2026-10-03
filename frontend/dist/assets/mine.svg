@@ -1,11 +1,11 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80" fill="none">
   <defs>
     <radialGradient id="mine-core" cx="0" cy="0" r="1" gradientTransform="matrix(0 20 -20 0 40 44)" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#ff8a9e"/>
-      <stop offset="1" stop-color="#ff4d6a"/>
+      <stop stop-color="#6ee7b7"/>
+      <stop offset="1" stop-color="#34d399"/>
     </radialGradient>
   </defs>
-  <circle cx="40" cy="44" r="22" fill="#1a1018" stroke="#ff4d6a" stroke-width="2"/>
-  <path stroke="#ff4d6a" stroke-width="2" stroke-linecap="round" d="M40 10v12M40 58v10M10 44h12M58 44h12M16 20l9 9M55 55l9 9M64 20l-9 9M25 55l-9 9"/>
+  <circle cx="40" cy="44" r="22" fill="#1a1018" stroke="#34d399" stroke-width="2"/>
+  <path stroke="#34d399" stroke-width="2" stroke-linecap="round" d="M40 10v12M40 58v10M10 44h12M58 44h12M16 20l9 9M55 55l9 9M64 20l-9 9M25 55l-9 9"/>
   <circle cx="40" cy="44" r="8" fill="url(#mine-core)"/>
 </svg>

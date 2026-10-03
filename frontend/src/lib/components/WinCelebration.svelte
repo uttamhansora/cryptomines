@@ -102,11 +102,11 @@
           ctx.fillStyle =
             tier === 'good'
               ? p.life > 0.5
-                ? '#67e8f9'
-                : '#f5c542'
+                ? '#6ee7b7'
+                : '#10b981'
               : p.life > 0.5
                 ? '#e8c547'
-                : '#f5c542';
+                : '#10b981';
           ctx.beginPath();
           ctx.arc(p.x, p.y, tier === 'mega' ? 2.5 : 2, 0, Math.PI * 2);
           ctx.fill();
@@ -180,10 +180,10 @@
     height: min(280px, 70vw);
     transform: translate(-50%, -50%);
     border-radius: 50%;
-    border: 2px solid rgba(103, 232, 249, 0.55);
+    border: 2px solid rgba(110, 231, 183, 0.55);
     opacity: 0;
     pointer-events: none;
-    box-shadow: 0 0 40px rgba(245, 197, 66, 0.35);
+    box-shadow: 0 0 40px rgba(16, 185, 129, 0.35);
   }
   .burst {
     position: absolute;
@@ -207,10 +207,10 @@
   .hero {
     width: 100%;
     height: auto;
-    filter: drop-shadow(0 0 28px rgba(201, 162, 39, 0.45));
+    filter: drop-shadow(0 0 28px rgba(217, 86, 11, 0.45));
   }
   .win.mega .hero {
-    filter: drop-shadow(0 0 40px rgba(232, 197, 71, 0.55));
+    filter: drop-shadow(0 0 40px rgba(255, 140, 46, 0.55));
   }
   .title {
     margin: 0;
@@ -234,7 +234,7 @@
     font-family: var(--font-display);
     font-size: clamp(1.75rem, 7vw, 2.65rem);
     color: var(--accent-secondary);
-    text-shadow: 0 0 24px rgba(245, 197, 66, 0.28);
+    text-shadow: 0 0 24px rgba(16, 185, 129, 0.28);
   }
   .win.mega .mult {
     font-size: clamp(2rem, 8vw, 3.1rem);

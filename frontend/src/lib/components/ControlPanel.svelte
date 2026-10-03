@@ -61,12 +61,18 @@
   let rafId = 0;
   let multKey = $state(0);
 
+  const rmQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+
   onDestroy(() => cancelAnimationFrame(rafId));
 
+  // Derived so this effect ONLY re-runs when the multiplier actually changes —
+  // previously it re-ran (and cancelled/restarted a rAF tween) on every snapshot
+  // emission, balance update, bet change, etc.
+  const multTarget = $derived(multiplier);
+
   $effect(() => {
-    const target = multiplier;
-    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (reduced) {
+    const target = multTarget;
+    if (rmQuery.matches) {
       cancelAnimationFrame(rafId);
       displayMult = target;
       return;
@@ -75,7 +81,7 @@
     if (from === target) return;
     const jump = Math.abs(target - from);
     const start = performance.now();
-    const dur = jump >= 0.5 ? 520 : 380;
+    const dur = jump >= 0.5 ? 420 : 300;
     cancelAnimationFrame(rafId);
     multKey += 1;
     const tick = (now: number) => {
@@ -118,7 +124,9 @@
       Current multiplier
     </span>
     <div class="mult-ring" data-multiplier-ring>
-      <svg class="ring-svg" viewBox="0 0 100 100" aria-hidden="true">
+      <!-- transform:rotate() (not the `rotate` property) so GSAP's multiplier
+           bump can read/write this transform without fighting the CSS value -->
+      <svg class="ring-svg" style="transform: rotate(-90deg)" viewBox="0 0 100 100" aria-hidden="true">
         <circle class="ring-track" cx="50" cy="50" r="44"></circle>
         <circle
           class="ring-fill"
@@ -130,7 +138,7 @@
         ></circle>
       </svg>
       <span class="ring-orbit" aria-hidden="true"></span>
-      <strong key={multKey} data-multiplier-display>{displayMult.toFixed(2)}×</strong>
+      <span class="mult-value" key={multKey} data-multiplier-display>{displayMult.toFixed(2)}×</span>
     </div>
   </div>
 
@@ -277,7 +285,7 @@
 
 <style>
   .panel {
-    background: linear-gradient(180deg, rgba(19, 31, 38, 0.94), rgba(8, 13, 18, 0.97));
+    background: linear-gradient(180deg, rgba(24, 21, 18, 0.94), rgba(10, 9, 7, 0.97));
     border: 1px solid var(--border);
     border-radius: var(--radius-lg);
     padding: var(--space-md);
@@ -296,7 +304,7 @@
     left: 18%;
     right: 18%;
     height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(245, 197, 66, 0.5), transparent);
+    background: linear-gradient(90deg, transparent, rgba(16, 185, 129, 0.5), transparent);
     pointer-events: none;
   }
   .section {
@@ -308,7 +316,7 @@
     align-items: center;
     text-align: center;
     padding-bottom: 0.25rem;
-    border-bottom: 1px solid rgba(245, 197, 66, 0.1);
+    border-bottom: 1px solid rgba(16, 185, 129, 0.1);
   }
   .mult-ring {
     position: relative;
@@ -323,11 +331,12 @@
     inset: 0;
     width: 100%;
     height: 100%;
-    transform: rotate(-90deg);
+    /* rotation lives in an inline style attribute (see markup) so GSAP can
+       animate scale on this element without clobbering the -90deg offset */
   }
   .ring-track {
     fill: none;
-    stroke: rgba(120, 150, 165, 0.14);
+    stroke: rgba(165, 150, 120, 0.14);
     stroke-width: 3;
   }
   /* Immediate press feedback while the RGS pick response is in flight */
@@ -340,31 +349,35 @@
     stroke: var(--accent-primary);
     stroke-width: 3;
     stroke-linecap: round;
-    filter: drop-shadow(0 0 4px rgba(245, 197, 66, 0.5));
+    filter: drop-shadow(0 0 4px rgba(16, 185, 129, 0.5));
     transition: stroke-dashoffset 0.4s var(--ease-out-soft);
   }
   .ring-orbit {
     position: absolute;
     inset: 8px;
     border-radius: 50%;
-    border: 1px dashed rgba(245, 197, 66, 0.22);
+    border: 1px dashed rgba(16, 185, 129, 0.22);
     animation: orbit-spin 14s linear infinite;
     pointer-events: none;
   }
   @keyframes orbit-spin {
     to { transform: rotate(360deg); } }
-  .mult-ring strong {
+  .mult-ring .mult-value {
     position: relative;
+    font-weight: bold;
     font-family: var(--font-display);
     font-size: clamp(1.5rem, 4.5vw, 1.8rem);
     color: var(--accent-secondary);
-    text-shadow: 0 0 18px rgba(245, 197, 66, 0.25);
+    text-shadow: 0 0 18px rgba(16, 185, 129, 0.25);
     font-variant-numeric: tabular-nums;
+    /* transform/opacity only — the old `filter: brightness()` keyframe repainted
+       this layer every frame of its pop-in */
     animation: mult-pop 0.38s var(--ease-out-soft);
+    will-change: transform;
   }
   @keyframes mult-pop {
-    0% { opacity: 0.5; transform: scale(0.92); filter: brightness(1.5); }
-    100% { opacity: 1; transform: scale(1); filter: brightness(1); }
+    0% { opacity: 0.5; transform: scale(0.92); }
+    100% { opacity: 1; transform: scale(1); }
   }
   .grid2 {
     display: grid;
@@ -372,7 +385,7 @@
     gap: var(--space-sm);
   }
   .stat-card {
-    background: linear-gradient(170deg, rgba(19, 31, 38, 0.85), rgba(8, 13, 18, 0.9));
+    background: linear-gradient(170deg, rgba(24, 21, 18, 0.85), rgba(10, 9, 7, 0.9));
     border: 1px solid var(--border);
     border-radius: var(--radius-sm);
     padding: 0.45rem 0.6rem;
@@ -409,8 +422,8 @@
     min-width: 44px;
     min-height: 44px;
     border-radius: var(--radius-sm);
-    border: 1px solid rgba(120, 150, 165, 0.2);
-    background: linear-gradient(165deg, #24313c 0%, #131d26 45%, #0a1015 100%);
+    border: 1px solid rgba(165, 150, 120, 0.2);
+    background: linear-gradient(165deg, #2a2622 0%, #191613 45%, #13100c 100%);
     color: var(--text-primary);
     font-weight: 600;
     box-shadow:
@@ -420,10 +433,10 @@
   }
   .stepper button:hover:not(:disabled),
   .presets button:hover:not(:disabled) {
-    border-color: rgba(245, 197, 66, 0.4);
+    border-color: rgba(16, 185, 129, 0.4);
     box-shadow:
       inset 0 1px 0 rgba(255, 255, 255, 0.08),
-      0 0 12px rgba(245, 197, 66, 0.14);
+      0 0 12px rgba(16, 185, 129, 0.14);
   }
   .stepper button:active:not(:disabled),
   .presets button:active:not(:disabled) {
@@ -439,11 +452,11 @@
     gap: 0.3rem;
   }
   .presets button.active {
-    border-color: rgba(245, 197, 66, 0.65);
+    border-color: rgba(16, 185, 129, 0.65);
     color: var(--accent-secondary);
     box-shadow:
       inset 0 1px 0 rgba(255, 255, 255, 0.08),
-      0 0 14px rgba(245, 197, 66, 0.25);
+      0 0 14px rgba(16, 185, 129, 0.25);
   }
   .value {
     font-family: var(--font-display);
@@ -468,14 +481,20 @@
   .play {
     display: grid;
     place-items: center;
-    background: linear-gradient(180deg, #d4a017 0%, #f5c542 100%);
-    color: #fdfaf0;
+    background: linear-gradient(180deg, #059669 0%, #10b981 100%);
+    color: #ecfdf5;
     font-size: 1.02rem;
-    border: 1px solid rgba(245, 197, 66, 0.55);
+    border: 1px solid rgba(16, 185, 129, 0.55);
     box-shadow:
       0 10px 24px rgba(0, 0, 0, 0.45),
       inset 0 1px 0 rgba(255, 255, 255, 0.12);
     transition: transform 0.12s var(--ease-out-soft), box-shadow 0.2s;
+  }
+  .play:hover:not(:disabled) {
+    box-shadow:
+      0 10px 24px rgba(0, 0, 0, 0.45),
+      0 0 22px rgba(255, 122, 26, 0.55),
+      inset 0 1px 0 rgba(255, 255, 255, 0.12);
   }
   .play-face {
     display: inline-flex;
@@ -491,14 +510,14 @@
     font-size: 0.6rem;
     letter-spacing: 0.18em;
     text-transform: uppercase;
-    color: rgba(230, 245, 205, 0.75);
+    color: rgba(255, 240, 225, 0.78);
     font-weight: 600;
   }
   .energy-sweep {
     position: absolute;
     inset: 0;
     pointer-events: none;
-    background: linear-gradient(100deg, transparent 30%, rgba(255, 213, 74, 0.16) 48%, rgba(255, 213, 74, 0.22) 52%, transparent 70%);
+    background: linear-gradient(100deg, transparent 30%, rgba(52, 211, 153, 0.16) 48%, rgba(52, 211, 153, 0.22) 52%, transparent 70%);
     transform: translateX(-60%);
     transition: transform 0.5s ease;
   }
@@ -519,7 +538,7 @@
     height: 18px;
     border-radius: 50%;
     border: 2px solid rgba(250, 248, 238, 0.3);
-    border-top-color: #fdfaf0;
+    border-top-color: #ecfdf5;
     animation: spin 0.7s linear infinite;
   }
   @keyframes spin {
@@ -530,17 +549,17 @@
     align-items: center;
     justify-content: center;
     gap: 0.15rem;
-    background: linear-gradient(180deg, #d4a017, #7a5c00);
+    background: linear-gradient(180deg, #059669, #064e3b);
     color: #171408;
-    border: 1px solid rgba(255, 213, 74, 0.5);
+    border: 1px solid rgba(52, 211, 153, 0.5);
     box-shadow:
-      0 0 0 1px rgba(255, 213, 74, 0.2),
-      0 10px 28px rgba(120, 128, 21, 0.4);
+      0 0 0 1px rgba(52, 211, 153, 0.2),
+      0 10px 28px rgba(5, 150, 105, 0.4);
     animation: cashout-breathe 1.6s ease-in-out infinite;
   }
   @keyframes cashout-breathe {
-    0%, 100% { box-shadow: 0 0 0 1px rgba(255, 213, 74, 0.2), 0 10px 28px rgba(120, 128, 21, 0.4); }
-    50% { box-shadow: 0 0 0 2px rgba(255, 213, 74, 0.35), 0 10px 32px rgba(120, 128, 21, 0.55); }
+    0%, 100% { box-shadow: 0 0 0 1px rgba(52, 211, 153, 0.2), 0 10px 28px rgba(5, 150, 105, 0.4); }
+    50% { box-shadow: 0 0 0 2px rgba(52, 211, 153, 0.35), 0 10px 32px rgba(5, 150, 105, 0.55); }
   }
   .cashout:active {
     transform: scale(0.98);
@@ -563,10 +582,10 @@
     width: 100%;
     min-height: 104px;
     border-radius: var(--radius-md);
-    border: 1px solid rgba(212, 175, 90, 0.45);
+    border: 1px solid rgba(255, 160, 64, 0.45);
     background:
       radial-gradient(ellipse 80% 60% at 50% 0%, rgba(212, 175, 90, 0.12), transparent 70%),
-      linear-gradient(165deg, rgba(24, 34, 40, 0.98), rgba(8, 12, 14, 0.99));
+      linear-gradient(165deg, rgba(30, 27, 23, 0.98), rgba(8, 12, 14, 0.99));
     color: var(--text-primary);
     display: flex;
     flex-direction: column;
@@ -585,16 +604,16 @@
     content: '';
     position: absolute;
     inset: 0;
-    background: linear-gradient(115deg, transparent 35%, rgba(240, 220, 138, 0.08) 48%, rgba(240, 220, 138, 0.12) 52%, transparent 65%);
+    background: linear-gradient(115deg, transparent 35%, rgba(255, 220, 180, 0.08) 48%, rgba(255, 220, 180, 0.12) 52%, transparent 65%);
     transform: translateX(-70%);
     transition: transform 0.6s ease;
     pointer-events: none;
   }
   .buy:hover:not(:disabled) {
-    border-color: rgba(240, 220, 138, 0.7);
+    border-color: rgba(255, 220, 180, 0.7);
     box-shadow:
       inset 0 1px 0 rgba(255, 255, 255, 0.08),
-      0 0 22px rgba(212, 175, 90, 0.2),
+      0 0 22px rgba(255, 160, 64, 0.2),
       0 10px 28px rgba(0, 0, 0, 0.4);
   }
   .buy:hover:not(:disabled)::after {
@@ -608,7 +627,7 @@
     z-index: 1;
     display: grid;
     place-items: center;
-    filter: drop-shadow(0 4px 12px rgba(212, 175, 90, 0.4));
+    filter: drop-shadow(0 4px 12px rgba(255, 160, 64, 0.4));
     transition: transform 0.3s var(--ease-out-soft);
   }
   .buy:hover:not(:disabled) .buy-vault {
@@ -646,7 +665,7 @@
     color: var(--accent-primary);
   }
   .confirm {
-    border: 1px solid rgba(212, 175, 90, 0.35);
+    border: 1px solid rgba(255, 160, 64, 0.35);
     border-radius: var(--radius-md);
     padding: var(--space-md);
     background: rgba(8, 12, 14, 0.98);
@@ -710,7 +729,7 @@
   .confirm-yes {
     flex: 1;
     background: linear-gradient(180deg, #e3bd63, #a8801f);
-    color: #1a1000;
+    color: #07150c;
     border: none;
     border-radius: var(--radius-sm);
     min-height: 44px;
