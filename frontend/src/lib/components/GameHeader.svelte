@@ -64,8 +64,8 @@
     width: 34px;
     height: 34px;
     border-radius: 9px;
-    background: linear-gradient(160deg, rgba(255, 160, 64, 0.16), rgba(58, 30, 8, 0.55));
-    border: 1px solid rgba(255, 160, 64, 0.4);
+    background: linear-gradient(160deg, rgba(212, 175, 90, 0.16), rgba(36, 58, 12, 0.55));
+    border: 1px solid rgba(212, 175, 90, 0.4);
     box-shadow:
       0 0 16px rgba(16, 185, 129, 0.14),
       inset 0 1px 0 rgba(255, 255, 255, 0.08);
@@ -77,7 +77,7 @@
     letter-spacing: 0.14em;
     font-weight: 700;
     text-transform: uppercase;
-    color: #f7ece0;
+    color: #f4ead0;
     text-shadow: 0 1px 0 rgba(0, 0, 0, 0.6);
   }
   h1 span {
@@ -97,7 +97,7 @@
     margin-right: var(--space-xs);
     padding: 0.3rem 0.65rem;
     border-radius: 10px;
-    background: linear-gradient(180deg, rgba(24, 21, 18, 0.9), rgba(10, 9, 7, 0.9));
+    background: linear-gradient(180deg, rgba(24, 21, 18, 0.9), rgba(8, 13, 18, 0.9));
     border: 1px solid rgba(16, 185, 129, 0.22);
     box-shadow:
       inset 0 1px 0 rgba(255, 255, 255, 0.05),
@@ -128,7 +128,7 @@
     width: 40px;
     height: 40px;
     border: 1px solid rgba(165, 150, 120, 0.2);
-    background: linear-gradient(165deg, rgba(43, 39, 35, 0.85) 0%, rgba(20, 17, 13, 0.9) 60%, rgba(10, 8, 6), 0.95) 100%);
+    background: linear-gradient(165deg, rgba(43, 39, 35, 0.85) 0%, rgba(13, 21, 27, 0.9) 60%, rgba(6, 10, 14, 0.95) 100%);
     border-radius: 10px;
     padding: 0;
     transition:

@@ -55,20 +55,13 @@
   let justRevealed = $state(false);
   let revealTimer: ReturnType<typeof setTimeout> | undefined;
   let firstRun = true;
-  // Cache the last observed state so this effect performs zero work on every
-  // snapshot emission (the parent re-renders all tiles per event; previously
-  // each of the 25 tiles ran `cell.state !== 'hidden'` bookkeeping each time).
-  let lastState: BoardViewCell['state'] | null = null;
   $effect(() => {
     const revealed = cell.state !== 'hidden';
     if (firstRun) {
       firstRun = false;
-      lastState = cell.state;
       // Hydrated/resumed rounds should not replay entrance animations.
       return;
     }
-    if (cell.state === lastState) return;
-    lastState = cell.state;
     if (revealed && !justRevealed) {
       justRevealed = true;
       clearTimeout(revealTimer);
@@ -157,7 +150,7 @@
     position: absolute;
     inset: 2px;
     border-radius: 12px;
-    background: #080605;
+    background: #03070a;
     box-shadow:
       inset 0 3px 8px rgba(0, 0, 0, 0.7),
       inset 0 -1px 0 rgba(255, 255, 255, 0.03);
@@ -172,11 +165,10 @@
     position: relative;
     overflow: hidden;
     transform: translate3d(0, -1px, 0);
-    /* Only compositor-friendly properties animate here. box-shadow/border are
-       intentionally NOT transitioned: with GSAP already driving the reveal and
-       hover lift per frame, their transitions forced extra paint work during
-       gameplay (identical resting appearance, no lost motion). */
-    transition: transform 0.16s var(--ease-out-soft);
+    transition:
+      transform 0.16s var(--ease-out-soft),
+      border-color 0.16s ease,
+      box-shadow 0.16s ease;
     backface-visibility: hidden;
     border: 1px solid rgba(165, 150, 120, 0.16);
     background: var(--tile-face);
@@ -248,7 +240,7 @@
   }
   .tile.sym-sol .tile-glow,
   .tile.sym-sol .tile-burst {
-    background: radial-gradient(circle, rgba(16, 185, 129, 0.4), transparent 68%);
+    background: radial-gradient(circle, rgba(168, 85, 247, 0.4), transparent 68%);
   }
   .tile.sym-usdt .tile-glow,
   .tile.sym-usdt .tile-burst {
@@ -260,7 +252,7 @@
   }
   .tile.sym-vault .tile-glow,
   .tile.sym-vault .tile-burst {
-    background: radial-gradient(circle, rgba(255, 160, 64, 0.48), transparent 68%);
+    background: radial-gradient(circle, rgba(212, 175, 90, 0.48), transparent 68%);
   }
   /* unrevealed lid emblem */
   .tile-lid {
@@ -326,7 +318,7 @@
     filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.5));
   }
   .sym-wrap.vault-sym .sym {
-    filter: drop-shadow(0 4px 12px rgba(255, 160, 64, 0.5));
+    filter: drop-shadow(0 4px 12px rgba(212, 175, 90, 0.5));
   }
   .sym-wrap.mine-sym .sym {
     filter: drop-shadow(0 4px 14px rgba(16, 185, 129, 0.55));

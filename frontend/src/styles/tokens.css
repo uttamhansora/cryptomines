@@ -1,8 +1,8 @@
 :root {
   /* ── Premium Dark Crypto Casino palette ─────────────────────────── */
-  --bg-primary: #090705;
-  --bg-secondary: #100d0a;
-  --surface: #19140f;
+  --bg-primary: #04070a;
+  --bg-secondary: #080d12;
+  --surface: #0d151b;
   --surface-elevated: #1b1815;
 
   /* Primary accent theme (premium green) — single source of truth */
@@ -33,12 +33,12 @@
   --border: rgba(16, 185, 129, 0.14);
   --glow-blue: var(--primary-glow);        /* green glow, legacy name kept */
   --glow-green: var(--primary-glow);
-  --glow-gold: rgba(212, 175, 90, 0.3); /* reserved for the gold vault-bonus scene */
+  --glow-gold: rgba(212, 175, 90, 0.3);
   --glow-cyan: var(--glow-blue);
-  --glass: rgba(20, 17, 13, 0.78);
+  --glass: rgba(13, 21, 27, 0.78);
 
   --shadow-key: rgba(0, 0, 0, 0.6);
-  --shadow-ambient: rgba(20, 10, 3, 0.35);
+  --shadow-ambient: rgba(18, 15, 6, 0.35);
   --light-key: rgba(255, 255, 255, 0.07);
   --light-rim: rgba(52, 211, 153, 0.12);
 
@@ -48,10 +48,10 @@
     #36312c 0%,
     #141210 22%,
     #25211d 48%,
-    #14100c 74%,
+    #0a1116 74%,
     #2b2723 100%
   );
-  --tile-face: linear-gradient(168deg, #2e2a25 0%, #1e1a17 46%, #18130e 100%);
+  --tile-face: linear-gradient(168deg, #2e2a25 0%, #1e1a17 46%, #0c141a 100%);
 
   --radius-sm: 8px;
   --radius-md: 12px;
