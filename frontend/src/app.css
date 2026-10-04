@@ -18,7 +18,12 @@ body {
   min-height: 100dvh;
   font-family: var(--font-ui);
   color: var(--text-primary);
-  background: var(--bg-primary);
+  /* ── Deep space backdrop: layered nebula glows over near-black navy ── */
+  background:
+    radial-gradient(ellipse 120% 75% at 50% -12%, rgba(8, 47, 63, 0.5), transparent 62%),
+    radial-gradient(ellipse 65% 45% at 12% 92%, rgba(14, 62, 74, 0.22), transparent 60%),
+    radial-gradient(ellipse 55% 40% at 92% 82%, rgba(66, 32, 8, 0.16), transparent 62%),
+    linear-gradient(180deg, #04070d 0%, #060b16 55%, #03060c 100%);
   -webkit-font-smoothing: antialiased;
 }
 

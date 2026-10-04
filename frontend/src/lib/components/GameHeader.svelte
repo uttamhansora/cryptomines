@@ -14,9 +14,9 @@
   <div class="brand">
     <span class="mark" aria-hidden="true">
       <svg viewBox="0 0 64 64" width="22" height="22">
-        <polygon points="32,7 54,20 54,44 32,57 10,44 10,20" fill="#12161f" stroke="#3b82f6" stroke-width="2.4" />
-        <polygon points="32,17 45,25 45,39 32,47 19,39 19,25" fill="none" stroke="#3b82f6" stroke-width="2" opacity=".85" />
-        <circle cx="32" cy="32" r="4.6" fill="#60a5fa" />
+        <polygon points="32,7 54,20 54,44 32,57 10,44 10,20" fill="#12161f" stroke="#22d3ee" stroke-width="2.4" />
+        <polygon points="32,17 45,25 45,39 32,47 19,39 19,25" fill="none" stroke="#22d3ee" stroke-width="2" opacity=".85" />
+        <circle cx="32" cy="32" r="4.6" fill="#67e8f9" />
       </svg>
     </span>
     <h1>Crypto<span>Mines</span></h1>
@@ -64,10 +64,10 @@
     width: 34px;
     height: 34px;
     border-radius: 9px;
-    background: linear-gradient(160deg, rgba(37, 99, 235, 0.16), rgba(12, 20, 42, 0.55));
-    border: 1px solid rgba(37, 99, 235, 0.4);
+    background: linear-gradient(160deg, rgba(8, 145, 178, 0.16), rgba(12, 20, 42, 0.55));
+    border: 1px solid rgba(8, 145, 178, 0.4);
     box-shadow:
-      0 0 16px rgba(59, 130, 246, 0.14),
+      0 0 16px rgba(34, 211, 238, 0.14),
       inset 0 1px 0 rgba(255, 255, 255, 0.08);
   }
   h1 {
@@ -77,7 +77,7 @@
     letter-spacing: 0.14em;
     font-weight: 700;
     text-transform: uppercase;
-    color: #e6eeff;
+    color: #e0f7fa;
     text-shadow: 0 1px 0 rgba(0, 0, 0, 0.6);
   }
   h1 span {
@@ -98,7 +98,7 @@
     padding: 0.3rem 0.65rem;
     border-radius: 10px;
     background: linear-gradient(180deg, rgba(16, 21, 31, 0.9), rgba(9, 14, 22, 0.9));
-    border: 1px solid rgba(59, 130, 246, 0.22);
+    border: 1px solid rgba(34, 211, 238, 0.22);
     box-shadow:
       inset 0 1px 0 rgba(255, 255, 255, 0.05),
       0 4px 14px rgba(0, 0, 0, 0.4);
@@ -137,8 +137,8 @@
       transform 0.1s ease;
   }
   .icon-btn:hover {
-    border-color: rgba(59, 130, 246, 0.45);
-    box-shadow: 0 0 14px rgba(59, 130, 246, 0.16);
+    border-color: rgba(34, 211, 238, 0.45);
+    box-shadow: 0 0 14px rgba(34, 211, 238, 0.16);
   }
   .icon-btn:active {
     transform: scale(0.93);

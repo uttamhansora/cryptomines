@@ -62,7 +62,7 @@
     padding: 12px;
     border-radius: 20px;
     background: var(--metal-frame);
-    border: 1px solid rgba(37, 99, 235, 0.22);
+    border: 1px solid rgba(8, 145, 178, 0.22);
     box-shadow:
       0 24px 60px rgba(0, 0, 0, 0.6),
       0 4px 14px rgba(0, 0, 0, 0.5),
@@ -87,7 +87,7 @@
     position: absolute;
     width: 14px;
     height: 14px;
-    border-color: rgba(37, 99, 235, 0.55);
+    border-color: rgba(8, 145, 178, 0.55);
     border-style: solid;
     border-width: 0;
     pointer-events: none;
@@ -102,9 +102,9 @@
     padding: clamp(8px, 2.4vw, 14px);
     border-radius: 12px;
     background:
-      radial-gradient(ellipse 90% 70% at 50% -10%, rgba(59, 130, 246, 0.07), transparent 65%),
+      radial-gradient(ellipse 90% 70% at 50% -10%, rgba(34, 211, 238, 0.07), transparent 65%),
       linear-gradient(180deg, #0f1520 0%, #050a12 100%);
-    border: 1px solid rgba(59, 130, 246, 0.16);
+    border: 1px solid rgba(34, 211, 238, 0.16);
     box-shadow:
       inset 0 14px 34px rgba(0, 0, 0, 0.55),
       inset 0 0 0 1px rgba(0, 0, 0, 0.4),
@@ -118,8 +118,8 @@
     pointer-events: none;
     opacity: 0.5;
     background-image:
-      linear-gradient(rgba(59, 130, 246, 0.05) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(59, 130, 246, 0.05) 1px, transparent 1px);
+      linear-gradient(rgba(34, 211, 238, 0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(34, 211, 238, 0.05) 1px, transparent 1px);
     background-size: 26px 26px;
     mask-image: radial-gradient(ellipse 75% 70% at 50% 45%, #000 20%, transparent 78%);
   }
@@ -133,7 +133,7 @@
   .mine-flash {
     position: absolute;
     inset: 0;
-    background: rgba(59, 130, 246, 0.22);
+    background: rgba(239, 68, 68, 0.24);
     opacity: 0;
     pointer-events: none;
     border-radius: var(--radius-md);
@@ -147,7 +147,7 @@
     height: 40%;
     margin: -20% 0 0 -20%;
     border-radius: 50%;
-    border: 2px solid rgba(59, 130, 246, 0.45);
+    border: 2px solid rgba(239, 68, 68, 0.5);
     opacity: 0;
     pointer-events: none;
     z-index: 4;
@@ -160,10 +160,10 @@
     height: 40%;
     transform: translate(-50%, -50%);
     border-radius: 50%;
-    border: 1px solid rgba(37, 99, 235, 0.4);
+    border: 1px solid rgba(8, 145, 178, 0.4);
     opacity: 0;
     pointer-events: none;
     z-index: 2;
-    box-shadow: 0 0 24px rgba(37, 99, 235, 0.16);
+    box-shadow: 0 0 24px rgba(8, 145, 178, 0.16);
   }
 </style>

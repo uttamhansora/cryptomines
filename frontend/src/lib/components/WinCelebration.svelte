@@ -102,11 +102,11 @@
           ctx.fillStyle =
             tier === 'good'
               ? p.life > 0.5
-                ? '#93c5fd'
-                : '#3b82f6'
+                ? '#7DD3FC'
+                : '#22d3ee'
               : p.life > 0.5
-                ? '#60a5fa'
-                : '#3b82f6';
+                ? '#67e8f9'
+                : '#22d3ee';
           ctx.beginPath();
           ctx.arc(p.x, p.y, tier === 'mega' ? 2.5 : 2, 0, Math.PI * 2);
           ctx.fill();
@@ -170,7 +170,7 @@
     background: radial-gradient(ellipse 75% 58% at 50% 45%, rgba(9, 14, 21, 0.62), rgba(4, 9, 15, 0.88));
   }
   .win.mega {
-    background: radial-gradient(ellipse 80% 62% at 50% 42%, rgba(23, 37, 84, 0.35), rgba(4, 8, 14, 0.92));
+    background: radial-gradient(ellipse 80% 62% at 50% 42%, rgba(8, 51, 68, 0.35), rgba(4, 8, 14, 0.92));
   }
   .win-shock {
     position: absolute;
@@ -180,10 +180,10 @@
     height: min(280px, 70vw);
     transform: translate(-50%, -50%);
     border-radius: 50%;
-    border: 2px solid rgba(147, 197, 253, 0.55);
+    border: 2px solid rgba(125, 211, 252, 0.55);
     opacity: 0;
     pointer-events: none;
-    box-shadow: 0 0 40px rgba(59, 130, 246, 0.35);
+    box-shadow: 0 0 40px rgba(34, 211, 238, 0.35);
   }
   .burst {
     position: absolute;
@@ -207,10 +207,10 @@
   .hero {
     width: 100%;
     height: auto;
-    filter: drop-shadow(0 0 28px rgba(29, 78, 216, 0.45));
+    filter: drop-shadow(0 0 28px rgba(14, 116, 144, 0.45));
   }
   .win.mega .hero {
-    filter: drop-shadow(0 0 40px rgba(37, 99, 235, 0.55));
+    filter: drop-shadow(0 0 40px rgba(8, 145, 178, 0.55));
   }
   .title {
     margin: 0;
@@ -234,7 +234,7 @@
     font-family: var(--font-display);
     font-size: clamp(1.75rem, 7vw, 2.65rem);
     color: var(--accent-secondary);
-    text-shadow: 0 0 24px rgba(59, 130, 246, 0.28);
+    text-shadow: 0 0 24px rgba(34, 211, 238, 0.28);
   }
   .win.mega .mult {
     font-size: clamp(2rem, 8vw, 3.1rem);
