@@ -191,21 +191,50 @@ export function roundProgressEventString(
   return events.length > 0 ? String(events.length - 1) : '0';
 }
 
+/**
+ * Snap a display bet onto the wallet's allowed ladder / range.
+ *
+ * IMPORTANT: when no exact rung matches (e.g. MAX picks the player's balance, which may sit
+ * between two rungs), we must return a value that `validateBetAmount` still accepts —
+ * otherwise the requested bet is silently rewritten and the UI appears frozen/unresponsive.
+ */
 export function snapBetDisplayToConfig(betDisplay: number, config: WalletConfig): number {
+  const api = displayToApi(betDisplay);
+  const step = config.stepBet > 0 ? config.stepBet : config.minStep;
+
+  /** Values accepted by `RgsClient.validateBetAmount` (range + step grid + ladder). */
+  const isValid = (amountApi: number): boolean => {
+    if (amountApi < config.minBet || amountApi > config.maxBet) return false;
+    if (step > 0 && amountApi % step !== 0) return false;
+    if (config.betLevels.length > 0 && !config.betLevels.includes(amountApi)) return false;
+    return true;
+  };
+
+  // Already a legal amount — keep it exactly as requested (MIN/MAX must not be rewritten).
+  if (isValid(api)) return betDisplay;
+
   if (config.betLevels.length > 0) {
-    const api = displayToApi(betDisplay);
+    // Nearest ladder rung that is still server-valid.
     let best = config.betLevels[0]!;
-    let bestDist = Math.abs(api - best);
+    let bestDist = Infinity;
+    let found = false;
     for (const level of config.betLevels) {
+      if (!isValid(level)) continue;
       const dist = Math.abs(api - level);
       if (dist < bestDist) {
         best = level;
         bestDist = dist;
+        found = true;
       }
     }
-    return apiToDisplay(best);
+    if (found) return apiToDisplay(best);
   }
-  return betDisplay;
+
+  // No usable ladder: clamp into [minBet, maxBet] and round onto the step grid so the
+  // resulting amount passes validation instead of being silently rejected.
+  const clamped = Math.min(config.maxBet, Math.max(config.minBet, api));
+  const snapped = step > 0 ? Math.round(clamped / step) * step : clamped;
+  return apiToDisplay(isValid(snapped) ? snapped : config.minBet);
 }
 
 function devLog(message: string, detail?: string) {
