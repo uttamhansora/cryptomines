@@ -32,6 +32,8 @@
   }
 
   const symId = $derived(normalizeSymbol(cell.symbol));
+  // Drives the symbol-specific glow/burst gradients in <style> (e.g. "sym-btc").
+  const symClass = $derived(symId ? `sym-${symId.toLowerCase()}` : '');
   // ALWAYS resolve through the registry to an imported SVG asset URL.
   // `icon` can never be a bare name like "bitcoin" — iconSrc() returns the
   // Vite-imported URL (or undefined, in which case no <img> renders at all).
@@ -88,30 +90,6 @@
     }
   });
   onDestroy(() => clearTimeout(revealTimer));
-
-  function handleClick() {
-    if (disabled || cell.state !== 'hidden') return;
-    // Presentation-only dev trace, deferred off the input critical path so it
-    // never delays the pick dispatch or the compositor commit of the press FX.
-    if (import.meta.env.DEV) console.info('[TILE] click', cell.index);
-    onpick(cell.index);
-  }
-
-  function handlePointerDown() {
-    if (pressing || pressQueued) return;
-    pressQueued = true;
-    // Flush synchronously in this pointerdown task: the press transform commits
-    // in the SAME frame the finger/cursor went down — zero-lag tactile feedback
-    // even while the RGS pick response is still in flight. (Deferring to rAF
-    // pushed the visual response one full frame behind the input.)
-    pressing = true;
-    pressQueued = false;
-  }
-
-  function releasePress() {
-    pressQueued = false;
-    pressing = false;
-  }
 </script>
 
 <button
