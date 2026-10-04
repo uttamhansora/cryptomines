@@ -14,9 +14,9 @@
   <div class="brand">
     <span class="mark" aria-hidden="true">
       <svg viewBox="0 0 64 64" width="22" height="22">
-        <polygon points="32,7 54,20 54,44 32,57 10,44 10,20" fill="#171512" stroke="#d4af5a" stroke-width="2.4" />
-        <polygon points="32,17 45,25 45,39 32,47 19,39 19,25" fill="none" stroke="#10b981" stroke-width="2" opacity=".85" />
-        <circle cx="32" cy="32" r="4.6" fill="#e8c547" />
+        <polygon points="32,7 54,20 54,44 32,57 10,44 10,20" fill="#171512" stroke="#ef4444" stroke-width="2.4" />
+        <polygon points="32,17 45,25 45,39 32,47 19,39 19,25" fill="none" stroke="#ef4444" stroke-width="2" opacity=".85" />
+        <circle cx="32" cy="32" r="4.6" fill="#f87171" />
       </svg>
     </span>
     <h1>Crypto<span>Mines</span></h1>
@@ -64,10 +64,10 @@
     width: 34px;
     height: 34px;
     border-radius: 9px;
-    background: linear-gradient(160deg, rgba(255, 160, 64, 0.16), rgba(58, 30, 8, 0.55));
-    border: 1px solid rgba(255, 160, 64, 0.4);
+    background: linear-gradient(160deg, rgba(251, 113, 133, 0.16), rgba(42, 12, 12, 0.55));
+    border: 1px solid rgba(251, 113, 133, 0.4);
     box-shadow:
-      0 0 16px rgba(16, 185, 129, 0.14),
+      0 0 16px rgba(239, 68, 68, 0.14),
       inset 0 1px 0 rgba(255, 255, 255, 0.08);
   }
   h1 {
@@ -77,7 +77,7 @@
     letter-spacing: 0.14em;
     font-weight: 700;
     text-transform: uppercase;
-    color: #f7ece0;
+    color: #f8e6e6;
     text-shadow: 0 1px 0 rgba(0, 0, 0, 0.6);
   }
   h1 span {
@@ -97,8 +97,8 @@
     margin-right: var(--space-xs);
     padding: 0.3rem 0.65rem;
     border-radius: 10px;
-    background: linear-gradient(180deg, rgba(24, 21, 18, 0.9), rgba(10, 9, 7, 0.9));
-    border: 1px solid rgba(16, 185, 129, 0.22);
+    background: linear-gradient(180deg, rgba(26, 18, 20, 0.9), rgba(14, 9, 10, 0.9));
+    border: 1px solid rgba(239, 68, 68, 0.22);
     box-shadow:
       inset 0 1px 0 rgba(255, 255, 255, 0.05),
       0 4px 14px rgba(0, 0, 0, 0.4);
@@ -127,8 +127,8 @@
     place-items: center;
     width: 40px;
     height: 40px;
-    border: 1px solid rgba(165, 150, 120, 0.2);
-    background: linear-gradient(165deg, rgba(43, 39, 35, 0.85) 0%, rgba(20, 17, 13, 0.9) 60%, rgba(10, 8, 6), 0.95) 100%);
+    border: 1px solid rgba(150, 112, 112, 0.2);
+    background: linear-gradient(165deg, rgba(43, 26, 29, 0.85) 0%, rgba(22, 15, 17, 0.9) 60%, rgba(14, 8, 9), 0.95) 100%);
     border-radius: 10px;
     padding: 0;
     transition:
@@ -137,8 +137,8 @@
       transform 0.1s ease;
   }
   .icon-btn:hover {
-    border-color: rgba(16, 185, 129, 0.45);
-    box-shadow: 0 0 14px rgba(16, 185, 129, 0.16);
+    border-color: rgba(239, 68, 68, 0.45);
+    box-shadow: 0 0 14px rgba(239, 68, 68, 0.16);
   }
   .icon-btn:active {
     transform: scale(0.93);

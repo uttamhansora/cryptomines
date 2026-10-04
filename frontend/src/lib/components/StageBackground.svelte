@@ -31,7 +31,7 @@
         d.y -= d.v / h;
         if (d.y < 0) d.y = 1;
         ctx.globalAlpha = 0.08;
-        ctx.fillStyle = '#10b981';
+        ctx.fillStyle = '#ef4444';
         const px = d.x * w;
         const py = d.y * h;
         ctx.fillRect(px, py, d.s, d.s * 2.5);
@@ -74,7 +74,7 @@
   .cavern-glow {
     position: absolute;
     inset: 0;
-    background: radial-gradient(ellipse 55% 45% at 50% 38%, rgba(72, 107, 26, 0.18), transparent 70%);
+    background: radial-gradient(ellipse 55% 45% at 50% 38%, rgba(102, 24, 24, 0.18), transparent 70%);
     pointer-events: none;
   }
   .dust {
@@ -88,6 +88,6 @@
   .vignette {
     position: absolute;
     inset: 0;
-    background: radial-gradient(ellipse 88% 72% at 50% 42%, transparent 32%, rgba(8, 7, 5, 0.82) 100%);
+    background: radial-gradient(ellipse 88% 72% at 50% 42%, transparent 32%, rgba(10, 6, 7, 0.82) 100%);
   }
 </style>

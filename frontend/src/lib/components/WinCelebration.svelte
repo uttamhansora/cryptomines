@@ -102,11 +102,11 @@
           ctx.fillStyle =
             tier === 'good'
               ? p.life > 0.5
-                ? '#6ee7b7'
-                : '#10b981'
+                ? '#fca5a5'
+                : '#ef4444'
               : p.life > 0.5
-                ? '#e8c547'
-                : '#10b981';
+                ? '#f87171'
+                : '#ef4444';
           ctx.beginPath();
           ctx.arc(p.x, p.y, tier === 'mega' ? 2.5 : 2, 0, Math.PI * 2);
           ctx.fill();
@@ -164,13 +164,13 @@
     pointer-events: none;
   }
   .win.good {
-    background: radial-gradient(ellipse 65% 50% at 50% 45%, rgba(14, 13, 8, 0.45), rgba(8, 7, 4, 0.72));
+    background: radial-gradient(ellipse 65% 50% at 50% 45%, rgba(18, 10, 11, 0.45), rgba(10, 5, 6, 0.72));
   }
   .win.big {
-    background: radial-gradient(ellipse 75% 58% at 50% 45%, rgba(12, 11, 6, 0.62), rgba(6, 5, 3, 0.88));
+    background: radial-gradient(ellipse 75% 58% at 50% 45%, rgba(16, 9, 10, 0.62), rgba(9, 4, 5, 0.88));
   }
   .win.mega {
-    background: radial-gradient(ellipse 80% 62% at 50% 42%, rgba(77, 83, 20, 0.35), rgba(5, 4, 2, 0.92));
+    background: radial-gradient(ellipse 80% 62% at 50% 42%, rgba(83, 18, 18, 0.35), rgba(8, 4, 4, 0.92));
   }
   .win-shock {
     position: absolute;
@@ -180,10 +180,10 @@
     height: min(280px, 70vw);
     transform: translate(-50%, -50%);
     border-radius: 50%;
-    border: 2px solid rgba(110, 231, 183, 0.55);
+    border: 2px solid rgba(252, 165, 165, 0.55);
     opacity: 0;
     pointer-events: none;
-    box-shadow: 0 0 40px rgba(16, 185, 129, 0.35);
+    box-shadow: 0 0 40px rgba(239, 68, 68, 0.35);
   }
   .burst {
     position: absolute;
@@ -207,10 +207,10 @@
   .hero {
     width: 100%;
     height: auto;
-    filter: drop-shadow(0 0 28px rgba(217, 86, 11, 0.45));
+    filter: drop-shadow(0 0 28px rgba(185, 28, 28, 0.45));
   }
   .win.mega .hero {
-    filter: drop-shadow(0 0 40px rgba(255, 140, 46, 0.55));
+    filter: drop-shadow(0 0 40px rgba(251, 113, 133, 0.55));
   }
   .title {
     margin: 0;
@@ -234,7 +234,7 @@
     font-family: var(--font-display);
     font-size: clamp(1.75rem, 7vw, 2.65rem);
     color: var(--accent-secondary);
-    text-shadow: 0 0 24px rgba(16, 185, 129, 0.28);
+    text-shadow: 0 0 24px rgba(239, 68, 68, 0.28);
   }
   .win.mega .mult {
     font-size: clamp(2rem, 8vw, 3.1rem);

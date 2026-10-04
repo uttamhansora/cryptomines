@@ -24,7 +24,7 @@
     height: 14px;
     background: var(--accent-primary);
     transform: rotate(45deg);
-    box-shadow: 0 0 16px var(--glow-cyan);
+    box-shadow: 0 0 16px var(--glow-red);
   }
   .word {
     font-family: var(--font-display);
