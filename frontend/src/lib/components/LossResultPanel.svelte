@@ -39,7 +39,7 @@
     z-index: 70;
     display: grid;
     place-items: center;
-    background: radial-gradient(circle at 50% 40%, rgba(42, 20, 4, 0.5), rgba(0, 0, 0, 0.7));
+    background: radial-gradient(circle at 50% 40%, rgba(12, 26, 55, 0.5), rgba(0, 0, 0, 0.7));
     backdrop-filter: blur(2px);
   }
   .card {
@@ -48,10 +48,10 @@
     padding: 1.1rem 1.1rem 1.2rem;
     text-align: center;
     color: var(--text-primary);
-    background: linear-gradient(165deg, #1a1114 0%, #100c0e 55%, #0a0708 100%);
-    border: 1px solid rgba(239, 68, 68, 0.4);
+    background: linear-gradient(165deg, #111825 0%, #0b101a 55%, #060a12 100%);
+    border: 1px solid rgba(59, 130, 246, 0.4);
     box-shadow:
-      0 0 0 1px rgba(239, 68, 68, 0.12),
+      0 0 0 1px rgba(59, 130, 246, 0.12),
       0 24px 60px rgba(0, 0, 0, 0.6),
       inset 0 1px 0 rgba(255, 255, 255, 0.06);
     position: relative;
@@ -76,7 +76,7 @@
     font-size: 1.35rem;
     letter-spacing: 0.1em;
     text-transform: uppercase;
-    color: #fee2e2;
+    color: #dbeafe;
   }
   .sub {
     margin: 0 0 0.8rem;
@@ -90,9 +90,9 @@
     width: 58px;
     height: 58px;
     border-radius: 50%;
-    background: radial-gradient(circle at 50% 35%, rgba(239, 68, 68, 0.2), rgba(20, 8, 10, 0.9) 70%);
-    border: 1px solid rgba(239, 68, 68, 0.5);
-    box-shadow: 0 0 22px rgba(239, 68, 68, 0.3);
+    background: radial-gradient(circle at 50% 35%, rgba(59, 130, 246, 0.2), rgba(8, 13, 20, 0.9) 70%);
+    border: 1px solid rgba(59, 130, 246, 0.5);
+    box-shadow: 0 0 22px rgba(59, 130, 246, 0.3);
     animation: badge-in 0.4s var(--ease-out-soft);
   }
   @keyframes badge-in {
@@ -128,15 +128,15 @@
   dd.lost {
     color: var(--danger);
     text-decoration: line-through;
-    text-decoration-color: rgba(239, 68, 68, 0.5);
+    text-decoration-color: rgba(59, 130, 246, 0.5);
   }
   .again {
     width: 100%;
     min-height: 48px;
     border-radius: var(--radius-md);
-    border: 1px solid rgba(239, 68, 68, 0.45);
-    background: linear-gradient(180deg, #7f1d1d, #450a0a);
-    color: #fef2f2;
+    border: 1px solid rgba(59, 130, 246, 0.45);
+    background: linear-gradient(180deg, #1e3a8a, #172554);
+    color: #eff6ff;
     font-weight: 700;
     font-size: 0.95rem;
     letter-spacing: 0.05em;
@@ -145,7 +145,7 @@
     box-shadow: 0 8px 22px rgba(0, 0, 0, 0.4);
   }
   .again:hover {
-    box-shadow: 0 0 18px rgba(239, 68, 68, 0.3);
+    box-shadow: 0 0 18px rgba(59, 130, 246, 0.3);
   }
   .again:active {
     transform: scale(0.97);

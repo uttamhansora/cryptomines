@@ -1,5 +1,2 @@
-# Build artifacts
-frontend/dist/
-
-# Dependencies
-frontend/node_modules/
+node_modules/
+dist/

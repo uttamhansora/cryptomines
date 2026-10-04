@@ -35,7 +35,7 @@
     font-size: 0.72rem;
   }
   article {
-    background: linear-gradient(165deg, rgba(26, 18, 20, 0.85), rgba(14, 9, 10, 0.95));
+    background: linear-gradient(165deg, rgba(16, 21, 31, 0.85), rgba(9, 14, 22, 0.95));
     border: 1px solid var(--border);
     border-radius: var(--radius-md);
     padding: var(--space-sm) var(--space-md);

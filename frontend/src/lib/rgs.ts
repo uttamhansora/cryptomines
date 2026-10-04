@@ -191,6 +191,23 @@ export function roundProgressEventString(
   return events.length > 0 ? String(events.length - 1) : '0';
 }
 
+/** Whole display cents — the granularity every RGS currency accepts (≤ 2 decimals). */
+const DISPLAY_CENT_API = API_SCALE / 100;
+
+/**
+ * Snap an api-unit amount to the nearest whole display cent.
+ *
+ * The server stores balances in micro-units (API_SCALE = 1e6), but bet amounts only ever
+ * need two display decimals (cents). A raw balance such as 47.549999 cannot be a legal
+ * wager on any sane step grid — flooring it onto the grid would drop the player's MAX
+ * button to 47.50 and make it look broken. Quantising to cents first keeps MAX equal to
+ * the money the player actually sees, while still producing grid-valid values (every
+ * typical step, e.g. 0.01–10, is itself a whole number of cents).
+ */
+function roundToDisplayCent(amountApi: number): number {
+  return Math.round(amountApi / DISPLAY_CENT_API) * DISPLAY_CENT_API;
+}
+
 /**
  * Mirror of `RgsClient.validateBetAmount` (range + step grid + ladder) with float-tolerant
  * modular arithmetic. `displayToApi` uses `Math.floor`, so a value like 47.55 can arrive as
@@ -198,13 +215,16 @@ export function roundProgressEventString(
  * silently rewrite it, which is exactly what made the MIN/MAX buttons look unresponsive.
  */
 function isServerValidBet(amountApi: number, config: WalletConfig): boolean {
-  if (amountApi < config.minBet - 1e-6 || amountApi > config.maxBet + 1e-6) return false;
+  // Tolerance is half a display cent: enough to absorb floor() error from decimal→binary
+  // conversion, small enough that genuinely off-grid amounts are still rejected.
+  const eps = DISPLAY_CENT_API / 2;
+  if (amountApi < config.minBet - eps || amountApi > config.maxBet + eps) return false;
   const step = config.stepBet > 0 ? config.stepBet : config.minStep;
   if (step > 0) {
     const k = amountApi / step;
-    if (Math.abs(k - Math.round(k)) > 1e-6) return false;
+    if (Math.abs(k - Math.round(k)) > eps / step) return false;
   }
-  if (config.betLevels.length > 0 && !config.betLevels.some((v) => Math.abs(v - amountApi) < 1e-6)) {
+  if (config.betLevels.length > 0 && !config.betLevels.some((v) => Math.abs(v - amountApi) <= eps)) {
     return false;
   }
   return true;

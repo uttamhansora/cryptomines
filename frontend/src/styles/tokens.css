@@ -1,55 +1,55 @@
 :root {
   /* ── Premium Dark Crypto Casino palette ─────────────────────────── */
-  --bg-primary: #0b0406;
-  --bg-secondary: #150c0e;
-  --surface: #1a1012;
-  --surface-elevated: #201317;
+  --bg-primary: #04070d;
+  --bg-secondary: #0c111c;
+  --surface: #10151f;
+  --surface-elevated: #151d2b;
 
-  /* Primary accent theme (vibrant premium red) — single source of truth */
-  --primary: #ef4444;
-  --primary-light: #f87171;
-  --primary-dark: #7f1d1d;
-  --primary-glow: rgba(239, 68, 68, 0.30);
+  /* Primary accent theme (vibrant neon blue) — single source of truth */
+  --primary: #3b82f6;
+  --primary-light: #60a5fa;
+  --primary-dark: #1e3a8a;
+  --primary-glow: rgba(59, 130, 246, 0.30);
 
-  --red-deep: #450a0a;
-  --red-mid: #7f1d1d;
-  --red-light: #dc2626;
-  --graphite: #1f1416;
-  --graphite-light: #2b1e21;
+  --blue-deep: #172554;
+  --blue-mid: #1e3a8a;
+  --blue-light: #2563eb;
+  --graphite: #141a26;
+  --graphite-light: #1e2735;
 
-  --accent-primary: var(--primary);        /* #ef4444 */
-  --accent-secondary: var(--primary-light); /* #f87171 */
+  --accent-primary: var(--primary);        /* #3b82f6 */
+  --accent-secondary: var(--primary-light); /* #60a5fa */
   --accent-hot: var(--primary-light);
-  --highlight: #ef4444;
-  --highlight-soft: #fecaca;
-  --success: #f87171; /* follows the primary accent theme */
-  --warning: #dc2626;
-  --danger: #ef4444;
-  --danger-deep: #7f1d1d;
+  --highlight: #3b82f6;
+  --highlight-soft: #bfdbfe;
+  --success: #60a5fa; /* follows the primary accent theme */
+  --warning: #2563eb;
+  --danger: #3b82f6;
+  --danger-deep: #1e3a8a;
 
-  --text-primary: #faf1f0;
-  --text-secondary: #b0a89e;
-  --text-muted: #806464;
-  --border: rgba(239, 68, 68, 0.14);
-  --glow-red: var(--primary-glow);         /* red glow, canonical name */
-  --glow-hot: rgba(248, 113, 113, 0.32); /* brighter accent glow for vault tiles */
-  --glass: rgba(22, 15, 17, 0.78);
+  --text-primary: #f0f5ff;
+  --text-secondary: #a3adbd;
+  --text-muted: #64748b;
+  --border: rgba(59, 130, 246, 0.14);
+  --glow-blue: var(--primary-glow);         /* blue glow, canonical name */
+  --glow-hot: rgba(96, 165, 250, 0.32); /* brighter accent glow for vault tiles */
+  --glass: rgba(16, 21, 31, 0.78);
 
   --shadow-key: rgba(0, 0, 0, 0.6);
-  --shadow-ambient: rgba(20, 6, 8, 0.35);
+  --shadow-ambient: rgba(6, 13, 20, 0.35);
   --light-key: rgba(255, 255, 255, 0.07);
-  --light-rim: rgba(248, 113, 113, 0.12);
+  --light-rim: rgba(96, 165, 250, 0.12);
 
   /* metallic frame gradient (shared by board + panel chrome) */
   --metal-frame: linear-gradient(
     160deg,
-    #3d1f24 0%,
-    #1b0f12 22%,
-    #2b171a 48%,
-    #1d0f12 74%,
-    #331c20 100%
+    #1f2c4a 0%,
+    #0f1522 22%,
+    #1a2436 48%,
+    #101826 74%,
+    #243350 100%
   );
-  --tile-face: linear-gradient(168deg, #331d21 0%, #241417 46%, #1d0f12 100%);
+  --tile-face: linear-gradient(168deg, #1d2a42 0%, #141d2c 46%, #101826 100%);
 
   --radius-sm: 8px;
   --radius-md: 12px;
