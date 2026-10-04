@@ -31,7 +31,7 @@
         d.y -= d.v / h;
         if (d.y < 0) d.y = 1;
         ctx.globalAlpha = 0.08;
-        ctx.fillStyle = '#3b82f6';
+        ctx.fillStyle = '#22d3ee';
         const px = d.x * w;
         const py = d.y * h;
         ctx.fillRect(px, py, d.s, d.s * 2.5);
@@ -74,7 +74,7 @@
   .cavern-glow {
     position: absolute;
     inset: 0;
-    background: radial-gradient(ellipse 55% 45% at 50% 38%, rgba(30, 58, 138, 0.18), transparent 70%);
+    background: radial-gradient(ellipse 55% 45% at 50% 38%, rgba(21, 94, 117, 0.18), transparent 70%);
     pointer-events: none;
   }
   .dust {

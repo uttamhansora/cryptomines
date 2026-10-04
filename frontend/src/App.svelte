@@ -576,8 +576,8 @@
     position: absolute;
     inset: 0;
     border-radius: var(--radius-lg);
-    background: radial-gradient(circle at 50% 45%, rgba(59, 130, 246, 0.1), rgba(10, 30, 80, 0.22) 78%);
-    box-shadow: inset 0 0 42px rgba(59, 130, 246, 0.16);
+    background: radial-gradient(circle at 50% 45%, rgba(34, 211, 238, 0.1), rgba(10, 30, 80, 0.22) 78%);
+    box-shadow: inset 0 0 42px rgba(34, 211, 238, 0.16);
     opacity: 0;
     pointer-events: none;
     z-index: 3;
@@ -598,8 +598,8 @@
     padding: 0.5rem 0.9rem;
     border-radius: 999px;
     background: linear-gradient(160deg, rgba(16, 24, 42, 0.92), rgba(8, 13, 20, 0.92));
-    border: 1px solid rgba(59, 130, 246, 0.45);
-    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.55), 0 0 18px rgba(59, 130, 246, 0.18);
+    border: 1px solid rgba(34, 211, 238, 0.45);
+    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.55), 0 0 18px rgba(34, 211, 238, 0.18);
     animation: banner-in 0.32s var(--ease-out-soft) both;
     pointer-events: none;
   }
@@ -609,7 +609,7 @@
     width: 38px;
     height: 38px;
     border-radius: 50%;
-    background: rgba(59, 130, 246, 0.12);
+    background: rgba(34, 211, 238, 0.12);
     animation: lb-pulse 0.9s ease-out 1;
   }
   .loss-banner .lb-text {
@@ -621,7 +621,7 @@
     font-family: var(--font-display);
     font-size: 0.95rem;
     letter-spacing: 0.06em;
-    color: #93c5fd;
+    color: #fca5a5;
   }
   .loss-banner small {
     color: var(--text-muted);
@@ -632,8 +632,8 @@
     to { opacity: 1; transform: translateX(-50%) translateY(0); }
   }
   @keyframes lb-pulse {
-    0% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.5); }
-    100% { box-shadow: 0 0 0 14px rgba(59, 130, 246, 0); }
+    0% { box-shadow: 0 0 0 0 rgba(34, 211, 238, 0.5); }
+    100% { box-shadow: 0 0 0 14px rgba(34, 211, 238, 0); }
   }
   .error {
     color: var(--danger);

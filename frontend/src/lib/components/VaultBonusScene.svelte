@@ -229,7 +229,7 @@
     width: 100%;
     height: auto;
     display: block;
-    filter: drop-shadow(0 12px 32px rgba(96, 165, 250, 0.15));
+    filter: drop-shadow(0 12px 32px rgba(103, 232, 249, 0.15));
   }
   .door-leaves-left,
   .door-leaves-right {
@@ -247,9 +247,9 @@
     width: 14px;
     height: 14px;
     border-radius: 50%;
-    border: 2px solid rgba(29, 78, 216, 0.65);
-    background: radial-gradient(circle at 35% 30%, #bfdbfe, #172554);
-    box-shadow: 0 0 8px rgba(29, 78, 216, 0.35);
+    border: 2px solid rgba(14, 116, 144, 0.65);
+    background: radial-gradient(circle at 35% 30%, #a5f3fc, #083344);
+    box-shadow: 0 0 8px rgba(14, 116, 144, 0.35);
     pointer-events: none;
   }
   .lock-a {
@@ -273,10 +273,10 @@
     height: 55%;
     transform: translate(-50%, -50%);
     border-radius: 50%;
-    border: 2px solid rgba(59, 130, 246, 0.35);
+    border: 2px solid rgba(34, 211, 238, 0.35);
     opacity: 0;
     pointer-events: none;
-    box-shadow: 0 0 24px rgba(59, 130, 246, 0.25);
+    box-shadow: 0 0 24px rgba(34, 211, 238, 0.25);
   }
   .door-light {
     position: absolute;
@@ -286,7 +286,7 @@
     height: 40%;
     transform: translate(-50%, -50%);
     border-radius: 50%;
-    background: radial-gradient(circle, rgba(59, 130, 246, 0.45), rgba(29, 78, 216, 0.25) 45%, transparent 72%);
+    background: radial-gradient(circle, rgba(34, 211, 238, 0.45), rgba(14, 116, 144, 0.25) 45%, transparent 72%);
     opacity: 0;
   }
   .title-block {
@@ -315,13 +315,13 @@
     font-size: 0.62rem;
     letter-spacing: 0.12em;
     text-transform: uppercase;
-    background: rgba(96, 165, 250, 0.15);
-    border: 1px solid rgba(96, 165, 250, 0.35);
+    background: rgba(103, 232, 249, 0.15);
+    border: 1px solid rgba(103, 232, 249, 0.35);
     color: var(--highlight);
   }
   .badge.organic {
-    border-color: rgba(96, 165, 250, 0.35);
-    background: rgba(96, 165, 250, 0.08);
+    border-color: rgba(103, 232, 249, 0.35);
+    background: rgba(103, 232, 249, 0.08);
     color: var(--accent-primary);
   }
   .hint {
