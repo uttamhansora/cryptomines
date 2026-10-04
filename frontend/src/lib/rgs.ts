@@ -191,42 +191,30 @@ export function roundProgressEventString(
   return events.length > 0 ? String(events.length - 1) : '0';
 }
 
-/** Whole display cents — the granularity every RGS currency accepts (≤ 2 decimals). */
-const DISPLAY_CENT_API = API_SCALE / 100;
-
 /**
- * Snap an api-unit amount to the nearest whole display cent.
+ * Exact integer micro-unit conversion for wallet math.
  *
- * The server stores balances in micro-units (API_SCALE = 1e6), but bet amounts only ever
- * need two display decimals (cents). A raw balance such as 47.549999 cannot be a legal
- * wager on any sane step grid — flooring it onto the grid would drop the player's MAX
- * button to 47.50 and make it look broken. Quantising to cents first keeps MAX equal to
- * the money the player actually sees, while still producing grid-valid values (every
- * typical step, e.g. 0.01–10, is itself a whole number of cents).
+ * Float division/multiplication by API_SCALE (1e6) produces values like
+ * 47.55 → 47549999.999… where `Math.floor` loses a whole unit — the root cause of
+ * the "unresponsive" MIN/MAX buttons: the player's own MAX amount failed the
+ * server's strict range/grid/ladder checks and was silently rewritten. Working in
+ * rounded integers everywhere removes that class of bug entirely.
  */
-function roundToDisplayCent(amountApi: number): number {
-  return Math.round(amountApi / DISPLAY_CENT_API) * DISPLAY_CENT_API;
+function toApiInt(display: number): number {
+  return Math.round(display * API_SCALE);
 }
 
 /**
- * Mirror of `RgsClient.validateBetAmount` (range + step grid + ladder) with float-tolerant
- * modular arithmetic. `displayToApi` uses `Math.floor`, so a value like 47.55 can arrive as
- * 47,549,999 api units — a strict `%` check would reject the player's own MAX balance and
- * silently rewrite it, which is exactly what made the MIN/MAX buttons look unresponsive.
+ * Mirror of `RgsClient.validateBetAmount` (range + step grid + ladder), evaluated on
+ * exact integer micro-units. Amounts produced by `betRangeFromConfig` /
+ * `snapBetDisplayToConfig` below are always multiples of the configured step, so this
+ * stays bit-for-bit compatible with the strict server-side modulo/includes checks.
  */
 function isServerValidBet(amountApi: number, config: WalletConfig): boolean {
-  // Tolerance is half a display cent: enough to absorb floor() error from decimal→binary
-  // conversion, small enough that genuinely off-grid amounts are still rejected.
-  const eps = DISPLAY_CENT_API / 2;
-  if (amountApi < config.minBet - eps || amountApi > config.maxBet + eps) return false;
+  if (amountApi < config.minBet || amountApi > config.maxBet) return false;
   const step = config.stepBet > 0 ? config.stepBet : config.minStep;
-  if (step > 0) {
-    const k = amountApi / step;
-    if (Math.abs(k - Math.round(k)) > eps / step) return false;
-  }
-  if (config.betLevels.length > 0 && !config.betLevels.some((v) => Math.abs(v - amountApi) <= eps)) {
-    return false;
-  }
+  if (step > 0 && amountApi % step !== 0) return false;
+  if (config.betLevels.length > 0 && !config.betLevels.includes(amountApi)) return false;
   return true;
 }
 
@@ -238,7 +226,7 @@ function isServerValidBet(amountApi: number, config: WalletConfig): boolean {
  * the buttons look unresponsive. Off-grid requests snap to the nearest legal value.
  */
 export function snapBetDisplayToConfig(betDisplay: number, config: WalletConfig): number {
-  const api = displayToApi(betDisplay);
+  const api = toApiInt(betDisplay);
   const step = config.stepBet > 0 ? config.stepBet : config.minStep;
 
   // Already a legal amount — keep it exactly as requested (MIN/MAX must not be rewritten).
@@ -261,10 +249,11 @@ export function snapBetDisplayToConfig(betDisplay: number, config: WalletConfig)
     if (found) return apiToDisplay(best);
   }
 
-  // No usable ladder: clamp into [minBet, maxBet] and round onto the step grid so the
-  // resulting amount passes validation instead of being silently rejected.
+  // No usable ladder: clamp into [minBet, maxBet] and round onto the step grid anchored
+  // at minBet (the same grid `validateBetAmount`'s `% stepBet` check enforces), so the
+  // result always passes validation instead of being silently rejected.
   const clamped = Math.min(config.maxBet, Math.max(config.minBet, api));
-  const snapped = step > 0 ? Math.round(clamped / step) * step : clamped;
+  const snapped = step > 0 ? Math.round((clamped - config.minBet) / step) * step + config.minBet : clamped;
   return apiToDisplay(isServerValidBet(snapped, config) ? snapped : config.minBet);
 }
 
@@ -288,24 +277,26 @@ export function betRangeFromConfig(
   const validLadder = ladder.filter((v) => isServerValidBet(v, config));
 
   if (validLadder.length > 0) {
-    // Ladder mode: MIN is the lowest rung; MAX is the highest rung the player can afford
-    // (falling back to the lowest rung when the balance cannot cover any of them).
-    const balanceApi = Math.max(0, displayToApi(balanceDisplay));
-    let maxApi = validLadder[0]!;
+    // Ladder mode: MIN is the lowest rung. MAX is normally the highest affordable rung,
+    // but when NO rung fits the balance we fall back to the free-form grid below so the
+    // player can still wager their entire bankroll (e.g. balance 0.05 with rungs starting
+    // at 0.1 → MAX = 0.05) instead of being forced above what they own.
+    const balanceApi = Math.max(0, toApiInt(balanceDisplay));
+    let maxApi = -1;
     for (const level of validLadder) {
-      if (level <= balanceApi + 1e-9) maxApi = level;
+      if (level <= balanceApi) maxApi = level;
     }
-    return { min: apiToDisplay(validLadder[0]!), max: apiToDisplay(maxApi) };
+    if (maxApi >= 0) return { min: apiToDisplay(validLadder[0]!), max: apiToDisplay(maxApi) };
   }
 
-  // No usable ladder: free-form range on the step grid. Align both bounds onto a grid
-  // anchored at minBet so every returned value passes the server's `% stepBet` check.
+  // Free-form range on the step grid anchored at minBet — every returned value passes
+  // the server's strict `% stepBet` check exactly (integer micro-units, no float drift).
   const step = config.stepBet > 0 ? config.stepBet : config.minStep;
-  if (step <= 0) {
-    const target = Math.max(config.minBet, Math.min(config.maxBet, Math.max(0, displayToApi(balanceDisplay))));
-    return { min: apiToDisplay(config.minBet), max: apiToDisplay(target) };
-  }
   const minApi = config.minBet;
+  if (step <= 0) {
+    const target = Math.max(minApi, Math.min(config.maxBet, Math.max(0, toApiInt(balanceDisplay))));
+    return { min: apiToDisplay(minApi), max: apiToDisplay(target) };
+  }
   const capAligned = Math.floor((config.maxBet - minApi) / step) * step + minApi;
   if (capAligned < minApi) {
     return { min: apiToDisplay(minApi), max: apiToDisplay(minApi) };
@@ -313,7 +304,7 @@ export function betRangeFromConfig(
 
   // MAX target: the full available balance rounded DOWN onto the grid — i.e. the player's
   // entire bankroll when it fits under the configured cap — clamped into [minApi, cap].
-  const balanceApi = Math.max(0, displayToApi(balanceDisplay));
+  const balanceApi = Math.max(0, toApiInt(balanceDisplay));
   let target = Math.min(capAligned, balanceApi);
   target = Math.floor((target - minApi) / step) * step + minApi;
   if (target < minApi) target = minApi;
