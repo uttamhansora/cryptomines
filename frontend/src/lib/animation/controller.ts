@@ -2,6 +2,9 @@ import gsap from 'gsap';
 import type { GameEvent } from '@crypto-mines/shared';
 import { runParticleBurst, symbolPalette, type ParticlePalette } from './particles.js';
 
+/** Cosmetic reveal animation handed off from the click-time pending tween. */
+export type PendingReveal = gsap.core.Timeline;
+
 export interface AnimContext {
   getCellEl: (index: number) => HTMLElement | null;
   getBoardEl: () => HTMLElement | null;
@@ -14,27 +17,114 @@ export interface AnimContext {
 export class AnimationController {
   private active = gsap.timeline();
 
+  /**
+   * Per-cell pending-reveal timelines. When the player clicks a tile we start
+   * the flip animation IMMEDIATELY (before the server confirms what is under
+   * the lid). If the confirmed result is safe, this same timeline simply keeps
+   * playing — zero restart, zero waiting. If it turns out to be a mine, we
+   * `progress(0)` + kill the pending tween so mineHit can take the tile over
+   * from its resting state.
+   */
+  private pendingReveals = new Map<number, gsap.core.Timeline>();
+
+  /**
+   * Fire the tactile press/pop + lid-flip for a picked cell synchronously at
+   * click time. Transform/opacity only (GPU compositor properties) and driven
+   * directly on the cached DOM node — no React/Svelte state round-trip, so the
+   * visual response lands in the same frame as the pointer event.
+   */
+  startPendingReveal(index: number, el: HTMLElement | null): void {
+    if (!el || this.pendingReveals.has(index)) return;
+    const inner = (el.querySelector('.tile-inner') as HTMLElement | null) ?? el;
+    const lid = el.querySelector('.tile-lid') as HTMLElement | null;
+    const tl = gsap.timeline({ paused: true });
+    tl.to(inner, { y: 3, scale: 0.94, duration: 0.06, ease: 'power2.in' })
+      .to(inner, { y: -2, scale: 1.01, duration: 0.08, ease: 'power1.out' });
+    if (lid) tl.to(lid, { rotateX: -72, opacity: 0, duration: 0.14, transformOrigin: '50% 0%' }, '-=0.02');
+    this.pendingReveals.set(index, tl);
+    tl.play();
+    // Safety net: never leave an orphaned tween if the round ends abnormally.
+    window.setTimeout(() => {
+      if (this.pendingReveals.get(index) === tl) {
+        this.pendingReveals.delete(index);
+        tl.kill();
+      }
+    }, 2500);
+  }
+
+  /** Hand a pending reveal's timeline over to the confirmed reveal animation. */
+  private claimPending(index: number): gsap.core.Timeline | null {
+    return this.takePendingReveal(index);
+  }
+
+  /** Public claim: remove + return the pending tween for a cell (if any). */
+  takePendingReveal(index: number): gsap.core.Timeline | null {
+    const t = this.pendingReveals.get(index) ?? null;
+    this.pendingReveals.delete(index);
+    return t;
+  }
+
+  private resetToRest(el: HTMLElement): void {
+    const inner = (el.querySelector('.tile-inner') as HTMLElement | null) ?? el;
+    const lid = el.querySelector('.tile-lid') as HTMLElement | null;
+    gsap.set(inner, { clearProps: 'transform' });
+    if (lid) gsap.set(lid, { clearProps: 'transform,opacity' });
+  }
+
+  /** Drop all pending per-tile tweens (round reset / hydration / remount). */
+  cancelPendingReveals(): void {
+    for (const t of this.pendingReveals.values()) {
+      const targets = t.targets() as HTMLElement[];
+      if (targets[0]) this.resetToRest(targets[0].closest('.tile') as HTMLElement ?? targets[0]);
+      t.kill();
+    }
+    this.pendingReveals.clear();
+  }
+
   killAll(): void {
+    this.cancelPendingReveals();
     this.active.kill();
     this.active = gsap.timeline();
   }
 
-  async playEvent(ev: GameEvent, ctx: AnimContext): Promise<void> {
+  async playEvent(ev: GameEvent, ctx: AnimContext, handedPending?: PendingReveal | null): Promise<void> {
     const type = String(ev.type).toLowerCase();
     if (type === 'reveal') {
       const rt = String(ev.revealType ?? '');
       if (rt === 'tileSafe' && typeof ev.cellIndex === 'number') {
         const kind = ev.symbol === 'VAULT' ? 'vault' : 'crypto';
-        await this.tileReveal(ctx.getCellEl(ev.cellIndex), kind, ev.symbol as string | undefined, ev.index ?? ev.cellIndex);
+        await this.tileReveal(
+          ctx.getCellEl(ev.cellIndex),
+          kind,
+          ev.symbol as string | undefined,
+          ev.index ?? ev.cellIndex,
+          handedPending ?? this.claimPending(ev.cellIndex),
+        );
         if (ev.chainCompletedId) await this.chainComplete(ctx, true);
         return;
       }
       if (rt === 'tileMine' && typeof ev.cellIndex === 'number') {
+        // The pending lid-flip was a bluff: rewind the tile to rest before the
+        // explosion so mineHit starts from clean values.
+        const pending = handedPending ?? this.claimPending(ev.cellIndex);
+        if (pending) {
+          pending.progress(0);
+          pending.kill();
+        }
         await this.mineHit(ctx.getCellEl(ev.cellIndex), ctx.getBoardEl(), ev.index ?? ev.cellIndex);
         return;
       }
       if (rt === 'tileFinal' && typeof ev.cellIndex === 'number') {
-        await this.tileFinalReveal(ctx.getCellEl(ev.cellIndex));
+        // Disclosed (non-picked) tiles may still carry pending-tween leftovers.
+        const el = ctx.getCellEl(ev.cellIndex);
+        const stale = handedPending ?? this.claimPending(ev.cellIndex);
+        if (stale) {
+          stale.progress(0);
+          stale.kill();
+        } else if (el) {
+          this.resetToRest(el);
+        }
+        await this.tileFinalReveal(el);
         return;
       }
     }
@@ -60,8 +150,12 @@ export class AnimationController {
     kind: 'crypto' | 'vault',
     symbol: string | undefined,
     seed: number,
+    pending: gsap.core.Timeline | null = null,
   ): Promise<void> {
-    if (!el) return Promise.resolve();
+    if (!el) {
+      pending?.kill();
+      return Promise.resolve();
+    }
     const inner = el.querySelector('.tile-inner') as HTMLElement | null;
     const target = inner ?? el;
     const sym = el.querySelector('.sym') as HTMLElement | null;
@@ -73,9 +167,22 @@ export class AnimationController {
     // a non-blocking polish fade whose promise we intentionally do not await,
     // so the NEXT queued reveal (e.g. multi-tile loss disclosure) starts sooner.
     const tl = gsap.timeline();
-    tl.to(target, { y: 3, scale: 0.94, duration: 0.06, ease: 'power2.in' })
-      .to(target, { y: -2, scale: 1.01, duration: 0.08, ease: 'power1.out' });
-    if (lid) tl.to(lid, { rotateX: -72, opacity: 0, duration: 0.14, transformOrigin: '50% 0%' }, '-=0.02');
+    if (pending && !pending.totalProgress()) {
+      // The click-time press/pop/lid-flip started synchronously at pointerdown
+      // and is STILL in flight: let it finish untouched (no restart, no snap)
+      // and begin the rest of the reveal right where the pending tween ends.
+      const hold = Math.max(0, 0.26 - pending.time());
+      if (hold > 0) tl.to({}, { duration: hold });
+    } else if (pending) {
+      // Pending already completed — the tile sits in its flipped-open pose;
+      // skip the press/pop + lid re-tween entirely.
+      pending.kill();
+    } else {
+      // No pending tween (reduced-motion path / restored round): play from rest.
+      tl.to(target, { y: 3, scale: 0.94, duration: 0.06, ease: 'power2.in' })
+        .to(target, { y: -2, scale: 1.01, duration: 0.08, ease: 'power1.out' });
+      if (lid) tl.to(lid, { rotateX: -72, opacity: 0, duration: 0.14, transformOrigin: '50% 0%' }, '-=0.02');
+    }
     if (innerLight) {
       tl.fromTo(innerLight, { opacity: 0 }, { opacity: kind === 'vault' ? 0.85 : 0.65, duration: 0.1 }, '-=0.06')
         .to(innerLight, { opacity: kind === 'vault' ? 0.35 : 0.18, duration: 0.28 }, '-=0.04');
@@ -105,6 +212,10 @@ export class AnimationController {
     const symWrap = el.querySelector('.mine-sym') as HTMLElement | null;
     const sym = (el.querySelector('.sym') as HTMLElement | null) ?? symWrap;
     const neighbors = board?.querySelectorAll('.tile:not(.mine)') ?? [];
+    // The lid may be mid-flip from the click-time pending reveal (killed at
+    // progress 0 by playEvent) — clear inline props so CSS visibility rules win.
+    const lidEl = el.querySelector('.tile-lid') as HTMLElement | null;
+    if (lidEl) gsap.set(lidEl, { clearProps: 'transform,opacity' });
     return new Promise((resolve) => {
       const tl = gsap.timeline({ onComplete: () => {
         this.burstOnTile(el, seed, 'mine');

@@ -297,21 +297,13 @@
     ) {
       return;
     }
-    if (import.meta.env.DEV) {
-      console.info('[BOARD STATE]', {
-        roundActive,
-        boardInteractionBlocked,
-        pickingCell,
-        inVaultBonus: snap.inVaultBonus,
-        showVaultScene,
-        terminal: snap.terminal,
-      });
-      console.info('[TILE] reveal requested', cellIndex);
-    }
     pickingCell = cellIndex;
-    // Immediate tactile feedback while the RGS response is in flight —
-    // presentation only; the authoritative flip happens when events arrive.
-    document.querySelector(`[data-tile-index="${cellIndex}"]`)?.classList.add('is-pending');
+    // Immediate, same-frame visual response while the RGS response is in
+    // flight: GSAP press/pop + lid-flip driven directly on the cached tile DOM
+    // node (transform/opacity only). Presentation-only — the authoritative
+    // flip still happens when server events arrive; a mine result rewinds the
+    // cosmetic tween before the explosion plays. No game state changes here.
+    playback.beginTilePickFx(cellIndex);
     try {
       const res = await client.inRoundDecision({ action: 'pick', cellIndex });
       applyWalletBalance(res.balance.amount);
@@ -322,7 +314,6 @@
     } catch (e) {
       errorMsg = e instanceof Error ? e.message : String(e);
     } finally {
-      document.querySelector(`[data-tile-index="${cellIndex}"]`)?.classList.remove('is-pending');
       pickingCell = null;
     }
   }
