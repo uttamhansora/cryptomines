@@ -1,9 +1,28 @@
 import type { GameEvent } from '@crypto-mines/shared';
-import { AnimationController } from '../animation/controller.js';
+import { AnimationController, type AnimContext } from '../animation/controller.js';
 import { applyEventToSnapshot, emptySnapshot, snapshotFromEvents } from './apply-event.js';
 import type { PlayerSnapshot } from './snapshot.js';
 
 export type SnapshotListener = (snap: Readonly<PlayerSnapshot>) => void;
+
+/**
+ * Playback ordering for the decoupled animation pass. Lower runs first: the tile
+ * the player actually clicked must animate before chain banners, multiplier bumps
+ * or post-loss disclosure of untouched tiles. Stable sort preserves event order
+ * within each priority class.
+ */
+function eventPriority(ev: GameEvent): number {
+  const type = String(ev.type).toLowerCase();
+  if (type === 'reveal') {
+    const rt = String(ev.revealType ?? '');
+    if (rt === 'tileSafe' || rt === 'tileMine') return 0;
+    if (rt === 'enterbonus') return 1;
+    if (rt === 'tileFinal') return 3;
+    return 2;
+  }
+  if (type === 'multiplierupdate') return 2;
+  return 4;
+}
 
 export class PlaybackCoordinator {
   private snap: PlayerSnapshot = emptySnapshot();
@@ -33,6 +52,7 @@ export class PlaybackCoordinator {
   hydrate(events: GameEvent[]): void {
     this.events = events;
     this.snap = snapshotFromEvents(events);
+    this.tiles = [];
     this.emit();
   }
 
@@ -94,19 +114,47 @@ export class PlaybackCoordinator {
       return;
     }
 
-    for (const ev of delta) {
-      applyEventToSnapshot(this.snap, ev);
-      // One notification per revealed tile — keyed tiles update locally.
-      this.emit();
-      await this.anim.playEvent(ev, {
-        getCellEl: (idx) => document.querySelector(`[data-tile-index="${idx}"]`) as HTMLElement | null,
-        getBoardEl: () => this.cached('board', '[data-game-board]'),
-        getMultiplierEl: () => this.cached('mult', '[data-multiplier-display]'),
-        getStageEl: () => this.cached('stage', '[data-game-stage]'),
-        getChainEl: () => this.cached('chain', '[data-chain-meter]'),
-        onChainComplete: opts.onChainComplete,
-      });
+    // CRITICAL PATH: fold the ENTIRE delta into the snapshot and notify Svelte
+    // exactly once, synchronously — the board state is authoritative the moment
+    // the response lands, with zero waiting on animation frames. The old loop
+    // emitted a full app-wide notification per event and awaited each reveal's
+    // GSAP timeline before applying the next one, which serialized multi-tile
+    // loss disclosures behind ~250ms of animation latency each.
+    for (const ev of delta) applyEventToSnapshot(this.snap, ev);
+    this.emit();
+
+    // Decoupled playback: run the cosmetic timelines AFTER the DOM has been
+    // updated, in priority order (player-picked tile first, then chain/vault,
+    // then multiplier bumps). Awaiting here only gates the NEXT round-end step,
+    // never the visual state itself.
+    const ctx: AnimContext = {
+      getCellEl: (idx) => this.tileCache(idx),
+      getBoardEl: () => this.cached('board', '[data-game-board]'),
+      getMultiplierEl: () => this.cached('mult', '[data-multiplier-display]'),
+      getStageEl: () => this.cached('stage', '[data-game-stage]'),
+      getChainEl: () => this.cached('chain', '[data-chain-meter]'),
+      onChainComplete: opts.onChainComplete,
+    };
+    const ordered = [...delta].sort((a, b) => eventPriority(a) - eventPriority(b));
+    for (const ev of ordered) {
+      await this.anim.playEvent(ev, ctx);
     }
+  }
+
+  /**
+   * Tile element cache: `[data-tile-index]` was queried from the document on EVERY
+   * animation step (~3 selector scans per click across 25+ nodes). Tiles persist for
+   * the life of a round, so we hold direct references and re-query only when a cached
+   * node leaves the DOM (round reset / remount).
+   */
+  private tiles: (HTMLElement | null)[] = [];
+
+  private tileCache(index: number): HTMLElement | null {
+    const hit = this.tiles[index];
+    if (hit && hit.isConnected) return hit;
+    const fresh = document.querySelector(`[data-tile-index="${index}"]`) as HTMLElement | null;
+    this.tiles[index] = fresh;
+    return fresh;
   }
 
   cancelAnimations(): void {
@@ -125,7 +173,8 @@ export class PlaybackCoordinator {
     this.cancelAnimations();
     this.events = [];
     this.snap = emptySnapshot();
-    this.events = [];
+    // Drop cached DOM refs — the board remounts its tiles on the next round.
+    this.tiles = [];
     this.emit();
   }
 }

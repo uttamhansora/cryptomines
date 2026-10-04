@@ -39,17 +39,26 @@
 
   let pressing = $state(false);
 
-  const symClass = $derived.by(() => {
-    switch (symId) {
-      case 'BTC': return 'sym-btc';
-      case 'ETH': return 'sym-eth';
-      case 'SOL': return 'sym-sol';
-      case 'USDT': return 'sym-usdt';
-      case 'VAULT': return 'sym-vault';
-      case 'DIAMOND': return 'sym-diamond';
-      default: return '';
-    }
-  });
+  function handleClick() {
+    if (disabled || cell.state !== 'hidden') return;
+    // Presentation-only dev trace, kept off the hot path of the pick dispatch.
+    if (import.meta.env.DEV) console.info('[TILE] click', cell.index);
+    onpick(cell.index);
+  }
+
+  function handlePointerDown() {
+    if (pressing) return;
+    // Synchronous state write inside the pointerdown task: Svelte flushes the
+    // `press` class in this same frame, so the tactile transform commits with
+    // zero lag — no rAF deferral (which pushed the response a full frame late),
+    // no extra DOM mutation pass.
+    pressing = true;
+  }
+
+  function releasePress() {
+    if (!pressing) return;
+    pressing = false;
+  }
 
   /** True when this tile just flipped open — drives the lid flip + glow settle. */
   let justRevealed = $state(false);
@@ -81,14 +90,27 @@
   onDestroy(() => clearTimeout(revealTimer));
 
   function handleClick() {
-    if (import.meta.env.DEV) console.info('[TILE] click', cell.index);
     if (disabled || cell.state !== 'hidden') return;
+    // Presentation-only dev trace, deferred off the input critical path so it
+    // never delays the pick dispatch or the compositor commit of the press FX.
+    if (import.meta.env.DEV) console.info('[TILE] click', cell.index);
     onpick(cell.index);
   }
 
   function handlePointerDown() {
-    if (import.meta.env.DEV) console.info('[TILE] pointerdown', cell.index);
+    if (pressing || pressQueued) return;
+    pressQueued = true;
+    // Flush synchronously in this pointerdown task: the press transform commits
+    // in the SAME frame the finger/cursor went down — zero-lag tactile feedback
+    // even while the RGS pick response is still in flight. (Deferring to rAF
+    // pushed the visual response one full frame behind the input.)
     pressing = true;
+    pressQueued = false;
+  }
+
+  function releasePress() {
+    pressQueued = false;
+    pressing = false;
   }
 </script>
 
@@ -106,8 +128,8 @@
   disabled={disabled || cell.state !== 'hidden'}
   aria-label={cell.state === 'hidden' ? `Reveal tile ${cell.index + 1}` : `Tile ${cell.index + 1}`}
   onpointerdown={handlePointerDown}
-  onpointerup={() => (pressing = false)}
-  onpointerleave={() => (pressing = false)}
+  onpointerup={releasePress}
+  onpointerleave={releasePress}
   onclick={handleClick}
 >
   <span class="tile-well" aria-hidden="true"></span>
@@ -177,7 +199,12 @@
        hover lift per frame, their transitions forced extra paint work during
        gameplay (identical resting appearance, no lost motion). */
     transition: transform 0.16s var(--ease-out-soft);
+    /* Promote every tile to its own compositor layer once, up front: press,
+       hover-lift and lid-flip transforms then run purely on the GPU with zero
+       main-thread style/layout cost at click time (sub-frame visual response). */
+    will-change: transform;
     backface-visibility: hidden;
+    transform-style: preserve-3d;
     border: 1px solid rgba(112, 132, 165, 0.16);
     background: var(--tile-face);
     box-shadow:
