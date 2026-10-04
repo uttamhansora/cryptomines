@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onDestroy } from 'svelte';
   import { BUY_VAULT_COST_MULTIPLIER } from '@crypto-mines/shared';
-  import { apiToDisplay } from '../rgs';
+  import { apiToDisplay, betRangeFromConfig } from '../rgs';
   import Icon from './Icon.svelte';
   import ChainMeter from './ChainMeter.svelte';
 
@@ -99,37 +99,27 @@
 
   const ladderEnabled = $derived(!!walletConfig && walletConfig.betLevels.length > 0);
 
-  /** Lowest wager the player may place — the wallet's minimum bet level (e.g. 1.00). */
-  const betMin = $derived(
-    walletConfig
-      ? Math.max(
-          apiToDisplay(walletConfig.minBet),
-          ladderEnabled ? Math.min(...walletConfig.betLevels.map((v) => apiToDisplay(v))) : 0,
-        )
-      : 0.1,
-  );
+  /**
+   * Effective MIN / MAX targets, computed from the exact constraints the server enforces
+   * (range + step grid + ladder). Because these values are always server-valid, clicking
+   * MIN/MAX can never be silently rewritten by `snapBetDisplayToConfig` in App — which is
+   * what made the buttons look unresponsive when raw minBet/maxBet sat off the ladder or
+   * when the balance fell between two rungs.
+   */
+  const betRange = $derived(betRangeFromConfig(walletConfig, balance));
 
-  /** Highest wager allowed by the wallet config (ladder top when a ladder is offered). */
-  const betCap = $derived(
-    walletConfig
-      ? Math.min(
-          apiToDisplay(walletConfig.maxBet),
-          ladderEnabled ? Math.max(...walletConfig.betLevels.map((v) => apiToDisplay(v))) : Infinity,
-        )
-      : 100,
-  );
+  /** Lowest wager the player may place (e.g. 1.00 on the mock wallet's ladder). */
+  const betMin = $derived(betRange.min);
+
+  /** Highest wager allowed: the configured cap, limited to the player's available balance. */
+  const betCap = $derived(Math.max(betRange.min, betRange.max));
 
   const betStep = $derived(
     walletConfig ? apiToDisplay(walletConfig.stepBet || walletConfig.minStep) : 0.1,
   );
 
-  /**
-   * MAX target: the full available balance, clamped to the configured bet range so the
-   * value is always accepted by `RgsClient.validateBetAmount` / `snapBetDisplayToConfig`.
-   * Without this clamp the raw `maxBet` could snap back to an off-balance ladder rung and
-   * the button would look unresponsive.
-   */
-  const maxBetValue = $derived(Math.max(betMin, Math.min(betCap, balance)));
+  /** MAX button target — the full available balance clamped into the legal range. */
+  const maxBetValue = $derived(betCap);
 
   function adjustBet(deltaSteps: number) {
     if (ladderEnabled && walletConfig) {
