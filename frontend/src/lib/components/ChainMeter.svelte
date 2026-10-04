@@ -37,7 +37,7 @@
 
 <style>
   .chain {
-    background: linear-gradient(180deg, rgba(24, 21, 18, 0.9), rgba(10, 16, 21, 0.95));
+    background: linear-gradient(180deg, rgba(26, 18, 20, 0.9), rgba(10, 16, 21, 0.95));
     border: 1px solid var(--border);
     border-radius: var(--radius-md);
     padding: var(--space-sm) var(--space-md) 0.85rem;
@@ -49,9 +49,9 @@
     animation: chain-pulse 0.45s ease-out;
   }
   @keyframes chain-pulse {
-    0% { box-shadow: 0 0 0 rgba(16, 185, 129, 0), inset 0 1px 0 rgba(255, 255, 255, 0.04); }
-    40% { box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.32), inset 0 0 24px rgba(16, 185, 129, 0.12); }
-    100% { box-shadow: 0 0 0 rgba(16, 185, 129, 0), inset 0 1px 0 rgba(255, 255, 255, 0.04); }
+    0% { box-shadow: 0 0 0 rgba(239, 68, 68, 0), inset 0 1px 0 rgba(255, 255, 255, 0.04); }
+    40% { box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.32), inset 0 0 24px rgba(239, 68, 68, 0.12); }
+    100% { box-shadow: 0 0 0 rgba(239, 68, 68, 0), inset 0 1px 0 rgba(255, 255, 255, 0.04); }
   }
   .head {
     display: flex;
@@ -102,7 +102,7 @@
     border-radius: 50%;
     display: grid;
     place-items: center;
-    border: 1.5px solid rgba(165, 150, 120, 0.3);
+    border: 1.5px solid rgba(150, 112, 112, 0.3);
     background: radial-gradient(circle at 50% 30%, #151310, #0c0a08);
     box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.6);
     transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s var(--ease-out-soft);
@@ -119,45 +119,45 @@
     inset: 0;
     border-radius: 50%;
     opacity: 0;
-    background: radial-gradient(circle at 40% 32%, #a7f3d0, #059669 60%, #052e22);
+    background: radial-gradient(circle at 40% 32%, #fecaca, #dc2626 60%, #450a0a);
     transition: opacity 0.2s;
   }
   .node.active {
-    border-color: rgba(16, 185, 129, 0.8);
+    border-color: rgba(239, 68, 68, 0.8);
     transform: scale(1.08);
     box-shadow:
-      0 0 12px rgba(16, 185, 129, 0.45),
-      0 0 4px rgba(212, 175, 90, 0.25),
+      0 0 12px rgba(239, 68, 68, 0.45),
+      0 0 4px rgba(239, 68, 68, 0.25),
       inset 0 1px 0 rgba(255, 255, 255, 0.25);
     animation: node-charge 0.35s var(--ease-out-soft);
   }
   .node.active .node-core { opacity: 1; }
-  .node.active .node-num { color: #0a2713; }
+  .node.active .node-num { color: #1c0505; }
   @keyframes node-charge {
     0% { transform: scale(0.7); filter: brightness(1.8); }
     60% { transform: scale(1.18); }
     100% { transform: scale(1.08); }
   }
   .node.next {
-    border-color: rgba(255, 160, 64, 0.6);
+    border-color: rgba(251, 113, 133, 0.6);
     animation: node-next 1.3s ease-in-out infinite;
   }
   @keyframes node-next {
-    0%, 100% { box-shadow: inset 0 2px 4px rgba(0,0,0,.6), 0 0 0 rgba(255,160,64,0); }
-    50% { box-shadow: inset 0 2px 4px rgba(0,0,0,.6), 0 0 10px rgba(255,160,64,.35); }
+    0%, 100% { box-shadow: inset 0 2px 4px rgba(0,0,0,.6), 0 0 0 rgba(251,113,133,0); }
+    50% { box-shadow: inset 0 2px 4px rgba(0,0,0,.6), 0 0 10px rgba(251,113,133,.35); }
   }
   .wire {
     flex: 1;
     height: 4px;
     margin: 0 1px;
     border-radius: 2px;
-    background: rgba(165, 150, 120, 0.14);
+    background: rgba(150, 112, 112, 0.14);
     box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.5);
     position: relative;
     overflow: hidden;
   }
   .wire.lit {
-    background: rgba(16, 185, 129, 0.3);
+    background: rgba(239, 68, 68, 0.3);
     animation: wire-fill 0.28s var(--ease-out-soft) both;
     transform-origin: left center;
   }
@@ -170,7 +170,7 @@
     content: '';
     position: absolute;
     inset: 0;
-    background: linear-gradient(90deg, transparent, rgba(52, 211, 153, 0.9), transparent);
+    background: linear-gradient(90deg, transparent, rgba(248, 113, 113, 0.9), transparent);
     animation: energy-slide 1.4s linear infinite;
   }
   @keyframes energy-slide {
@@ -188,13 +188,13 @@
     color: var(--accent-primary);
     opacity: 0;
     pointer-events: none;
-    background: rgba(8, 7, 5, 0.78);
+    background: rgba(10, 6, 7, 0.78);
   }
   .energy {
     position: absolute;
     inset: 0;
     pointer-events: none;
-    background: radial-gradient(circle at 50% 50%, rgba(16, 185, 129, 0.12), transparent 65%);
+    background: radial-gradient(circle at 50% 50%, rgba(239, 68, 68, 0.12), transparent 65%);
     opacity: 0;
   }
 </style>

@@ -49,9 +49,9 @@
     text-align: center;
     color: var(--text-primary);
     background: linear-gradient(165deg, #1a1114 0%, #100c0e 55%, #0a0708 100%);
-    border: 1px solid rgba(16, 185, 129, 0.4);
+    border: 1px solid rgba(239, 68, 68, 0.4);
     box-shadow:
-      0 0 0 1px rgba(16, 185, 129, 0.12),
+      0 0 0 1px rgba(239, 68, 68, 0.12),
       0 24px 60px rgba(0, 0, 0, 0.6),
       inset 0 1px 0 rgba(255, 255, 255, 0.06);
     position: relative;
@@ -76,7 +76,7 @@
     font-size: 1.35rem;
     letter-spacing: 0.1em;
     text-transform: uppercase;
-    color: #d1fae5;
+    color: #fee2e2;
   }
   .sub {
     margin: 0 0 0.8rem;
@@ -90,9 +90,9 @@
     width: 58px;
     height: 58px;
     border-radius: 50%;
-    background: radial-gradient(circle at 50% 35%, rgba(16, 185, 129, 0.2), rgba(20, 8, 10, 0.9) 70%);
-    border: 1px solid rgba(16, 185, 129, 0.5);
-    box-shadow: 0 0 22px rgba(16, 185, 129, 0.3);
+    background: radial-gradient(circle at 50% 35%, rgba(239, 68, 68, 0.2), rgba(20, 8, 10, 0.9) 70%);
+    border: 1px solid rgba(239, 68, 68, 0.5);
+    box-shadow: 0 0 22px rgba(239, 68, 68, 0.3);
     animation: badge-in 0.4s var(--ease-out-soft);
   }
   @keyframes badge-in {
@@ -128,15 +128,15 @@
   dd.lost {
     color: var(--danger);
     text-decoration: line-through;
-    text-decoration-color: rgba(16, 185, 129, 0.5);
+    text-decoration-color: rgba(239, 68, 68, 0.5);
   }
   .again {
     width: 100%;
     min-height: 48px;
     border-radius: var(--radius-md);
-    border: 1px solid rgba(16, 185, 129, 0.45);
-    background: linear-gradient(180deg, #064e3b, #052e22);
-    color: #ecfdf5;
+    border: 1px solid rgba(239, 68, 68, 0.45);
+    background: linear-gradient(180deg, #7f1d1d, #450a0a);
+    color: #fef2f2;
     font-weight: 700;
     font-size: 0.95rem;
     letter-spacing: 0.05em;
@@ -145,7 +145,7 @@
     box-shadow: 0 8px 22px rgba(0, 0, 0, 0.4);
   }
   .again:hover {
-    box-shadow: 0 0 18px rgba(16, 185, 129, 0.3);
+    box-shadow: 0 0 18px rgba(239, 68, 68, 0.3);
   }
   .again:active {
     transform: scale(0.97);
