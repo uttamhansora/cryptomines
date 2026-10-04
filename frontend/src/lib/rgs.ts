@@ -192,26 +192,37 @@ export function roundProgressEventString(
 }
 
 /**
+ * Mirror of `RgsClient.validateBetAmount` (range + step grid + ladder) with float-tolerant
+ * modular arithmetic. `displayToApi` uses `Math.floor`, so a value like 47.55 can arrive as
+ * 47,549,999 api units — a strict `%` check would reject the player's own MAX balance and
+ * silently rewrite it, which is exactly what made the MIN/MAX buttons look unresponsive.
+ */
+function isServerValidBet(amountApi: number, config: WalletConfig): boolean {
+  if (amountApi < config.minBet - 1e-6 || amountApi > config.maxBet + 1e-6) return false;
+  const step = config.stepBet > 0 ? config.stepBet : config.minStep;
+  if (step > 0) {
+    const k = amountApi / step;
+    if (Math.abs(k - Math.round(k)) > 1e-6) return false;
+  }
+  if (config.betLevels.length > 0 && !config.betLevels.some((v) => Math.abs(v - amountApi) < 1e-6)) {
+    return false;
+  }
+  return true;
+}
+
+/**
  * Snap a display bet onto the wallet's allowed ladder / range.
  *
- * IMPORTANT: when no exact rung matches (e.g. MAX picks the player's balance, which may sit
- * between two rungs), we must return a value that `validateBetAmount` still accepts —
- * otherwise the requested bet is silently rewritten and the UI appears frozen/unresponsive.
+ * IMPORTANT: MIN/MAX targets are derived from the SAME config constraints applied here
+ * (`betRangeFromConfig`), so they always come back unchanged — a silent rewrite would make
+ * the buttons look unresponsive. Off-grid requests snap to the nearest legal value.
  */
 export function snapBetDisplayToConfig(betDisplay: number, config: WalletConfig): number {
   const api = displayToApi(betDisplay);
   const step = config.stepBet > 0 ? config.stepBet : config.minStep;
 
-  /** Values accepted by `RgsClient.validateBetAmount` (range + step grid + ladder). */
-  const isValid = (amountApi: number): boolean => {
-    if (amountApi < config.minBet || amountApi > config.maxBet) return false;
-    if (step > 0 && amountApi % step !== 0) return false;
-    if (config.betLevels.length > 0 && !config.betLevels.includes(amountApi)) return false;
-    return true;
-  };
-
   // Already a legal amount — keep it exactly as requested (MIN/MAX must not be rewritten).
-  if (isValid(api)) return betDisplay;
+  if (isServerValidBet(api, config)) return betDisplay;
 
   if (config.betLevels.length > 0) {
     // Nearest ladder rung that is still server-valid.
@@ -219,7 +230,7 @@ export function snapBetDisplayToConfig(betDisplay: number, config: WalletConfig)
     let bestDist = Infinity;
     let found = false;
     for (const level of config.betLevels) {
-      if (!isValid(level)) continue;
+      if (!isServerValidBet(level, config)) continue;
       const dist = Math.abs(api - level);
       if (dist < bestDist) {
         best = level;
@@ -234,7 +245,59 @@ export function snapBetDisplayToConfig(betDisplay: number, config: WalletConfig)
   // resulting amount passes validation instead of being silently rejected.
   const clamped = Math.min(config.maxBet, Math.max(config.minBet, api));
   const snapped = step > 0 ? Math.round(clamped / step) * step : clamped;
-  return apiToDisplay(isValid(snapped) ? snapped : config.minBet);
+  return apiToDisplay(isServerValidBet(snapped, config) ? snapped : config.minBet);
+}
+
+/**
+ * Effective MIN / MAX wager targets for the bet stepper, expressed in DISPLAY units and
+ * guaranteed to satisfy the same constraints `RgsClient.validateBetAmount` enforces
+ * (range, step grid, and — when offered — the ladder of allowed bet levels).
+ *
+ * Because these values are produced by the snapping rules themselves, clicking MIN or MAX
+ * can never be silently rewritten by `snapBetDisplayToConfig`, which previously made the
+ * buttons appear unresponsive whenever the raw `minBet`/`maxBet` sat off the ladder or the
+ * player's balance fell between two rungs.
+ */
+export function betRangeFromConfig(
+  config: WalletConfig | null,
+  balanceDisplay: number,
+): { min: number; max: number } {
+  if (!config) return { min: 0.1, max: 100 };
+
+  const ladder = [...config.betLevels].sort((a, b) => a - b);
+  const validLadder = ladder.filter((v) => isServerValidBet(v, config));
+
+  if (validLadder.length > 0) {
+    // Ladder mode: MIN is the lowest rung; MAX is the highest rung the player can afford
+    // (falling back to the lowest rung when the balance cannot cover any of them).
+    const balanceApi = Math.max(0, displayToApi(balanceDisplay));
+    let maxApi = validLadder[0]!;
+    for (const level of validLadder) {
+      if (level <= balanceApi + 1e-9) maxApi = level;
+    }
+    return { min: apiToDisplay(validLadder[0]!), max: apiToDisplay(maxApi) };
+  }
+
+  // No usable ladder: free-form range on the step grid. Align both bounds onto a grid
+  // anchored at minBet so every returned value passes the server's `% stepBet` check.
+  const step = config.stepBet > 0 ? config.stepBet : config.minStep;
+  if (step <= 0) {
+    const target = Math.max(config.minBet, Math.min(config.maxBet, Math.max(0, displayToApi(balanceDisplay))));
+    return { min: apiToDisplay(config.minBet), max: apiToDisplay(target) };
+  }
+  const minApi = config.minBet;
+  const capAligned = Math.floor((config.maxBet - minApi) / step) * step + minApi;
+  if (capAligned < minApi) {
+    return { min: apiToDisplay(minApi), max: apiToDisplay(minApi) };
+  }
+
+  // MAX target: the full available balance rounded DOWN onto the grid — i.e. the player's
+  // entire bankroll when it fits under the configured cap — clamped into [minApi, cap].
+  const balanceApi = Math.max(0, displayToApi(balanceDisplay));
+  let target = Math.min(capAligned, balanceApi);
+  target = Math.floor((target - minApi) / step) * step + minApi;
+  if (target < minApi) target = minApi;
+  return { min: apiToDisplay(minApi), max: apiToDisplay(target) };
 }
 
 function devLog(message: string, detail?: string) {
