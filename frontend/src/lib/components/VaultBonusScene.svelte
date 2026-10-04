@@ -201,7 +201,7 @@
     align-content: center;
     gap: var(--space-md);
     padding: var(--space-lg);
-    background: #120709;
+    background: #070b14;
     overflow: hidden;
   }
   .bg {
@@ -229,27 +229,27 @@
     width: 100%;
     height: auto;
     display: block;
-    filter: drop-shadow(0 12px 32px rgba(248, 113, 113, 0.15));
+    filter: drop-shadow(0 12px 32px rgba(96, 165, 250, 0.15));
   }
   .door-leaves-left,
   .door-leaves-right {
     position: absolute;
     inset: 0;
     pointer-events: none;
-    background: linear-gradient(90deg, rgba(15, 14, 10, 0.92), transparent 55%);
+    background: linear-gradient(90deg, rgba(11, 14, 20, 0.92), transparent 55%);
     border-radius: 50%;
   }
   .door-leaves-right {
-    background: linear-gradient(-90deg, rgba(15, 14, 10, 0.92), transparent 55%);
+    background: linear-gradient(-90deg, rgba(11, 14, 20, 0.92), transparent 55%);
   }
   .door-lock {
     position: absolute;
     width: 14px;
     height: 14px;
     border-radius: 50%;
-    border: 2px solid rgba(185, 28, 28, 0.65);
-    background: radial-gradient(circle at 35% 30%, #fecaca, #450a0a);
-    box-shadow: 0 0 8px rgba(185, 28, 28, 0.35);
+    border: 2px solid rgba(29, 78, 216, 0.65);
+    background: radial-gradient(circle at 35% 30%, #bfdbfe, #172554);
+    box-shadow: 0 0 8px rgba(29, 78, 216, 0.35);
     pointer-events: none;
   }
   .lock-a {
@@ -273,10 +273,10 @@
     height: 55%;
     transform: translate(-50%, -50%);
     border-radius: 50%;
-    border: 2px solid rgba(239, 68, 68, 0.35);
+    border: 2px solid rgba(59, 130, 246, 0.35);
     opacity: 0;
     pointer-events: none;
-    box-shadow: 0 0 24px rgba(239, 68, 68, 0.25);
+    box-shadow: 0 0 24px rgba(59, 130, 246, 0.25);
   }
   .door-light {
     position: absolute;
@@ -286,7 +286,7 @@
     height: 40%;
     transform: translate(-50%, -50%);
     border-radius: 50%;
-    background: radial-gradient(circle, rgba(239, 68, 68, 0.45), rgba(185, 28, 28, 0.25) 45%, transparent 72%);
+    background: radial-gradient(circle, rgba(59, 130, 246, 0.45), rgba(29, 78, 216, 0.25) 45%, transparent 72%);
     opacity: 0;
   }
   .title-block {
@@ -315,13 +315,13 @@
     font-size: 0.62rem;
     letter-spacing: 0.12em;
     text-transform: uppercase;
-    background: rgba(248, 113, 113, 0.15);
-    border: 1px solid rgba(248, 113, 113, 0.35);
+    background: rgba(96, 165, 250, 0.15);
+    border: 1px solid rgba(96, 165, 250, 0.35);
     color: var(--highlight);
   }
   .badge.organic {
-    border-color: rgba(248, 113, 113, 0.35);
-    background: rgba(248, 113, 113, 0.08);
+    border-color: rgba(96, 165, 250, 0.35);
+    background: rgba(96, 165, 250, 0.08);
     color: var(--accent-primary);
   }
   .hint {

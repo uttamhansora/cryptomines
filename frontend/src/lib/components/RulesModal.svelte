@@ -148,7 +148,7 @@
     transition: border-color 0.15s, transform 0.1s ease;
   }
   .close:hover {
-    border-color: rgba(220, 38, 38, 0.5);
+    border-color: rgba(37, 99, 235, 0.5);
   }
   .close:active {
     transform: scale(0.94);
@@ -192,7 +192,7 @@
     font-family: var(--font-display);
     font-size: 0.62rem;
     color: var(--bg-primary);
-    background: linear-gradient(160deg, var(--accent-secondary), var(--red-light));
+    background: linear-gradient(160deg, var(--accent-secondary), var(--blue-light));
   }
   p {
     margin: 0;
