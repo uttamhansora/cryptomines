@@ -97,23 +97,61 @@
   /* circular energy ring: fill proportional to progress toward a big multiplier */
   const ringPct = $derived(Math.min(100, ((displayMult - 1) / 9) * 100));
 
-  const betMin = $derived(walletConfig ? apiToDisplay(walletConfig.minBet) : 0.1);
-  const betMax = $derived(walletConfig ? apiToDisplay(walletConfig.maxBet) : 100);
+  const ladderEnabled = $derived(!!walletConfig && walletConfig.betLevels.length > 0);
+
+  /** Lowest wager the player may place — the wallet's minimum bet level (e.g. 1.00). */
+  const betMin = $derived(
+    walletConfig
+      ? Math.max(
+          apiToDisplay(walletConfig.minBet),
+          ladderEnabled ? Math.min(...walletConfig.betLevels.map((v) => apiToDisplay(v))) : 0,
+        )
+      : 0.1,
+  );
+
+  /** Highest wager allowed by the wallet config (ladder top when a ladder is offered). */
+  const betCap = $derived(
+    walletConfig
+      ? Math.min(
+          apiToDisplay(walletConfig.maxBet),
+          ladderEnabled ? Math.max(...walletConfig.betLevels.map((v) => apiToDisplay(v))) : Infinity,
+        )
+      : 100,
+  );
+
   const betStep = $derived(
     walletConfig ? apiToDisplay(walletConfig.stepBet || walletConfig.minStep) : 0.1,
   );
 
+  /**
+   * MAX target: the full available balance, clamped to the configured bet range so the
+   * value is always accepted by `RgsClient.validateBetAmount` / `snapBetDisplayToConfig`.
+   * Without this clamp the raw `maxBet` could snap back to an off-balance ladder rung and
+   * the button would look unresponsive.
+   */
+  const maxBetValue = $derived(Math.max(betMin, Math.min(betCap, balance)));
+
   function adjustBet(deltaSteps: number) {
-    if (walletConfig && walletConfig.betLevels.length > 0) {
-      const levels = walletConfig.betLevels.map((v) => apiToDisplay(v));
-      const currentApi = levels.reduce((best, v) => (Math.abs(v - bet) < Math.abs(best - bet) ? v : best), levels[0]!);
-      const idx = levels.indexOf(currentApi);
-      const next = levels[Math.min(levels.length - 1, Math.max(0, idx + deltaSteps))]!;
-      onBetChange(next);
+    if (ladderEnabled && walletConfig) {
+      const levels = walletConfig.betLevels.map((v) => apiToDisplay(v)).sort((a, b) => a - b);
+      const idx = levels.findIndex((v) => v > bet + 1e-9);
+      let next: number;
+      if (deltaSteps < 0) {
+        const down = idx - 1;
+        next = levels[down >= 0 ? down : 0]!;
+      } else if (idx === -1) {
+        next = levels[levels.length - 1]!;
+      } else {
+        next = levels[Math.min(levels.length - 1, idx + deltaSteps)]!;
+      }
+      // Never step below MIN or above the effective cap.
+      if (next < betMin) next = betMin;
+      if (next > betCap) next = betCap;
+      if (next !== bet) onBetChange(next);
       return;
     }
-    const next = Math.min(betMax, Math.max(betMin, +(bet + deltaSteps * betStep).toFixed(2)));
-    onBetChange(next);
+    const next = Math.min(betCap, Math.max(betMin, +(bet + deltaSteps * betStep).toFixed(2)));
+    if (next !== bet) onBetChange(next);
   }
 </script>
 
@@ -170,17 +208,17 @@
       Bet amount
     </span>
     <div class="stepper">
-      <button type="button" disabled={roundActive} title="Minimum bet" onclick={() => onBetChange(betMin)}>MIN</button>
-      <button type="button" disabled={roundActive} title="Halve bet" onclick={() => onBetChange(Math.max(betMin, +(bet / 2).toFixed(2)))}>½</button>
+      <button type="button" data-bet-min disabled={roundActive} title="Minimum bet" onclick={() => onBetChange(betMin)}>MIN</button>
+      <button type="button" data-bet-half disabled={roundActive} title="Halve bet" onclick={() => onBetChange(Math.max(betMin, +(bet / 2).toFixed(2)))}>½</button>
       <button type="button" class="step-btn" disabled={roundActive} aria-label="Decrease bet" onclick={() => adjustBet(-1)}>
         <Icon name="minus" size={16} />
       </button>
-      <span class="value">{bet.toFixed(2)}</span>
+      <span class="value" data-bet-value>{bet.toFixed(2)}</span>
       <button type="button" class="step-btn" disabled={roundActive} aria-label="Increase bet" onclick={() => adjustBet(1)}>
         <Icon name="plus" size={16} />
       </button>
-      <button type="button" disabled={roundActive} title="Double bet" onclick={() => onBetChange(Math.min(betMax, +(bet * 2).toFixed(2)))}>2×</button>
-      <button type="button" disabled={roundActive} title="Maximum bet" onclick={() => onBetChange(betMax)}>MAX</button>
+      <button type="button" data-bet-double disabled={roundActive} title="Double bet" onclick={() => onBetChange(Math.min(betCap, +(bet * 2).toFixed(2)))}>2×</button>
+      <button type="button" data-bet-max disabled={roundActive} title="Maximum bet" onclick={() => onBetChange(maxBetValue)}>MAX</button>
     </div>
   </div>
 
