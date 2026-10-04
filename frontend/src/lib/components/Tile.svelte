@@ -43,8 +43,6 @@
 
   function handleClick() {
     if (disabled || cell.state !== 'hidden') return;
-    // Presentation-only dev trace, kept off the hot path of the pick dispatch.
-    if (import.meta.env.DEV) console.info('[TILE] click', cell.index);
     onpick(cell.index);
   }
 
@@ -62,7 +60,13 @@
     pressing = false;
   }
 
-  /** True when this tile just flipped open — drives the lid flip + glow settle. */
+  /**
+   * One-shot entrance for tiles that flip open via post-loss disclosure
+   * (ghost/final reveals). The PLAYER-PICKED tile does NOT use this path: its
+   * lid flip is a GSAP tween started synchronously at click time (see
+   * App.onPick -> playback.beginTilePickFx), so it responds within the same
+   * frame as the pointer event instead of waiting for a state round-trip.
+   */
   let justRevealed = $state(false);
   let revealTimer: ReturnType<typeof setTimeout> | undefined;
   let firstRun = true;
@@ -79,8 +83,9 @@
       return;
     }
     if (cell.state === lastState) return;
+    const wasHidden = lastState === 'hidden';
     lastState = cell.state;
-    if (revealed && !justRevealed) {
+    if (revealed && wasHidden && !justRevealed) {
       justRevealed = true;
       clearTimeout(revealTimer);
       revealTimer = setTimeout(() => (justRevealed = false), 700);

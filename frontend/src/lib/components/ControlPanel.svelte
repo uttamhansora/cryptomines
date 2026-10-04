@@ -367,11 +367,6 @@
     stroke: rgba(112, 132, 165, 0.14);
     stroke-width: 3;
   }
-  /* Immediate press feedback while the RGS pick response is in flight */
-  :global(.tile.is-pending .tile-inner) {
-    transform: translate3d(0, 2px, 0) scale(0.96);
-    box-shadow: inset 0 3px 10px rgba(0, 0, 0, 0.55);
-  }
   .ring-fill {
     fill: none;
     stroke: var(--accent-primary);
