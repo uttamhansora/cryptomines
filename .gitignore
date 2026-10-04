@@ -1,1 +1,5 @@
-(empty)
+# Build output
+frontend/dist/
+
+# Dependencies
+frontend/node_modules/

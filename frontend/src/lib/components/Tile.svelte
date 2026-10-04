@@ -43,6 +43,14 @@
 
   function handleClick() {
     if (disabled || cell.state !== 'hidden') return;
+    // Start the tactile press transform synchronously in the pointer/click
+    // task itself. Previously only `pointerdown` set this — on touch devices
+    // where pointer events are dispatched late (or suppressed by scroll
+    // heuristics), the tile had no visual response until the server round-trip
+    // completed, which is exactly the "click → wait → open" lag. Now every
+    // click path paints a pressed pose within the same frame as the event.
+    pressing = true;
+    ownPickPending = true;
     onpick(cell.index);
   }
 
@@ -69,6 +77,13 @@
    */
   let justRevealed = $state(false);
   let revealTimer: ReturnType<typeof setTimeout> | undefined;
+  // True while the player's own pick is awaiting server confirmation. The
+  // optimistic lid-flip for this tile is driven by GSAP (App.onPick ->
+  // playback.beginTilePickFx); the CSS entrance below must NOT also fire on it,
+  // or two animations fight over the same lid transform and the reveal reads as
+  // a stutter/delay. Set synchronously in handleClick — before any await — so
+  // the flag is always in place when the confirming snapshot emit re-renders.
+  let ownPickPending = $state(false);
   let firstRun = true;
   // Cache the last observed state so this effect performs zero work on every
   // snapshot emission (the parent re-renders all tiles per event; previously
@@ -85,13 +100,20 @@
     if (cell.state === lastState) return;
     const wasHidden = lastState === 'hidden';
     lastState = cell.state;
-    if (revealed && wasHidden && !justRevealed) {
-      justRevealed = true;
-      clearTimeout(revealTimer);
-      revealTimer = setTimeout(() => (justRevealed = false), 700);
-    } else if (!revealed) {
+    if (!revealed) {
       justRevealed = false;
+      ownPickPending = false;
       clearTimeout(revealTimer);
+      return;
+    }
+    if (wasHidden && !justRevealed) {
+      const mineOwnPick = ownPickPending;
+      ownPickPending = false;
+      if (!mineOwnPick) {
+        justRevealed = true;
+        clearTimeout(revealTimer);
+        revealTimer = setTimeout(() => (justRevealed = false), 700);
+      }
     }
   });
   onDestroy(() => clearTimeout(revealTimer));
