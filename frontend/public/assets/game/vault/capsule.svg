@@ -1,12 +1,12 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 200" fill="none">
   <defs>
-    <linearGradient id="cap-body" x1="60" y1="20" x2="60" y2="180"><stop stop-color="#4a5568"/><stop offset="0.5" stop-color="#1f2937"/><stop offset="1" stop-color="#111827"/></linearGradient>
-    <linearGradient id="cap-glass" x1="60" y1="50" x2="60" y2="150"><stop stop-color="#2563eb" stop-opacity="0.35"/><stop offset="1" stop-color="#059669" stop-opacity="0.08"/></linearGradient>
+    <linearGradient id="cap-body" x1="60" y1="20" x2="60" y2="180"><stop stop-color="#57524b"/><stop offset="0.5" stop-color="#26221d"/><stop offset="1" stop-color="#171412"/></linearGradient>
+    <linearGradient id="cap-glass" x1="60" y1="50" x2="60" y2="150"><stop stop-color="#10b981" stop-opacity="0.35"/><stop offset="1" stop-color="#065F46" stop-opacity="0.08"/></linearGradient>
     <linearGradient id="cap-rim" x1="60" y1="16" x2="60" y2="184"><stop stop-color="#fde68a"/><stop offset="1" stop-color="#b45309"/></linearGradient>
   </defs>
   <rect x="20" y="24" width="80" height="152" rx="40" fill="url(#cap-body)" stroke="url(#cap-rim)" stroke-width="2.5"/>
   <rect x="28" y="48" width="64" height="104" rx="32" fill="url(#cap-glass)"/>
   <ellipse cx="60" cy="40" rx="28" ry="8" fill="#fff" opacity="0.1"/>
-  <circle cx="60" cy="100" r="18" fill="#0a0f0d" stroke="#c9a227" stroke-opacity="0.45" stroke-width="1.5"/>
-  <circle cx="60" cy="100" r="8" fill="#2563eb" opacity="0.9"/>
+  <circle cx="60" cy="100" r="18" fill="#0f0e0a" stroke="#c9a227" stroke-opacity="0.45" stroke-width="1.5"/>
+  <circle cx="60" cy="100" r="8" fill="#10b981" opacity="0.9"/>
 </svg>

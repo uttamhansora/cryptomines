@@ -201,7 +201,7 @@
     align-content: center;
     gap: var(--space-md);
     padding: var(--space-lg);
-    background: #05080c;
+    background: #0c0b05;
     overflow: hidden;
   }
   .bg {
@@ -229,18 +229,18 @@
     width: 100%;
     height: auto;
     display: block;
-    filter: drop-shadow(0 12px 32px rgba(255, 176, 32, 0.15));
+    filter: drop-shadow(0 12px 32px rgba(255, 210, 32, 0.15));
   }
   .door-leaves-left,
   .door-leaves-right {
     position: absolute;
     inset: 0;
     pointer-events: none;
-    background: linear-gradient(90deg, rgba(10, 15, 13, 0.92), transparent 55%);
+    background: linear-gradient(90deg, rgba(15, 14, 10, 0.92), transparent 55%);
     border-radius: 50%;
   }
   .door-leaves-right {
-    background: linear-gradient(-90deg, rgba(10, 15, 13, 0.92), transparent 55%);
+    background: linear-gradient(-90deg, rgba(15, 14, 10, 0.92), transparent 55%);
   }
   .door-lock {
     position: absolute;
@@ -273,10 +273,10 @@
     height: 55%;
     transform: translate(-50%, -50%);
     border-radius: 50%;
-    border: 2px solid rgba(37, 99, 235, 0.35);
+    border: 2px solid rgba(16, 185, 129, 0.35);
     opacity: 0;
     pointer-events: none;
-    box-shadow: 0 0 24px rgba(37, 99, 235, 0.25);
+    box-shadow: 0 0 24px rgba(16, 185, 129, 0.25);
   }
   .door-light {
     position: absolute;
@@ -286,7 +286,7 @@
     height: 40%;
     transform: translate(-50%, -50%);
     border-radius: 50%;
-    background: radial-gradient(circle, rgba(37, 99, 235, 0.45), rgba(201, 162, 39, 0.25) 45%, transparent 72%);
+    background: radial-gradient(circle, rgba(16, 185, 129, 0.45), rgba(201, 162, 39, 0.25) 45%, transparent 72%);
     opacity: 0;
   }
   .title-block {
@@ -315,13 +315,13 @@
     font-size: 0.62rem;
     letter-spacing: 0.12em;
     text-transform: uppercase;
-    background: rgba(255, 176, 32, 0.15);
-    border: 1px solid rgba(255, 176, 32, 0.35);
+    background: rgba(255, 210, 32, 0.15);
+    border: 1px solid rgba(255, 210, 32, 0.35);
     color: var(--highlight);
   }
   .badge.organic {
-    border-color: rgba(96, 165, 250, 0.35);
-    background: rgba(96, 165, 250, 0.08);
+    border-color: rgba(52, 211, 153, 0.35);
+    background: rgba(52, 211, 153, 0.08);
     color: var(--accent-primary);
   }
   .hint {
