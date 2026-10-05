@@ -52,19 +52,23 @@ export class AnimationController {
 
   /**
    * Per-cell pending-reveal timelines. When the player clicks a tile we start
-   * the flip animation IMMEDIATELY (before the server confirms what is under
-   * the lid). If the confirmed result is safe, this same timeline simply keeps
-   * playing — zero restart, zero waiting. If it turns out to be a mine, we
-   * `progress(0)` + kill the pending tween so mineHit can take the tile over
-   * from its resting state.
+   * the FULL lid-open sequence IMMEDIATELY (before the server confirms what is
+   * under the lid): press → pop → lid flips away. The lid flip is written as a
+   * FROM-VALUE tween (`fromTo rotateX: 0`) so rewinding a bluff via
+   * `progress(0)` restores the exact closed pose instead of leaving the lid
+   * frozen mid-flip with partial opacity. If the confirmed result is safe, the
+   * same timeline simply keeps playing — zero restart, zero waiting. If it
+   * turns out to be a mine, we `progress(0)` + kill the pending tween so
+   * mineHit can take the tile over from its resting (closed) state.
    */
   private pendingReveals = new Map<number, gsap.core.Timeline>();
 
   /**
-   * Fire the tactile press/pop + lid-flip for a picked cell synchronously at
-   * click time. Transform/opacity only (GPU compositor properties) and driven
-   * directly on the cached DOM node — no React/Svelte state round-trip, so the
-   * visual response lands in the same frame as the pointer event.
+   * Fire the tactile press/pop AND the lid-flip for a picked cell
+   * synchronously at click time. Transform/opacity only (GPU compositor
+   * properties) and driven directly on the cached DOM node — no React/Svelte
+   * state round-trip, so the square visibly opens in the same frame as the
+   * pointer event instead of waiting for the server round-trip.
    */
   startPendingReveal(index: number, el: HTMLElement | null): void {
     if (!el || this.pendingReveals.has(index)) return;
@@ -79,22 +83,46 @@ export class AnimationController {
     gsap.set(inner, { clearProps: 'transform', overwrite: true });
     const lid = el.querySelector('.tile-lid') as HTMLElement | null;
     if (lid) gsap.set(lid, { clearProps: 'transform,opacity' });
-    // Press-down + pop ONLY (~0.14s total). The authoritative lid-flip is
-    // deliberately NOT started here: flipping the lid optimistically and then
-    // FREEZING it open until the server confirms produced a visible
-    // "open → wait → snap shut → reopen" stutter whenever the round-trip took
-    // longer than the tween. Now the tile responds instantly with a tactile
-    // press, rests for the remainder of the round-trip, and the lid flip plays
-    // once — cleanly — when the confirmed reveal claims this timeline.
+    // Press-down + pop (~0.14s) THEN the authoritative lid-flip, all in one
+    // hand-off timeline. Previously the flip was deliberately withheld until
+    // the server confirmed the pick, which produced exactly the UX complaint:
+    // "click → square waits → opens late". The flip now plays immediately as
+    // part of the click response; the confirmation pass chains onto THIS very
+    // timeline (see tileReveal), so a safe tile continues seamlessly and a
+    // mine bluff is rewound to its closed resting pose before the explosion.
+    // No icon ever waits on these tweens — Tile.svelte renders the symbol the
+    // instant the committed snapshot marks the cell revealed. The lid stays
+    // mounted while flipping (Svelte keeps `visibility:visible` for the CSS
+    // entrance class during the transition) and GSAP's final frame lands it at
+    // opacity 0 / rotateX -72, so the flip never snaps back when Svelte
+    // re-renders underneath it.
     const tl = gsap.timeline({ paused: true });
     tl.to(inner, { y: 3, scale: 0.94, duration: 0.06, ease: 'power2.in' })
       .to(inner, { y: -2, scale: 1.01, duration: 0.08, ease: 'power1.out' });
+    if (lid) {
+      tl.fromTo(
+        lid,
+        { rotateX: 0, opacity: 1 },
+        {
+          rotateX: -72,
+          opacity: 0,
+          duration: 0.14,
+          ease: 'power1.out',
+          transformOrigin: '50% 0%',
+          clearProps: 'transform,opacity',
+        },
+        '+=0',
+      );
+    }
     this.pendingReveals.set(index, tl);
     tl.play();
-    // Safety net ONLY: drop the map entry shortly after the press animation
-    // has long since finished naturally (total length ≈ 0.14s). The guard is
-    // cleared the moment the tween completes, so it never delays any visual —
-    // it just prevents orphaned entries if a round aborts abnormally.
+    // Safety net ONLY: drop the map entry shortly after the animation has long
+    // since finished naturally (total length ≈ 0.28s). The guard is cleared the
+    // moment the tween completes, so it never delays any visual — it just
+    // prevents orphaned entries if a round aborts abnormally. Killing an
+    // already-completed tween does not touch its rendered values, and the flip
+    // ended with clearProps anyway, so a mid-flight kill simply leaves the lid
+    // frozen where it stopped (the confirm/cashout passes clean that up).
     const guard = window.setTimeout(() => {
       if (this.pendingReveals.get(index) === tl) {
         this.pendingReveals.delete(index);
@@ -133,6 +161,22 @@ export class AnimationController {
     this.pendingReveals.clear();
   }
 
+  /**
+   * Rewind a click-time pending tween to its EXACT authored start values and
+   * drop it from the map without killing it. Used when the server result turns
+   * out to be a mine: the optimistic lid-flip was a bluff, so the lid must snap
+   * back to its closed resting pose with zero leftover inline styles — simply
+   * calling progress(0) on an in-flight tween would freeze the last-rendered
+   * mid-flip frame (partially transparent/rotated lid) on the node. `revert()`
+   * restores the recorded startAt values instead. The timeline stays alive only
+   * until its orphan guard fires, which then kills it.
+   */
+  private rewindPending(index: number, pending: gsap.core.Timeline | null): void {
+    if (!pending) return;
+    this.pendingReveals.delete(index);
+    pending.revert();
+  }
+
   killAll(): void {
     this.cancelPendingReveals();
     this.active.kill();
@@ -160,12 +204,12 @@ export class AnimationController {
         return;
       }
       if (rt === 'tileMine' && typeof ev.cellIndex === 'number') {
-        // The pending lid-flip was a bluff: rewind the tile to rest before the
+        // The pending lid-flip was a bluff: rewind the tile to its authored
+        // closed pose (revert, not progress(0) — see rewindPending) before the
         // explosion so mineHit starts from clean values.
         const pending = handedPending ?? this.claimPending(ev.cellIndex);
         if (pending) {
-          pending.progress(0);
-          pending.kill();
+          this.rewindPending(ev.cellIndex, pending);
         }
         void this.mineHit(ctx.getCellEl(ev.cellIndex), ctx.getBoardEl(), ev.index ?? ev.cellIndex);
         return;
@@ -175,8 +219,7 @@ export class AnimationController {
         const el = ctx.getCellEl(ev.cellIndex);
         const stale = handedPending ?? this.claimPending(ev.cellIndex);
         if (stale) {
-          stale.progress(0);
-          stale.kill();
+          this.rewindPending(ev.cellIndex, stale);
         } else if (el) {
           this.resetToRest(el);
         }
@@ -230,20 +273,16 @@ export class AnimationController {
     // so the NEXT queued reveal (e.g. multi-tile loss disclosure) starts sooner.
     const tl = gsap.timeline();
     if (pending) {
-      // Claim the click-time press tween. If it is still in flight, chain the
-      // lid-flip directly onto it (no restart, no snap, and NO dead-time hold
-      // gap — the previous `to({}, {duration: 0.26 - t})` empty tween added up
-      // to 40ms of nothing between the press release and the flip). If it
-      // already completed, the tile rests at its pop pose; continue from there.
-      pending.to(
-        lid ?? target,
-        lid
-          ? { rotateX: -72, opacity: 0, duration: 0.14, transformOrigin: '50% 0%' }
-          : { y: 0, scale: 1, duration: 0.08 },
-      );
-      // Hand the pending timeline over AS the reveal timeline: everything below
-      // appends to it, so symbol/glow/burst start the instant the press+flip
-      // ends instead of waiting on a parallel fixed-length track.
+      // Claim the click-time press+flip tween — it ALREADY opened the square at
+      // pointer-event time (see startPendingReveal). The flip is NOT restarted
+      // or appended here: whatever remains of the click tween simply keeps
+      // playing (zero restart, zero waiting), and if it already completed the
+      // lid rests fully open. Either way the icon never waits on this timeline
+      // — it was committed to the DOM synchronously before playEvent ever ran.
+      // Append ONLY after the remaining work has been scheduled (GSAP places
+      // new children at the end; appending first would re-parent the in-flight
+      // tween and could reset its playhead).
+      pending.to(target, { y: 0, scale: 1, duration: 0.08, ease: 'power2.out' });
       tl.add(pending, 0);
     } else if (lid && !gsap.getProperty(lid, 'opacity') && gsap.getProperty(lid, 'x') !== undefined) {
       // No pending tween AND the lid is still mid-flip from an optimistic
@@ -264,7 +303,23 @@ export class AnimationController {
       tl.fromTo(innerLight, { opacity: 0 }, { opacity: kind === 'vault' ? 0.85 : 0.65, duration: 0.1 }, '-=0.06')
         .to(innerLight, { opacity: kind === 'vault' ? 0.35 : 0.18, duration: 0.28 }, '-=0.04');
     }
-    tl.fromTo(sym, { scale: 0.5, opacity: 0, y: 10, rotate: -8 }, { scale: 1, opacity: 1, y: 0, rotate: 0, duration: 0.32, ease: 'back.out(1.7)' }, '-=0.05');
+    // The symbol IS ALREADY VISIBLE: the authoritative snapshot committed the
+    // revealed cell synchronously before this cosmetic pass started, and
+    // Tile.svelte renders <img class="sym"> straight from that state. Do NOT
+    // `fromTo` its opacity/scale from hidden values — doing so re-hid the icon
+    // for the length of the preceding tweens (~0.28s "open → wait → icon"
+    // regression). Instead, ensure the resting pose explicitly (a killed/bluff
+    // pending tween may have left stale inline transforms) and layer a very
+    // short, GPU-friendly micro-pop ON TOP of the visible icon.
+    if (sym) {
+      gsap.set(sym, { clearProps: 'transform,opacity' });
+      tl.fromTo(
+        sym,
+        { scale: 0.92, opacity: 1 },
+        { scale: 1, opacity: 1, duration: 0.12, ease: 'back.out(2)' },
+        '<',
+      );
+    }
     if (glow) {
       tl.fromTo(glow, { opacity: 0, scale: 0.85 }, { opacity: kind === 'vault' ? 0.75 : 0.55, scale: 1.05, duration: 0.18 }, '-=0.28')
         .to(glow, { opacity: kind === 'vault' ? 0.3 : 0.16, scale: 1, duration: capDur(0.32) });
@@ -299,11 +354,19 @@ export class AnimationController {
         this.burstOnTile(el, seed, 'mine');
         resolve();
       }});
+      // The mine icon is ALREADY in the DOM and visible: the authoritative
+      // snapshot committed `state: 'mine'` synchronously before this cosmetic
+      // pass runs. Do NOT fade it in from opacity 0 — that re-hid the icon for
+      // ~130ms ("square opens → wait → mine appears"). Instead clear any stale
+      // inline pose left by the rewound click-bluff tween and play a short
+      // GPU-friendly pop (scale/rotate only, opacity pinned at 1) on top of the
+      // already-visible icon.
+      if (sym) gsap.set(sym, { clearProps: 'transform,opacity' });
       tl.to(target, { y: 4, scale: 0.92, duration: 0.05, ease: 'power2.in' })
         .to({}, { duration: 0.08 })
         .to(target, { y: -3, scale: 1.06, duration: 0.1, ease: 'power1.out' });
       if (sym) {
-        tl.fromTo(sym, { scale: 0.4, opacity: 0, rotate: -20 }, { scale: 1.12, opacity: 1, rotate: 0, duration: 0.26, ease: 'back.out(2.2)' }, '-=0.06');
+        tl.fromTo(sym, { scale: 0.7, opacity: 1, rotate: -14 }, { scale: 1.12, opacity: 1, rotate: 0, duration: 0.2, ease: 'back.out(2.2)' }, 0);
       }
       if (flash) {
         tl.to(flash, { opacity: 0.55, duration: 0.04, ease: 'power1.in' }, '-=0.14')
@@ -337,10 +400,15 @@ export class AnimationController {
     const inner = el.querySelector('.tile-inner') as HTMLElement | null;
     const target = inner ?? el;
     const sym = el.querySelector('.sym') as HTMLElement | null;
+    // Disclosed tiles' icons/states are ALREADY committed to the DOM by the
+    // synchronous snapshot fold (loss disclosure applies every tileFinal event
+    // before this cosmetic pass runs). Tween opacity from below 1 here would
+    // visibly re-hide already-rendered content, so all effects stay fully
+    // opaque and only use transform micro-motions.
     return new Promise((resolve) => {
       const tl = gsap.timeline({ onComplete: resolve });
-      tl.fromTo(target, { opacity: 0.45, scale: 0.92, y: 4 }, { opacity: 0.9, scale: 1, y: 0, duration: 0.16, ease: 'power2.out' });
-      if (sym) tl.fromTo(sym, { opacity: 0, scale: 0.8 }, { opacity: 0.88, scale: 1, duration: 0.18, ease: 'power1.out' }, '-=0.1');
+      tl.fromTo(target, { scale: 0.92, y: 4 }, { scale: 1, y: 0, duration: 0.16, ease: 'power2.out' });
+      if (sym) tl.fromTo(sym, { scale: 0.85 }, { scale: 1, duration: 0.18, ease: 'power1.out' }, '-=0.1');
     });
   }
 

@@ -70,10 +70,10 @@
   /**
    * One-shot entrance for tiles that flip open via post-loss disclosure
    * (ghost/final reveals). The PLAYER-PICKED tile does NOT use this path: its
-   * tactile press starts synchronously at click time (see App.onPick ->
-   * playback.beginTilePickFx) and the lid flip is driven by GSAP when the
-   * confirmed reveal claims that tween, so it responds within the same frame
-   * as the pointer event instead of waiting for a state round-trip.
+   * tactile press AND lid flip start synchronously at click time (see
+   * App.onPick -> playback.beginTilePickFx), so the square visibly opens in the
+   * same frame as the pointer event; the confirming snapshot below only has to
+   * render the icon, which it does immediately.
    */
   let justRevealed = $state(false);
   // True while the player's own pick is awaiting server confirmation. The
@@ -115,11 +115,14 @@
         // class — pure artificial latency plus a needless reactive write; gone.
         justRevealed = true;
       } else {
-        // Player-picked tile: the GSAP chain leaves the lid mid-flip (opacity
-        // <1) because Svelte's visibility toggle cannot override an inline
-        // opacity. Clear the leftovers synchronously in THIS pre-paint flush —
-        // the lid is already `visibility:hidden` in the committed DOM, so no
-        // flash occurs and no animation ever waits on the network tail.
+        // Player-picked tile: its lid was ALREADY flipped open at click time by
+        // the GSAP pending tween (beginTilePickFx). The committed snapshot now
+        // toggles the lid's inline `visibility:hidden`, but a still-in-flight
+        // tween would keep writing inline opacity/transform afterwards and
+        // could leave stale values on the node if the tween is killed mid-way
+        // (e.g. rapid cash-out). Drop those leftovers synchronously in THIS
+        // pre-paint flush so the CSS visibility rule wins deterministically —
+        // the icon itself renders in this exact pass, with zero waiting.
         clearLidInlinePose();
       }
     }
@@ -165,7 +168,7 @@
     <span class="tile-burst" aria-hidden="true"></span>
     <!-- Lid: the premium Crypto Mines tile back. Stays mounted while revealing so
          GSAP can flip it away; hidden only once fully revealed. -->
-    <span class="tile-lid" aria-hidden="true" style:visibility={cell.state === 'hidden' ? 'visible' : 'hidden'}>
+    <span class="tile-lid" aria-hidden="true" style:visibility={cell.state === 'hidden' ? 'visible' : (justRevealed ? 'visible' : 'hidden')}>
       <span class="back-mark">
         <svg viewBox="0 0 64 64" width="58%" height="58%">
           <g fill="none" stroke="var(--primary)" stroke-width="2.2" opacity=".55">
@@ -178,8 +181,16 @@
       </span>
     </span>
     {#if cell.state !== 'hidden' && icon}
+      <!-- ICON RENDERING IS NEVER GATED ON ANIMATION OR NETWORK: this branch
+           flips in the exact synchronous commit of the authoritative snapshot
+           (applyEventsToSnapshot -> emit), and the asset URL comes from the
+           build-time-imported SVG registry (icons.ts) — already in the HTTP/
+           module cache long before gameplay, preloaded below at app init. The
+           optional CSS entrance (`just-revealed`) starts on frame 1 with zero
+           animation-delay and its keyframes end in the icon's natural resting
+           pose, so pixels are never held back behind a timer. -->
       <span class="sym-wrap" class:vault-sym={symId === 'VAULT'} class:mine-sym={cell.state === 'mine'}>
-        <img class="sym" src={icon} alt={cell.state === 'mine' ? 'Mine' : symId} decoding="async" />
+        <img class="sym" src={icon} alt={cell.state === 'mine' ? 'Mine' : symId} decoding="sync" fetchpriority="high" />
       </span>
     {/if}
   </span>
