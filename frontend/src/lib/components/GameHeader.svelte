@@ -1,6 +1,4 @@
 <script lang="ts">
-  import Icon from './Icon.svelte';
-
   interface Props {
     balance: number;
     soundOn: boolean;
@@ -25,7 +23,11 @@
     <div class="balance" data-balance-chip role="status" aria-label={`Balance ${balance.toFixed(2)}`}>
       <span class="label">Balance</span>
       <span class="value">
-        <Icon name="tether" size={15} class="coin" />
+        <!-- Inline SVG (USDT mark): currentColor-driven, zero network fetch. -->
+        <svg class="coin" viewBox="0 0 64 64" width="15" height="15" aria-hidden="true" focusable="false">
+          <circle cx="32" cy="32" r="27" fill="none" stroke="currentColor" stroke-width="4" />
+          <path d="M18 20h28v7H36v22h-8V27H18z" fill="currentColor" />
+        </svg>
         <strong>{balance.toFixed(2)}</strong>
       </span>
     </div>
@@ -37,10 +39,33 @@
       aria-label={soundOn ? 'Mute sound' : 'Enable sound'}
       onclick={onToggleSound}
     >
-      <Icon name={soundOn ? 'sound' : 'mute'} size={18} />
+      {#if soundOn}
+        <!-- Speaker with waves -->
+        <svg viewBox="0 0 64 64" width="18" height="18" aria-hidden="true" focusable="false">
+          <g fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M10 24v16h10l14 10V14L20 24z" />
+            <path d="M42 24c3 2.4 3 13.6 0 16" />
+            <path d="M49 18c6 5 6 23 0 28" />
+          </g>
+        </svg>
+      {:else}
+        <!-- Speaker muted -->
+        <svg viewBox="0 0 64 64" width="18" height="18" aria-hidden="true" focusable="false">
+          <g fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M10 24v16h10l14 10V14L20 24z" />
+            <line x1="44" y1="26" x2="56" y2="38" />
+            <line x1="56" y1="26" x2="44" y2="38" />
+          </g>
+        </svg>
+      {/if}
     </button>
     <button type="button" class="icon-btn" title="Game rules" aria-label="Game rules" onclick={onRules}>
-      <Icon name="info" size={18} />
+      <!-- Info "i" glyph -->
+      <svg viewBox="0 0 64 64" width="18" height="18" aria-hidden="true" focusable="false">
+        <circle cx="32" cy="32" r="25" fill="none" stroke="currentColor" stroke-width="5" />
+        <path d="M32 28v14" stroke="currentColor" stroke-width="5" stroke-linecap="round" />
+        <circle cx="32" cy="19" r="3.2" fill="currentColor" />
+      </svg>
     </button>
   </div>
 </header>
@@ -122,25 +147,51 @@
     letter-spacing: 0.03em;
     color: var(--accent-secondary);
   }
+  .coin {
+    display: inline-block;
+    vertical-align: middle;
+    flex-shrink: 0;
+    pointer-events: none;
+    color: #26a17b; /* USDT green — matches the tether asset */
+  }
   .icon-btn {
     display: grid;
     place-items: center;
     width: 40px;
     height: 40px;
     border: 1px solid rgba(112, 132, 165, 0.2);
-    background: linear-gradient(165deg, rgba(26, 33, 48, 0.85) 0%, rgba(16, 21, 31, 0.9) 60%, rgba(8, 13, 20), 0.95) 100%);
+    background: linear-gradient(165deg, rgba(26, 33, 48, 0.85) 0%, rgba(16, 21, 31, 0.9) 60%, rgba(8, 13, 20, 0.95) 100%);
     border-radius: 10px;
     padding: 0;
+    color: #e2e8f0; /* currentColor for the inline SVG glyphs */
     transition:
       border-color 0.15s,
       box-shadow 0.15s,
+      color 0.15s,
       transform 0.1s ease;
+  }
+  .icon-btn svg {
+    display: block;
+    pointer-events: none; /* clicks always land on the button itself */
   }
   .icon-btn:hover {
     border-color: rgba(34, 211, 238, 0.45);
     box-shadow: 0 0 14px rgba(34, 211, 238, 0.16);
+    color: var(--accent-primary); /* icons glow cyan on hover */
+  }
+  .icon-btn:focus-visible {
+    outline: 2px solid rgba(34, 211, 238, 0.6);
+    outline-offset: 2px;
   }
   .icon-btn:active {
     transform: scale(0.93);
+  }
+  /* Sound button reads "live" (cyan) when audio is enabled, muted-grey when off */
+  .icon-btn[aria-pressed='true'] {
+    color: var(--accent-primary);
+    border-color: rgba(34, 211, 238, 0.35);
+  }
+  .icon-btn[aria-pressed='false'] {
+    color: #7d8ba1;
   }
 </style>
