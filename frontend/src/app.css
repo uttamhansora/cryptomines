@@ -40,6 +40,56 @@ button {
   cursor: pointer;
 }
 
+/* ── Global interaction states ───────────────────────────────────────
+   One consistent focus-visible treatment for every control in the game
+   (keyboard users always see where they are; mouse users never do). */
+:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+  border-radius: var(--radius-xs);
+}
+
+/* ── Lightweight tooltip primitive (CSS-only, no dependency) ────────
+   Usage: <span class="tip" data-tip="…">…</span>. The bubble is a
+   transform/opacity-only pseudo-element so it costs nothing to render. */
+.tip {
+  position: relative;
+}
+.tip::after {
+  content: attr(data-tip);
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translate(-50%, 4px);
+  padding: 6px 10px;
+  border-radius: var(--radius-sm);
+  background: rgba(9, 14, 24, 0.96);
+  border: 1px solid var(--border-strong);
+  color: var(--text-primary);
+  font-size: var(--fs-2xs);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  line-height: 1.35;
+  white-space: pre-line;
+  width: max-content;
+  max-width: 220px;
+  text-align: left;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  z-index: 40;
+  box-shadow: var(--shadow-md), var(--glow-cyan);
+  transition: opacity 0.18s var(--ease-ui), transform 0.18s var(--ease-ui),
+    visibility 0.18s;
+}
+.tip:hover::after,
+.tip:focus-visible::after,
+.tip:focus-within::after {
+  opacity: 1;
+  visibility: visible;
+  transform: translate(-50%, 0);
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

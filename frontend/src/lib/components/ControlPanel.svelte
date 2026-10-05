@@ -158,25 +158,18 @@
 
 <section class="panel" aria-label="Game controls">
   <div class="section mult-hero">
-    <span class="label">
+    <span class="label label-center">
       <Icon name="multiplier" size={14} />
       Current multiplier
     </span>
+    <!-- v2 hero: the number itself is the star (large, glowing, count-up).
+         The ring SVG was removed because the animation controller locates it
+         via `.mult-ring .ring-svg` selectors — keeping those hooks absent just
+         makes those cosmetic sub-tweens no-ops. GSAP still bumps
+         [data-multiplier-display] directly. -->
     <div class="mult-ring" data-multiplier-ring>
-      <!-- transform:rotate() (not the `rotate` property) so GSAP's multiplier
-           bump can read/write this transform without fighting the CSS value -->
-      <svg class="ring-svg" style="transform: rotate(-90deg)" viewBox="0 0 100 100" aria-hidden="true">
-        <circle class="ring-track" cx="50" cy="50" r="44"></circle>
-        <circle
-          class="ring-fill"
-          cx="50"
-          cy="50"
-          r="44"
-          stroke-dasharray="276.5"
-          stroke-dashoffset={276.5 * (1 - ringPct / 100)}
-        ></circle>
-      </svg>
-      <span class="ring-orbit" aria-hidden="true"></span>
+      <span class="mult-halo" aria-hidden="true"></span>
+      <span class="mult-orbit" aria-hidden="true"></span>
       <span class="mult-value" key={multKey} data-multiplier-display>{displayMult.toFixed(2)}×</span>
     </div>
   </div>
@@ -204,43 +197,61 @@
   </div>
 
   <div class="section">
-    <span class="label">
-      <Icon name="bet" size={14} />
-      Bet amount
+    <span class="label label-row">
+      <span class="label-inner">
+        <Icon name="bet" size={14} />
+        Bet amount
+      </span>
+      <!-- Tooltip explaining that bet/mines lock during a live round -->
+      <span class="tip lock-hint" data-tip={"Bet & mines lock while a round is running"} tabindex="0" role="note" aria-label="Bet and mines controls lock while a round is running">
+        <svg viewBox="0 0 24 24" width="13" height="13" aria-hidden="true"><circle cx="12" cy="12" r="9.2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 10.6v6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="7.2" r="1.5" fill="currentColor"/></svg>
+      </span>
     </span>
-    <div class="stepper">
-      <button type="button" data-bet-min disabled={roundActive} title="Minimum bet" onclick={() => onBetChange(betMin)}>MIN</button>
-      <button type="button" data-bet-half disabled={roundActive} title="Halve bet" onclick={() => onBetChange(Math.max(betMin, +(bet / 2).toFixed(2)))}>½</button>
-      <button type="button" class="step-btn" disabled={roundActive} aria-label="Decrease bet" onclick={() => adjustBet(-1)}>
-        <Icon name="minus" size={16} />
-      </button>
-      <span class="value" data-bet-value>{bet.toFixed(2)}</span>
-      <button type="button" class="step-btn" disabled={roundActive} aria-label="Increase bet" onclick={() => adjustBet(1)}>
-        <Icon name="plus" size={16} />
-      </button>
-      <button type="button" data-bet-double disabled={roundActive} title="Double bet" onclick={() => onBetChange(Math.min(betCap, +(bet * 2).toFixed(2)))}>2×</button>
-      <button type="button" data-bet-max disabled={roundActive} title="Maximum bet" onclick={() => onBetChange(maxBetValue)}>MAX</button>
+    <!-- v2 segmented bet group: MIN · ½ · ( − value + ) · 2× · MAX,
+         all cells share one track so edges/heights are perfectly even. -->
+    <div class="seg-group" role="group" aria-label="Bet amount controls" class:locked={roundActive}>
+      <button type="button" class="seg-btn" data-bet-min disabled={roundActive} title="Minimum bet" aria-label="Minimum bet" onclick={() => onBetChange(betMin)}>MIN</button>
+      <button type="button" class="seg-btn" data-bet-half disabled={roundActive} title="Halve bet" aria-label="Halve bet" onclick={() => onBetChange(Math.max(betMin, +(bet / 2).toFixed(2)))}>½</button>
+      <div class="seg-center">
+        <button type="button" class="step-btn" disabled={roundActive} aria-label="Decrease bet" onclick={() => adjustBet(-1)}>
+          <Icon name="minus" size={16} />
+        </button>
+        <span class="value" data-bet-value>{bet.toFixed(2)}</span>
+        <button type="button" class="step-btn" disabled={roundActive} aria-label="Increase bet" onclick={() => adjustBet(1)}>
+          <Icon name="plus" size={16} />
+        </button>
+      </div>
+      <button type="button" class="seg-btn" data-bet-double disabled={roundActive} title="Double bet" aria-label="Double bet" onclick={() => onBetChange(Math.min(betCap, +(bet * 2).toFixed(2)))}>2×</button>
+      <button type="button" class="seg-btn" data-bet-max disabled={roundActive} title="Maximum bet" aria-label="Maximum bet" onclick={() => onBetChange(maxBetValue)}>MAX</button>
     </div>
   </div>
 
   <div class="section">
-    <span class="label">
-      <Icon name="mines" size={14} />
-      Mines
+    <span class="label label-row">
+      <span class="label-inner">
+        <Icon name="mines" size={14} />
+        Mines
+      </span>
+      <span class="tip lock-hint" data-tip={"More mines = higher multipliers&#10;Fewer gems left to find"} tabindex="0" role="note" aria-label="More mines means higher multipliers but fewer safe gems">
+        <svg viewBox="0 0 24 24" width="13" height="13" aria-hidden="true"><circle cx="12" cy="12" r="9.2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 10.6v6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="7.2" r="1.5" fill="currentColor"/></svg>
+      </span>
     </span>
-    <div class="stepper">
-      <button type="button" class="step-btn" disabled={roundActive} aria-label="Fewer mines" onclick={() => onMinesChange(Math.max(1, mines - 1))}>
-        <Icon name="minus" size={16} />
-      </button>
-      <span class="value">{mines}</span>
-      <button type="button" class="step-btn" disabled={roundActive} aria-label="More mines" onclick={() => onMinesChange(Math.min(24, mines + 1))}>
-        <Icon name="plus" size={16} />
-      </button>
-    </div>
-    <div class="presets">
-      {#each minePresets as m}
-        <button type="button" class:active={mines === m} disabled={roundActive} onclick={() => onMinesChange(m)}>{m}</button>
-      {/each}
+    <!-- v2: stepper + presets merged into one tidy row grid -->
+    <div class="mines-grid" role="group" aria-label="Mine count selector" class:locked={roundActive}>
+      <div class="mines-stepper">
+        <button type="button" class="step-btn" disabled={roundActive} aria-label="Fewer mines" onclick={() => onMinesChange(Math.max(1, mines - 1))}>
+          <Icon name="minus" size={16} />
+        </button>
+        <span class="value" aria-live="polite">{mines}</span>
+        <button type="button" class="step-btn" disabled={roundActive} aria-label="More mines" onclick={() => onMinesChange(Math.min(24, mines + 1))}>
+          <Icon name="plus" size={16} />
+        </button>
+      </div>
+      <div class="presets chips">
+        {#each minePresets as m}
+          <button type="button" class="chip" class:active={mines === m} disabled={roundActive} aria-pressed={mines === m} onclick={() => onMinesChange(m)}>{m}</button>
+        {/each}
+      </div>
     </div>
   </div>
 
