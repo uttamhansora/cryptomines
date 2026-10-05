@@ -636,13 +636,18 @@ export class RgsClient {
     assertRgsApplicationSuccess(json, '/bet/action');
     const out = this.normalizePlayResponse(json);
     this.connectionState = out.round.active ? 'ROUND_ACTIVE' : 'AUTHENTICATED';
+    // CRITICAL PATH: the authoritative decision response is returned to the UI
+    // IMMEDIATELY. The resume checkpoint (POST /bet/event) is bookkeeping for a
+    // hypothetical mid-round page reload — it was previously AWAITED inline,
+    // serializing a second full network round-trip between the server's pick
+    // result and the icon commit ("click → wait → wait → symbol"). Firing it
+    // detached removes that extra RTT from the click path with zero change to
+    // the API contract or server-side validation.
     const events = extractRoundEvents(out.round);
     const checkpoint = roundProgressEventString(events, out.round.event);
-    try {
-      await this.recordRoundEvent(checkpoint);
-    } catch (e) {
+    void this.recordRoundEvent(checkpoint).catch((e: unknown) => {
       rgsDiag('[RGS] recordRoundEvent failed after decision (non-fatal)', e instanceof Error ? e.message : String(e));
-    }
+    });
     return out;
   }
 

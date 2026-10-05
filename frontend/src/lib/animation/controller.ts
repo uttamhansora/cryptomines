@@ -137,6 +137,20 @@ export class AnimationController {
     return this.takePendingReveal(index);
   }
 
+  /**
+   * Instant, transform-only press feedback for the Cash Out button, fired in
+   * the SAME task as the click (before the /bet/action round-trip resolves).
+   * Purely cosmetic — no game state involved; the authoritative cash-out
+   * celebration (`playCashout`) still runs on the confirmed server result and
+   * simply takes over from the button's resting pose.
+   */
+  cashoutPress(el: HTMLElement | null): void {
+    if (!el) return;
+    gsap.timeline()
+      .to(el, { scale: 0.965, duration: 0.07, ease: 'power2.in' })
+      .to(el, { scale: 1, duration: 0.14, ease: 'power1.out' });
+  }
+
   /** Public claim: remove + return the pending tween for a cell (if any). */
   takePendingReveal(index: number): gsap.core.Timeline | null {
     const t = this.pendingReveals.get(index) ?? null;

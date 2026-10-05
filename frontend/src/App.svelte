@@ -360,6 +360,12 @@
 
   async function onCashout() {
     if (!client || !canCashOut) return;
+    // Immediate button feedback IN THE SAME TASK as the click — a transform-only
+    // GSAP press that never touches game state. Previously the button gave zero
+    // visual response until the /bet/action round-trip resolved, which read as
+    // "frozen interface". Backend validation and payout logic are untouched.
+    const cashBtn = document.querySelector('[data-cashout-btn]') as HTMLElement | null;
+    playback.beginCashoutPressFx(cashBtn);
     pickInFlight = true;
     try {
       const res = await client.inRoundDecision({ action: 'cashout' });
