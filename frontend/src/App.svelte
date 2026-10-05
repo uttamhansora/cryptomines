@@ -20,6 +20,7 @@
   import { PlaybackCoordinator } from './lib/game/playback-coordinator';
   import type { PlayerSnapshot } from './lib/game/snapshot';
   import type { VaultPickResult } from './lib/vault/types';
+  import { preloadGameIcons } from './lib/icons';
   import StageBackground from './lib/components/StageBackground.svelte';
   import GameHeader from './lib/components/GameHeader.svelte';
   import HeroPitch from './lib/components/HeroPitch.svelte';
@@ -457,6 +458,9 @@
     logLaunchDiagnostics(launch);
     console.info('[RGS] auth state: initial');
     void load();
+    // Warm the tile-glyph image/decode caches at app init so the first reveal
+    // of any symbol never triggers a fetch or decode at click time.
+    preloadGameIcons();
     window.addEventListener('keydown', onSpaceAction);
     return () => {
       window.removeEventListener('keydown', onSpaceAction);
