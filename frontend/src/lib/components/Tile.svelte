@@ -245,6 +245,13 @@
       inset 0 1px 0 rgba(255, 255, 255, 0.09),
       inset 0 -6px 12px rgba(0, 0, 0, 0.35);
   }
+  /* GPU layer is only needed while a tile is actually interactive. Once the
+     cell is revealed its pose is final, so we release the composited layer —
+     25 permanent promoted layers forced full-board re-composite work during
+     every reveal animation on low-powered devices. */
+  .tile:disabled .tile-inner {
+    will-change: auto;
+  }
   .tile:not(:disabled):hover .tile-inner {
     transform: translate3d(0, -3px, 0);
     border-color: rgba(34, 211, 238, 0.4);

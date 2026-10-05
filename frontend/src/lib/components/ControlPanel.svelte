@@ -121,9 +121,20 @@
   /** MAX button target — the full available balance clamped into the legal range. */
   const maxBetValue = $derived(betCap);
 
+  /**
+   * Server bet ladder in display units, sorted ONCE per config change instead
+   * of on every +/- / 2× click (the previous `.map().sort()` ran inside the
+   * click handler on the UI hot path).
+   */
+  const betLadder = $derived(
+    walletConfig && walletConfig.betLevels.length > 0
+      ? walletConfig.betLevels.map((v) => apiToDisplay(v)).sort((a, b) => a - b)
+      : [],
+  );
+
   function adjustBet(deltaSteps: number) {
-    if (ladderEnabled && walletConfig) {
-      const levels = walletConfig.betLevels.map((v) => apiToDisplay(v)).sort((a, b) => a - b);
+    if (ladderEnabled) {
+      const levels = betLadder;
       const idx = levels.findIndex((v) => v > bet + 1e-9);
       let next: number;
       if (deltaSteps < 0) {

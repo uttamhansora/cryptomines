@@ -83,6 +83,11 @@ export class PlaybackCoordinator {
     this.anim.startPendingReveal(index, this.tileCache(index));
   }
 
+  /** Same-task press feedback for the Cash Out button (cosmetic only). */
+  beginCashoutPressFx(el: HTMLElement | null): void {
+    this.anim.cashoutPress(el);
+  }
+
   /**
    * Authoritative server stream update: apply full state immediately, animate only new tail.
    */
