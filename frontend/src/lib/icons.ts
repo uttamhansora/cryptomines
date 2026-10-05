@@ -90,3 +90,28 @@ export function iconSrc(name: string | null | undefined): string | undefined {
 export function symbolAsset(symbol: string | null | undefined): string | undefined {
   return iconSrc(symbolIcon(symbol));
 }
+
+/**
+ * Warm the browser's image cache for every glyph that can appear inside a
+ * board tile, so the first reveal of any symbol never triggers a network
+ * fetch/decode at click time (zero-latency icon rendering). Safe to call more
+ * than once — subsequent calls hit the HTTP cache; decode() additionally warms
+ * the SVG raster cache off the main thread where supported.
+ */
+let iconsPreloaded = false;
+export function preloadGameIcons(): void {
+  if (iconsPreloaded || typeof document === 'undefined') return;
+  iconsPreloaded = true;
+  const names: IconName[] = [
+    'bitcoin', 'ethereum', 'solana', 'tether', 'diamond', 'vault', 'mine',
+  ];
+  for (const n of names) {
+    const url = ICONS[n];
+    if (!url) continue;
+    const img = new Image();
+    img.decoding = 'sync';
+    img.fetchPriority = 'high';
+    img.src = url;
+    if (typeof img.decode === 'function') img.decode().catch(() => {});
+  }
+}
