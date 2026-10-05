@@ -1,10 +1,23 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80" fill="none">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
   <defs>
-    <linearGradient id="usdt-m" x1="24" y1="16" x2="56" y2="64" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#67E8F9"/>
-      <stop offset="1" stop-color="#0891B2"/>
+    <linearGradient id="usdtFace" x1="18" y1="10" x2="46" y2="54" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#5BE3AE"/>
+      <stop offset=".45" stop-color="#26A17B"/>
+      <stop offset="1" stop-color="#0F7A57"/>
     </linearGradient>
+    <radialGradient id="usdtSheen" cx="24" cy="18" r="30" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#fff" stop-opacity=".5"/>
+      <stop offset="1" stop-color="#fff" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="usdtGlow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="0" stdDeviation="2.2" flood-color="#26A17B" flood-opacity=".5"/>
+    </filter>
   </defs>
-  <circle cx="40" cy="40" r="34" fill="#121C2A" stroke="#0891B2" stroke-width="2"/>
-  <path fill="url(#usdt-m)" d="M44 22v5c6 1 10 3 10 7s-4 6-10 7v14h-10V41c-6-1-10-3-10-7s4-6 10-7v-5h10zm-6 10c-3 0-5 1.2-5 3s2 3 5 3 5-1.2 5-3-2-3-5-3z"/>
+  <g filter="url(#usdtGlow)">
+    <circle cx="32" cy="32" r="27" fill="#0B523A"/>
+    <circle cx="32" cy="31" r="26" fill="url(#usdtFace)"/>
+    <circle cx="32" cy="31" r="21.5" fill="none" stroke="#FFFFFF" stroke-opacity=".26" stroke-width="1.3"/>
+    <circle cx="32" cy="31" r="26" fill="url(#usdtSheen)"/>
+    <path fill="#FFFFFF" d="M32 14.5l12.3 4.8v4.3l-8.6 3v6.7c4.7-.5 7.8-2.2 7.8-7 0-4.2-2.7-6.7-7.5-7.2h-.5V24h.3c3 .3 4.3 1.9 4.3 4.3 0 3.1-2.6 4.7-7.4 4.7h-1.4v-7.4L32 24.4l-1.2.9v.9h-.8v6.5h-1.4c-4.8 0-7.4-1.6-7.4-4.7 0-2.4 1.3-4 4.3-4.3h.3v-5.8h-.5c-4.8.5-7.5 3-7.5 7.2 0 4.8 3.1 6.5 7.8 7v-6.7l-8.6-3v-4.3zM22.6 33.6v4.1c0 2.6 2.1 4 10 4.4v11.4h2.8V42.1c7.9-.4 10-1.8 10-4.4v-4.1l-11.4 3.9z"/>
+  </g>
 </svg>

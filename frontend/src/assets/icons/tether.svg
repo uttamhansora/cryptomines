@@ -1,1 +1,23 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><defs><linearGradient id="usdtCoin" x1="14" y1="8" x2="50" y2="56" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#58D6A5"/><stop offset=".5" stop-color="#26A17B"/><stop offset="1" stop-color="#0E6B4E"/></linearGradient><radialGradient id="usdtSheen" cx="22" cy="17" r="34" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#fff" stop-opacity=".45"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient></defs><circle cx="32" cy="32.5" r="29" fill="#04301F" opacity=".55"/><circle cx="32" cy="31" r="28" fill="url(#usdtCoin)"/><circle cx="32" cy="32" r="23.5" fill="none" stroke="#064A33" stroke-width="1.4" opacity=".45"/><path d="M32 15l11 4.5v3.6l-7.5 2.6V31c4-.3 6.6-1.6 6.6-5.6 0-3.6-2.2-5.6-6.4-6h-.4v2.3h.3c2.6.3 3.7 1.6 3.7 3.6 0 2.6-2.2 3.9-6.4 3.9h-1.8v-8.6L31 20.6l1 .5 1-.5V20h-8v.6l1-.5 1 .5v5.2h-1.8c-4.2 0-6.4-1.3-6.4-3.9 0-2 1.1-3.3 3.7-3.6h.3V15.9h-.4c-4.2.4-6.4 2.4-6.4 6 0 4 2.6 5.3 6.6 5.6v5.4l-7.5-2.6v-3.6L32 15zM23.7 32.5v3.2c0 2.2 1.6 3.5 8.3 3.8v11.8h1.8V39.5c6.7-.3 8.3-1.6 8.3-3.8v-3.2l-9.2 3-9.2-3z" fill="#04301F" opacity=".35" transform="translate(.6 .8)"/><path d="M32 15l11 4.5v3.6l-7.5 2.6V31c4-.3 6.6-1.6 6.6-5.6 0-3.6-2.2-5.6-6.4-6h-.4v2.3h.3c2.6.3 3.7 1.6 3.7 3.6 0 2.6-2.2 3.9-6.4 3.9h-1.8v-8.6L31 20.6l1 .5 1-.5V20h-8v.6l1-.5 1 .5v5.2h-1.8c-4.2 0-6.4-1.3-6.4-3.9 0-2 1.1-3.3 3.7-3.6h.3V15.9h-.4c-4.2.4-6.4 2.4-6.4 6 0 4 2.6 5.3 6.6 5.6v5.4l-7.5-2.6v-3.6L32 15zM23.7 32.5v3.2c0 2.2 1.6 3.5 8.3 3.8v11.8h1.8V39.5c6.7-.3 8.3-1.6 8.3-3.8v-3.2l-9.2 3-9.2-3z" fill="#FFFFFF"/><circle cx="32" cy="32" r="28" fill="url(#usdtSheen)"/><circle cx="32" cy="31" r="28" fill="none" stroke="#C8F5E2" stroke-width="1.4" opacity=".7"/></svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <linearGradient id="usdtFace" x1="18" y1="10" x2="46" y2="54" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#5BE3AE"/>
+      <stop offset=".45" stop-color="#26A17B"/>
+      <stop offset="1" stop-color="#0F7A57"/>
+    </linearGradient>
+    <radialGradient id="usdtSheen" cx="24" cy="18" r="30" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#fff" stop-opacity=".5"/>
+      <stop offset="1" stop-color="#fff" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="usdtGlow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="0" stdDeviation="2.2" flood-color="#26A17B" flood-opacity=".5"/>
+    </filter>
+  </defs>
+  <g filter="url(#usdtGlow)">
+    <circle cx="32" cy="32" r="27" fill="#0B523A"/>
+    <circle cx="32" cy="31" r="26" fill="url(#usdtFace)"/>
+    <circle cx="32" cy="31" r="21.5" fill="none" stroke="#FFFFFF" stroke-opacity=".26" stroke-width="1.3"/>
+    <circle cx="32" cy="31" r="26" fill="url(#usdtSheen)"/>
+    <path fill="#FFFFFF" d="M32 14.5l12.3 4.8v4.3l-8.6 3v6.7c4.7-.5 7.8-2.2 7.8-7 0-4.2-2.7-6.7-7.5-7.2h-.5V24h.3c3 .3 4.3 1.9 4.3 4.3 0 3.1-2.6 4.7-7.4 4.7h-1.4v-7.4L32 24.4l-1.2.9v.9h-.8v6.5h-1.4c-4.8 0-7.4-1.6-7.4-4.7 0-2.4 1.3-4 4.3-4.3h.3v-5.8h-.5c-4.8.5-7.5 3-7.5 7.2 0 4.8 3.1 6.5 7.8 7v-6.7l-8.6-3v-4.3zM22.6 33.6v4.1c0 2.6 2.1 4 10 4.4v11.4h2.8V42.1c7.9-.4 10-1.8 10-4.4v-4.1l-11.4 3.9z"/>
+  </g>
+</svg>

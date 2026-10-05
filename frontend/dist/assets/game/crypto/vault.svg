@@ -1,13 +1,36 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" fill="none">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
   <defs>
-    <linearGradient id="v-rim" x1="48" y1="12" x2="48" y2="84"><stop stop-color="#FDE68A"/><stop offset="1" stop-color="#D97706"/></linearGradient>
-    <linearGradient id="v-door" x1="48" y1="22" x2="48" y2="74"><stop stop-color="#4A3A10"/><stop offset="0.5" stop-color="#121C2A"/><stop offset="1" stop-color="#060910"/></linearGradient>
-    <radialGradient id="v-glow" cx="0.5" cy="0.55" r="0.45"><stop stop-color="#22D3EE" stop-opacity="0.35"/><stop offset="1" stop-opacity="0"/></radialGradient>
+    <linearGradient id="vPlate" x1="10" y1="8" x2="54" y2="56" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#334155"/><stop offset=".5" stop-color="#1E293B"/><stop offset="1" stop-color="#0F172A"/>
+    </linearGradient>
+    <radialGradient id="vCore" cx="32" cy="30" r="13" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#67E8F9"/><stop offset=".55" stop-color="#0891B2"/><stop offset="1" stop-color="#083344"/>
+    </radialGradient>
+    <filter id="vGlow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="0" stdDeviation="2.4" flood-color="#22D3EE" flood-opacity=".5"/>
+    </filter>
   </defs>
-  <rect x="16" y="20" width="64" height="56" rx="8" fill="url(#v-door)" stroke="url(#v-rim)" stroke-width="2.5"/>
-  <rect x="16" y="20" width="64" height="56" rx="8" fill="url(#v-glow)"/>
-  <circle cx="48" cy="48" r="14" fill="#0E1622" stroke="url(#v-rim)" stroke-width="2"/>
-  <circle cx="48" cy="48" r="6" fill="#22D3EE" opacity="0.85"/>
-  <path d="M28 20h40v6H28z" fill="#F59E0B" opacity="0.35"/>
-  <ellipse cx="32" cy="28" rx="10" ry="4" fill="#fff" opacity="0.08"/>
+  <g filter="url(#vGlow)">
+    <rect x="7" y="7" width="50" height="50" rx="12" fill="url(#vPlate)" stroke="#22D3EE" stroke-opacity=".6" stroke-width="1.6"/>
+    <rect x="11.5" y="11.5" width="41" height="41" rx="8.5" fill="none" stroke="#22D3EE" stroke-opacity=".22" stroke-width="1"/>
+    <g fill="#22D3EE" opacity=".85">
+      <circle cx="14" cy="14" r="1.6"/><circle cx="50" cy="14" r="1.6"/>
+      <circle cx="14" cy="50" r="1.6"/><circle cx="50" cy="50" r="1.6"/>
+    </g>
+    <circle cx="32" cy="31" r="16.5" fill="#16202E" stroke="#8AAAB8" stroke-opacity=".5" stroke-width="2"/>
+    <circle cx="32" cy="31" r="12.5" fill="url(#vCore)"/>
+    <circle cx="32" cy="31" r="12.5" fill="none" stroke="#67E8F9" stroke-width="1.3" opacity=".8"/>
+    <g stroke="#0F172A" stroke-width="3.6" stroke-linecap="round">
+      <line x1="32" y1="20.5" x2="32" y2="25.5"/><line x1="32" y1="36.5" x2="32" y2="41.5"/>
+      <line x1="21.5" y1="31" x2="26.5" y2="31"/><line x1="37.5" y1="31" x2="42.5" y2="31"/>
+      <line x1="24.6" y1="23.6" x2="28.1" y2="27.1"/><line x1="35.9" y1="34.9" x2="39.4" y2="38.4"/>
+      <line x1="39.4" y1="23.6" x2="35.9" y2="27.1"/><line x1="28.1" y1="34.9" x2="24.6" y2="38.4"/>
+    </g>
+    <g stroke="#22D3EE" stroke-width="1.5" stroke-linecap="round" opacity=".9">
+      <line x1="32" y1="21.5" x2="32" y2="25"/><line x1="32" y1="37" x2="32" y2="40.5"/>
+      <line x1="22.5" y1="31" x2="26" y2="31"/><line x1="38" y1="31" x2="41.5" y2="31"/>
+    </g>
+    <circle cx="32" cy="31" r="3.6" fill="#0F172A" stroke="#67E8F9" stroke-width="1.3"/>
+    <circle cx="28" cy="26" r="4.5" fill="#FFFFFF" opacity=".14"/>
+  </g>
 </svg>

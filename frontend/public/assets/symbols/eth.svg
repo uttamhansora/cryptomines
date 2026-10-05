@@ -1,10 +1,30 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80" fill="none">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
   <defs>
-    <linearGradient id="eth-m" x1="40" y1="8" x2="40" y2="72" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#A5F3FC"/>
-      <stop offset="1" stop-color="#22D3EE"/>
+    <linearGradient id="ethFL" x1="16" y1="10" x2="32" y2="30" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#D6E2F2"/><stop offset="1" stop-color="#8FA3BF"/>
     </linearGradient>
+    <linearGradient id="ethFR" x1="32" y1="10" x2="48" y2="30" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#7C93B8"/><stop offset="1" stop-color="#4A5F80"/>
+    </linearGradient>
+    <linearGradient id="ethCL" x1="16" y1="31" x2="32" y2="39" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#B7C7DE"/><stop offset="1" stop-color="#7189AC"/>
+    </linearGradient>
+    <linearGradient id="ethBL" x1="16" y1="36" x2="32" y2="54" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#C3D2E7"/><stop offset="1" stop-color="#7D93B5"/>
+    </linearGradient>
+    <linearGradient id="ethBR" x1="32" y1="36" x2="48" y2="54" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#6B82A6"/><stop offset="1" stop-color="#3C4F6E"/>
+    </linearGradient>
+    <filter id="ethGlow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="0" stdDeviation="2.4" flood-color="#7AA6FF" flood-opacity=".45"/>
+    </filter>
   </defs>
-  <circle cx="40" cy="40" r="34" fill="#121C2A" stroke="#22D3EE" stroke-width="2" opacity=".9"/>
-  <path fill="url(#eth-m)" d="M40 14 26 38l14 8 14-8-14-24zm0 44-16-10 16 26 16-26-16 10z"/>
+  <g filter="url(#ethGlow)">
+    <polygon points="32,7 48,26 32,33 16,26" fill="url(#ethFL)"/>
+    <polygon points="32,7 32,33 48,26" fill="url(#ethFR)"/>
+    <polygon points="16,28.5 32,35.5 32,56 16,36" fill="url(#ethBL)"/>
+    <polygon points="48,28.5 32,35.5 32,56 48,36" fill="url(#ethBR)"/>
+    <polyline points="16,28.5 32,35.5 48,28.5" fill="none" stroke="#EAF2FB" stroke-opacity=".55" stroke-width="1.2" stroke-linejoin="round"/>
+    <line x1="32" y1="7" x2="32" y2="33" stroke="#EAF2FB" stroke-opacity=".35" stroke-width="1"/>
+  </g>
 </svg>

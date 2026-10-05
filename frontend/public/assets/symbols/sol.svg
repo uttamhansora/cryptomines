@@ -1,10 +1,17 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80" fill="none">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
   <defs>
-    <linearGradient id="sol-m" x1="16" y1="20" x2="64" y2="60" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#A5F3FC"/>
-      <stop offset="1" stop-color="#5EEAD4"/>
+    <linearGradient id="solBar" x1="11" y1="12" x2="53" y2="52" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#9945FF"/>
+      <stop offset=".5" stop-color="#7C4DFF"/>
+      <stop offset="1" stop-color="#14F195"/>
     </linearGradient>
+    <filter id="solGlow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="0" stdDeviation="2.4" flood-color="#9945FF" flood-opacity=".45"/>
+    </filter>
   </defs>
-  <circle cx="40" cy="40" r="34" fill="#121C2A" stroke="#5EEAD4" stroke-width="2"/>
-  <path fill="url(#sol-m)" d="M22 48h36l-8 12H14l8-12zm8-18h36l-8-12H22l8 12zm-8 9h36l-8 12H14l8-12z"/>
+  <g filter="url(#solGlow)" fill="url(#solBar)">
+    <path d="M16.6 16.4a2.4 2.4 0 0 1 1.7-.7h29.4c1.8 0 2.7 2.2 1.4 3.4l-2.3 2.3a2.4 2.4 0 0 1-1.7.7H15.7c-1.8 0-2.7-2.2-1.4-3.4z"/>
+    <path d="M14.3 29.3a2.4 2.4 0 0 1 1.7-.7h29.3c1.8 0 2.7 2.2 1.4 3.4l-2.3 2.3a2.4 2.4 0 0 1-1.7.7H13.4c-1.8 0-2.7-2.2-1.4-3.4z" opacity=".92"/>
+    <path d="M16.6 41.2a2.4 2.4 0 0 1 1.7-.7h29.4c1.8 0 2.7 2.2 1.4 3.4l-2.3 2.3a2.4 2.4 0 0 1-1.7.7H15.7c-1.8 0-2.7-2.2-1.4-3.4z" opacity=".85"/>
+  </g>
 </svg>
