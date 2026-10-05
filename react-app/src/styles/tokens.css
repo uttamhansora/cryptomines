@@ -1,0 +1,64 @@
+/* ============================================================
+   CryptoMines — Design tokens
+   Re-theme the entire app by editing ONLY this file.
+   ============================================================ */
+:root {
+  /* ---- Core palette (from spec) ---- */
+  --bg: #050B14;
+  --bg-2: #0A1424;
+  --panel: #0B1522;
+  --panel-2: #0F1B2D;
+  --border: rgba(34, 211, 238, 0.15);
+  --border-strong: rgba(34, 211, 238, 0.35);
+  --accent: #22D3EE;
+  --accent-2: #06B6D4;
+  --text: #E6F1FF;
+  --muted: #7C8DA6;
+  --danger: #FF4D6D;
+  --success: #34D399;
+  --violet: #A78BFA;
+  --gold: #F5B94C;
+
+  /* ---- Gradients ---- */
+  --grad-accent: linear-gradient(180deg, var(--accent), var(--accent-2));
+  --grad-panel: linear-gradient(165deg, var(--panel-2) 0%, var(--panel) 55%, #091120 100%);
+  --grad-tile: linear-gradient(160deg, #16263d 0%, #0d1a2c 55%, #0a1424 100%);
+
+  /* ---- Glow / shadow tokens ---- */
+  --glow-accent: 0 0 18px rgba(34, 211, 238, 0.35);
+  --glow-accent-lg: 0 0 34px rgba(34, 211, 238, 0.45);
+  --glow-danger: 0 0 18px rgba(255, 77, 109, 0.45);
+  --glow-violet: 0 0 18px rgba(167, 139, 250, 0.4);
+  --shadow-panel: 0 20px 50px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(230, 241, 255, 0.05);
+  --shadow-tile: inset 0 2px 6px rgba(0, 0, 0, 0.55), inset 0 -1px 0 rgba(230, 241, 255, 0.05);
+  --shadow-btn: 0 4px 12px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(230, 241, 255, 0.06);
+
+  /* ---- Radius scale ---- */
+  --r-sm: 8px;
+  --r-md: 12px;
+  --r-lg: 16px;
+  --r-pill: 999px;
+
+  /* ---- Spacing scale ---- */
+  --s-1: 4px;
+  --s-2: 8px;
+  --s-3: 12px;
+  --s-4: 16px;
+  --s-6: 24px;
+
+  /* ---- Type scale ---- */
+  --fs-xs: 0.6875rem;   /* 11px micro labels */
+  --fs-sm: 0.8125rem;   /* 13px UI text */
+  --fs-md: 1rem;        /* 16px body */
+  --fs-lg: 1.375rem;    /* 22px headings */
+  --fs-xl: 2rem;        /* 32px hero numbers */
+
+  /* ---- Fonts ---- */
+  --font-display: 'Orbitron', 'Rajdhani', sans-serif;
+  --font-ui: 'Inter', system-ui, sans-serif;
+
+  /* ---- Motion ---- */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --dur-fast: 150ms;
+  --dur-med: 300ms;
+}
