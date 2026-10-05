@@ -20,6 +20,16 @@ export class PlaybackCoordinator {
    */
   private domCache: Partial<Record<'board' | 'mult' | 'stage' | 'chain', HTMLElement>> = {};
 
+  /**
+   * Click-time pending lid-flip timelines claimed by the most recent animated
+   * `ingest`, handed off to `playDelta` in delta order. MUST be initialized to
+   * an empty array at construction: `playDelta` reads it on every animated
+   * ingest, and an uninitialized (undefined) field made the very first reveal
+   * of a round crash with "Cannot read properties of undefined (reading '0')"
+   * when the hand-off cursor evaluated `claimed[0]`.
+   */
+  private claimedPending: (PendingReveal | null)[] = [];
+
   private cached<T extends HTMLElement>(key: 'board' | 'mult' | 'stage' | 'chain', sel: string): T | null {
     const hit = this.domCache[key] as T | undefined;
     if (hit && hit.isConnected) return hit;
@@ -51,6 +61,10 @@ export class PlaybackCoordinator {
     this.events = events;
     this.snap = snapshotFromEvents(events);
     this.anim.cancelPendingReveals();
+    // Drop the claimed-pending hand-off with the old round's timelines and
+    // tile element cache so a later animated ingest can never read stale
+    // entries off these arrays.
+    this.claimedPending = [];
     this.tiles = [];
     this.emit();
   }
@@ -103,10 +117,15 @@ export class PlaybackCoordinator {
     // lid's inline `visibility`; GSAP writes transform/opacity only, so an
     // in-flight pending tween survives that toggle and the confirmed reveal can
     // simply continue where it left off — zero restart, zero waiting.
-    const claimedPending: (PendingReveal | null)[] = [];
+    // The list is stored on the instance (`claimedPending`) because the async
+    // playback pass below runs after this task returns: rapid successive picks
+    // interleave ingest calls, and a per-call local array would leave
+    // `playDelta` with nothing to hand off (the regression that made revealed
+    // tiles wait for their animation instead of continuing the click tween).
+    this.claimedPending = [];
     for (const ev of delta) {
       if (String(ev.type).toLowerCase() === 'reveal' && typeof ev.cellIndex === 'number') {
-        claimedPending.push(this.anim.takePendingReveal(ev.cellIndex));
+        this.claimedPending.push(this.anim.takePendingReveal(ev.cellIndex));
       }
     }
 
@@ -115,12 +134,13 @@ export class PlaybackCoordinator {
     if (!opts.animate || opts.reducedMotion) {
       // No animations requested: fold the whole delta into ONE synchronous
       // snapshot update + emit instead of notifying subscribers per event.
-      for (const t of claimedPending) {
+      for (const t of this.claimedPending) {
         if (t) {
           t.progress(0);
           t.kill();
         }
       }
+      this.claimedPending = [];
       applyEventsToSnapshot(this.snap, delta);
       this.emit();
       return Promise.resolve();
@@ -153,9 +173,13 @@ export class PlaybackCoordinator {
   }
 
   private async playDelta(delta: GameEvent[], ctx: AnimContext): Promise<void> {
+    // Snapshot the hand-off list for THIS delta (ingest populated it
+    // synchronously before calling us). Reading it through a local const also
+    // keeps the cursor/claim pairing correct even if a newer ingest replaces
+    // `this.claimedPending` while this async pass is awaiting tweens.
+    const claimed = this.claimedPending;
     let claimCursor = 0;
     const pendingFor = (): PendingReveal | null => claimed[claimCursor++] ?? null;
-    const claimed = this.lastClaimedPending;
     for (const ev of delta) {
       const type = String(ev.type).toLowerCase();
       if (type !== 'reveal') continue;
@@ -219,6 +243,10 @@ export class PlaybackCoordinator {
     this.cancelAnimations();
     this.events = [];
     this.snap = emptySnapshot();
+    // The previous round's claimed hand-off list is dead now that its tweens
+    // are killed — clear it so no in-flight/late playDelta pass can read stale
+    // timelines off it.
+    this.claimedPending = [];
     // Drop cached DOM refs ONLY when the board is actually gone (round reset /
     // remount). Previously this cleared the cache unconditionally at every loss
     // auto-reset, forcing ~25 fresh document-wide selector scans on the very
