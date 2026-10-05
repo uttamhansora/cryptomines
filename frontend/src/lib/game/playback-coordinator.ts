@@ -71,10 +71,12 @@ export class PlaybackCoordinator {
 
   /**
    * Synchronous, zero-latency visual response for a tile pick: starts the
-   * press/pop + lid-flip on the cached tile element in the SAME task as the
-   * click event — before any network round-trip resolves. Purely cosmetic:
-   * nothing about game state changes here; the authoritative flip happens
-   * when server events are ingested (which claims/continues this tween).
+   * press/pop AND the lid-flip on the cached tile element in the SAME task as
+   * the click event — before any network round-trip resolves. The square
+   * visibly opens immediately; purely cosmetic (nothing about game state
+   * changes here). The authoritative snapshot commit renders the CORRECT icon
+   * the instant the server result arrives and continues/claims this same tween
+   * so the flip never restarts or double-plays.
    */
   beginTilePickFx(index: number): void {
     if (!document.querySelector('[data-game-board]')) return;
