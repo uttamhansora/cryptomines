@@ -5,10 +5,28 @@
   interface Props {
     cells: BoardViewCell[];
     disabled: boolean;
+    /**
+     * Cell index awaiting its RGS pick response. Presentation-only affordance:
+     * it must NOT feed into `disabled` — gating interaction on the network
+     * round-trip is exactly what made rapid tile clicks feel laggy/queued.
+     */
     pickingCell: number | null;
     onpick: (index: number) => void;
   }
   let { cells, disabled, pickingCell, onpick }: Props = $props();
+  // Stable per-cell handler factory created ONCE for the component's lifetime:
+  // no new closures are allocated per snapshot emission / re-render, so tiles
+  // keep referentially identical props and Svelte skips their updates entirely
+  // when only one cell changed.
+  const pickHandlers = new Map<number, () => void>();
+  const pickHandlerFor = (index: number): (() => void) => {
+    let fn = pickHandlers.get(index);
+    if (!fn) {
+      fn = () => onpick(index);
+      pickHandlers.set(index, fn);
+    }
+    return fn;
+  };
 </script>
 
 <div class="board-wrap" data-game-board>
@@ -28,8 +46,8 @@
         {#each cells as cell (cell.index)}
           <Tile
             {cell}
-            disabled={disabled || (pickingCell !== null && pickingCell === cell.index)}
-            onpick={onpick}
+            disabled={disabled}
+            onpick={pickHandlerFor(cell.index)}
           />
         {/each}
       </div>

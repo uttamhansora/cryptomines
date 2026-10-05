@@ -14,8 +14,41 @@ export interface AnimContext {
   onChainComplete?: () => void;
 }
 
+/**
+ * Hard ceiling for any single tile-interaction / hand-off animation (seconds).
+ * Every timeline below is authored to finish well under this bound; `settle`
+ * additionally guarantees the promise resolves within it even if rAF is
+ * throttled or the tween somehow never completes.
+ */
+const MAX_ANIM_SECONDS = 1.0;
+
+/** Clamp an authored duration so no single tween can exceed the 1s ceiling. */
+const capDur = (d: number): number => Math.min(d, MAX_ANIM_SECONDS);
+
 export class AnimationController {
   private active = gsap.timeline();
+
+  /**
+   * Await a cosmetic timeline WITHOUT ever blocking longer than the 1s cap —
+   * even if GSAP's global timeline is paused (devtools/debug), throttled by
+   * the browser in a background tab, or the tween somehow never completes.
+   * The timer is CLEARED as soon as the tween finishes naturally, so it is a
+   * safety net only — never an artificial delay on the happy path.
+   */
+  private settle(tl: gsap.core.Timeline): Promise<void> {
+    return new Promise((resolve) => {
+      let done = false;
+      let guard = 0;
+      const finish = () => {
+        if (done) return;
+        done = true;
+        clearTimeout(guard);
+        resolve();
+      };
+      tl.eventCallback('onComplete', finish);
+      guard = window.setTimeout(finish, MAX_ANIM_SECONDS * 1000);
+    });
+  }
 
   /**
    * Per-cell pending-reveal timelines. When the player clicks a tile we start
@@ -35,21 +68,33 @@ export class AnimationController {
    */
   startPendingReveal(index: number, el: HTMLElement | null): void {
     if (!el || this.pendingReveals.has(index)) return;
+    // Cancel any CSS transition on the tile face BEFORE GSAP writes transforms.
+    // The `.tile-inner` hover/press transitions (transform 0.16s) would
+    // otherwise interpolate against the tween every frame — a classic
+    // JS-animation-vs-CSS-transition fight that reads as sluggish, smeared
+    // motion on click. clearProps also drops any stale inline transform left by
+    // a previous reveal so the press/pop starts from rest in the same frame.
     const inner = (el.querySelector('.tile-inner') as HTMLElement | null) ?? el;
+    gsap.set(inner, { clearProps: 'transform', overwrite: true });
     const lid = el.querySelector('.tile-lid') as HTMLElement | null;
+    if (lid) gsap.set(lid, { clearProps: 'transform,opacity' });
     const tl = gsap.timeline({ paused: true });
     tl.to(inner, { y: 3, scale: 0.94, duration: 0.06, ease: 'power2.in' })
       .to(inner, { y: -2, scale: 1.01, duration: 0.08, ease: 'power1.out' });
     if (lid) tl.to(lid, { rotateX: -72, opacity: 0, duration: 0.14, transformOrigin: '50% 0%' }, '-=0.02');
     this.pendingReveals.set(index, tl);
     tl.play();
-    // Safety net: never leave an orphaned tween if the round ends abnormally.
-    window.setTimeout(() => {
+    // Safety net ONLY: drop the map entry after the pending animation has long
+    // since finished naturally (total tween length ≈ 0.26s). The guard is
+    // cleared the moment the tween completes, so it never delays any visual —
+    // it just prevents orphaned entries if a round aborts abnormally.
+    const guard = window.setTimeout(() => {
       if (this.pendingReveals.get(index) === tl) {
         this.pendingReveals.delete(index);
         tl.kill();
       }
-    }, 2500);
+    }, MAX_ANIM_SECONDS * 1000);
+    tl.eventCallback('onComplete', () => clearTimeout(guard));
   }
 
   /** Hand a pending reveal's timeline over to the confirmed reveal animation. */
@@ -93,14 +138,18 @@ export class AnimationController {
       const rt = String(ev.revealType ?? '');
       if (rt === 'tileSafe' && typeof ev.cellIndex === 'number') {
         const kind = ev.symbol === 'VAULT' ? 'vault' : 'crypto';
-        await this.tileReveal(
+        // Fire-and-forget: the snapshot state is ALREADY authoritative (the
+        // coordinator folded it in and re-rendered the board synchronously
+        // before playEvent ever runs). Awaiting the cosmetic tail here only
+        // delayed the next queued event's animation — never its visuals.
+        void this.tileReveal(
           ctx.getCellEl(ev.cellIndex),
           kind,
           ev.symbol as string | undefined,
           ev.index ?? ev.cellIndex,
           handedPending ?? this.claimPending(ev.cellIndex),
         );
-        if (ev.chainCompletedId) await this.chainComplete(ctx, true);
+        if (ev.chainCompletedId) void this.chainComplete(ctx, true);
         return;
       }
       if (rt === 'tileMine' && typeof ev.cellIndex === 'number') {
@@ -111,7 +160,7 @@ export class AnimationController {
           pending.progress(0);
           pending.kill();
         }
-        await this.mineHit(ctx.getCellEl(ev.cellIndex), ctx.getBoardEl(), ev.index ?? ev.cellIndex);
+        void this.mineHit(ctx.getCellEl(ev.cellIndex), ctx.getBoardEl(), ev.index ?? ev.cellIndex);
         return;
       }
       if (rt === 'tileFinal' && typeof ev.cellIndex === 'number') {
@@ -124,17 +173,23 @@ export class AnimationController {
         } else if (el) {
           this.resetToRest(el);
         }
-        await this.tileFinalReveal(el);
+        // Fire-and-forget: loss disclosure emits up to ~24 tileFinal events at
+        // once. Awaiting each one serialized the whole board reveal behind
+        // hundreds of ms of queued animation promises even though every tile's
+        // DOM state was already final. Now all lids flip open concurrently.
+        void this.tileFinalReveal(el);
         return;
       }
     }
     if (type === 'multiplierupdate') {
-      if (ev.source === 'chainStreak' && ev.chainStreakComplete) await this.chainComplete(ctx, true);
-      else if (ev.source === 'chain') await this.chainComplete(ctx, false);
+      if (ev.source === 'chainStreak' && ev.chainStreakComplete) void this.chainComplete(ctx, true);
+      else if (ev.source === 'chain') void this.chainComplete(ctx, false);
       else await this.multiplierBump(ctx.getMultiplierEl(), ctx.getChainEl());
       return;
     }
     if (type === 'enterbonus') {
+      // Awaited on purpose: App gates the vault-bonus theatre on this promise
+      // so the portal FX finishes before the bonus scene takes over.
       await this.vaultEnter(ctx.getStageEl());
       return;
     }
@@ -190,17 +245,18 @@ export class AnimationController {
     tl.fromTo(sym, { scale: 0.5, opacity: 0, y: 10, rotate: -8 }, { scale: 1, opacity: 1, y: 0, rotate: 0, duration: 0.32, ease: 'back.out(1.7)' }, '-=0.05');
     if (glow) {
       tl.fromTo(glow, { opacity: 0, scale: 0.85 }, { opacity: kind === 'vault' ? 0.75 : 0.55, scale: 1.05, duration: 0.18 }, '-=0.28')
-        .to(glow, { opacity: kind === 'vault' ? 0.3 : 0.16, scale: 1, duration: 0.32 });
+        .to(glow, { opacity: kind === 'vault' ? 0.3 : 0.16, scale: 1, duration: capDur(0.32) });
     }
     const burst = el.querySelector('.tile-burst');
     if (burst) {
-      tl.fromTo(burst, { opacity: 0.85, scale: 0.7 }, { opacity: 0, scale: 1.25, duration: 0.38, ease: 'power2.out' }, '-=0.32');
+      tl.fromTo(burst, { opacity: 0.85, scale: 0.7 }, { opacity: 0, scale: 1.25, duration: capDur(0.38), ease: 'power2.out' }, '-=0.32');
     }
     tl.to(target, { y: 0, scale: 1, duration: 0.12, ease: 'power2.out' }, '-=0.08');
     this.burstOnTile(el, seed, palette);
-    return new Promise((resolve) => {
-      window.setTimeout(resolve, 300);
-    });
+    // Resolve as soon as the tween itself finishes — previously this awaited a
+    // fixed 300ms setTimeout that had nothing to do with the animation, adding
+    // pure dead time between the click response and the next queued step.
+    return this.settle(tl);
   }
 
   private mineHit(el: HTMLElement | null, board: HTMLElement | null, seed: number): Promise<void> {
@@ -229,13 +285,13 @@ export class AnimationController {
       }
       if (flash) {
         tl.to(flash, { opacity: 0.55, duration: 0.04, ease: 'power1.in' }, '-=0.14')
-          .to(flash, { opacity: 0, duration: 0.42, ease: 'power2.out' });
+          .to(flash, { opacity: 0, duration: capDur(0.42), ease: 'power2.out' });
       }
       if (shock) {
         tl.fromTo(
           shock,
           { scale: 0.2, opacity: 0.7 },
-          { scale: 1.5, opacity: 0, duration: 0.62, ease: 'power2.out', transformOrigin: '50% 50%' },
+          { scale: 1.5, opacity: 0, duration: capDur(0.62), ease: 'power2.out', transformOrigin: '50% 50%' },
           '-=0.32',
         );
       }
@@ -316,45 +372,44 @@ export class AnimationController {
     const dim = stage?.querySelector('[data-vault-dim]') as HTMLElement | null;
     const portal = stage?.querySelector('[data-vault-portal]') as HTMLElement | null;
     if (!dim) return Promise.resolve();
-    return new Promise((resolve) => {
-      const tl = gsap.timeline({ onComplete: resolve });
-      tl.fromTo(dim, { opacity: 0 }, { opacity: 1, duration: 0.45, ease: 'power2.inOut' });
-      if (portal) {
-        tl.fromTo(portal, { scale: 0.4, opacity: 0, rotate: -8 }, { scale: 1, opacity: 1, rotate: 0, duration: 0.55, ease: 'back.out(1.4)' }, '-=0.2');
-      }
-    });
+    const tl = gsap.timeline();
+    tl.fromTo(dim, { opacity: 0 }, { opacity: 1, duration: 0.45, ease: 'power2.inOut' });
+    if (portal) {
+      tl.fromTo(portal, { scale: 0.4, opacity: 0, rotate: -8 }, { scale: 1, opacity: 1, rotate: 0, duration: 0.55, ease: 'back.out(1.4)' }, '-=0.2');
+    }
+    // Capped await (see `settle`): the bonus theatre hand-off never waits on an
+    // animation longer than 1s even if rAF is throttled or paused.
+    return this.settle(tl);
   }
 
   playCashout(multEl: HTMLElement | null, btnEl: HTMLElement | null, payoutEl: HTMLElement | null): Promise<void> {
     const stage = document.querySelector('[data-game-stage]') as HTMLElement | null;
-    return new Promise((resolve) => {
-      const tl = gsap.timeline({ onComplete: resolve });
-      if (stage) tl.to(stage, { scale: 0.985, duration: 0.12, ease: 'power2.in' }, 0);
-      if (btnEl) {
-        tl.to(btnEl, { scale: 0.96, duration: 0.08, ease: 'power2.in' }, 0)
-          .to(btnEl, { scale: 1, opacity: 0.9, duration: 0.22, ease: 'power1.out' });
-      }
-      if (multEl) {
-        tl.fromTo(multEl, { scale: 1 }, { scale: 1.14, duration: 0.22, ease: 'back.out(1.5)' }, 0.04)
-          .to(multEl, { scale: 1, duration: 0.28, ease: 'power2.out' });
-      }
-      if (payoutEl) {
-        tl.fromTo(payoutEl, { scale: 0.88, opacity: 0.65 }, { scale: 1.08, opacity: 1, duration: 0.32, ease: 'back.out(1.7)' }, 0.1)
-          .to(payoutEl, { scale: 1, duration: 0.22, ease: 'power2.out' });
-      }
-      if (stage) tl.to(stage, { scale: 1, duration: 0.2, ease: 'power2.out' }, '-=0.15');
-    });
+    const tl = gsap.timeline();
+    if (stage) tl.to(stage, { scale: 0.985, duration: 0.12, ease: 'power2.in' }, 0);
+    if (btnEl) {
+      tl.to(btnEl, { scale: 0.96, duration: 0.08, ease: 'power2.in' }, 0)
+        .to(btnEl, { scale: 1, opacity: 0.9, duration: 0.22, ease: 'power1.out' });
+    }
+    if (multEl) {
+      tl.fromTo(multEl, { scale: 1 }, { scale: 1.14, duration: 0.22, ease: 'back.out(1.5)' }, 0.04)
+        .to(multEl, { scale: 1, duration: 0.28, ease: 'power2.out' });
+    }
+    if (payoutEl) {
+      tl.fromTo(payoutEl, { scale: 0.88, opacity: 0.65 }, { scale: 1.08, opacity: 1, duration: 0.32, ease: 'back.out(1.7)' }, 0.1)
+        .to(payoutEl, { scale: 1, duration: 0.22, ease: 'power2.out' });
+    }
+    if (stage) tl.to(stage, { scale: 1, duration: 0.2, ease: 'power2.out' }, '-=0.15');
+    return this.settle(tl);
   }
 
   playBigWin(el: HTMLElement | null, amountEl: HTMLElement | null): Promise<void> {
     if (!el) return Promise.resolve();
-    return new Promise((resolve) => {
-      const tl = gsap.timeline({ onComplete: resolve });
-      tl.fromTo(el, { opacity: 0 }, { opacity: 1, duration: 0.22 })
-        .fromTo(el, { scale: 0.78, y: 20 }, { scale: 1, y: 0, duration: 0.52, ease: 'back.out(1.5)' }, '-=0.1');
-      if (amountEl) {
-        tl.fromTo(amountEl, { scale: 0.5, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.45, ease: 'power3.out' }, '-=0.35');
-      }
-    });
+    const tl = gsap.timeline();
+    tl.fromTo(el, { opacity: 0 }, { opacity: 1, duration: 0.22 })
+      .fromTo(el, { scale: 0.78, y: 20 }, { scale: 1, y: 0, duration: 0.52, ease: 'back.out(1.5)' }, '-=0.1');
+    if (amountEl) {
+      tl.fromTo(amountEl, { scale: 0.5, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.45, ease: 'power3.out' }, '-=0.35');
+    }
+    return this.settle(tl);
   }
 }

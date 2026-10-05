@@ -67,7 +67,16 @@
   let rulesOpen = $state(false);
   let errorMsg = $state('');
   let pickInFlight = $state(false);
-  /** Cell index currently awaiting RGS pick response; only that tile is non-clickable. */
+  /** In-flight board pick request (plain flag: guards without re-rendering). */
+  let activePickCell: number | null = null;
+  /**
+   * Purely cosmetic idle affordance for the NEXT pick target. It must NEVER
+   * gate interaction: gating on it (or on any in-flight network request) is
+   * what made tiles feel unresponsive while the previous pick was still being
+   * confirmed. Click-time dedupe lives in AnimationController.pendingReveals
+   * and single-flight for the server decision lives in App.onPick's guard —
+   * both synchronous, zero-latency checks.
+   */
   let pickingCell = $state<number | null>(null);
   let playInFlight = $state(false);
   let endingRound = $state(false);
@@ -289,15 +298,23 @@
   }
 
   async function onPick(cellIndex: number) {
+    // Synchronous, zero-latency guards — no awaits before the visual response.
     if (
       !client ||
       boardInteractionBlocked ||
       snap.terminal ||
-      pickingCell !== null
+      pickInFlight ||
+      cellIndex === activePickCell
     ) {
       return;
     }
-    pickingCell = cellIndex;
+    // Single-flight for the SERVER decision only. The tile itself is NOT
+    // disabled during the round-trip anymore: gating every pick behind the
+    // previous network response was the dominant "click → wait → open" delay.
+    // Duplicate/rapid re-clicks are still impossible (this guard + the hidden
+    // state check in Tile), so no duplicate requests or race conditions.
+    pickInFlight = true;
+    activePickCell = cellIndex;
     // Immediate, same-frame visual response while the RGS response is in
     // flight: GSAP press/pop + lid-flip driven directly on the cached tile DOM
     // node (transform/opacity only). Presentation-only — the authoritative
@@ -314,6 +331,8 @@
     } catch (e) {
       errorMsg = e instanceof Error ? e.message : String(e);
     } finally {
+      pickInFlight = false;
+      activePickCell = null;
       pickingCell = null;
     }
   }
