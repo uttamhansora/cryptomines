@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { onDestroy } from 'svelte';
   import type { BoardViewCell } from '../game/snapshot';
   import { symbolIcon, iconSrc } from '../icons';
 
@@ -71,14 +70,14 @@
   /**
    * One-shot entrance for tiles that flip open via post-loss disclosure
    * (ghost/final reveals). The PLAYER-PICKED tile does NOT use this path: its
-   * lid flip is a GSAP tween started synchronously at click time (see
-   * App.onPick -> playback.beginTilePickFx), so it responds within the same
-   * frame as the pointer event instead of waiting for a state round-trip.
+   * tactile press starts synchronously at click time (see App.onPick ->
+   * playback.beginTilePickFx) and the lid flip is driven by GSAP when the
+   * confirmed reveal claims that tween, so it responds within the same frame
+   * as the pointer event instead of waiting for a state round-trip.
    */
   let justRevealed = $state(false);
-  let revealTimer: ReturnType<typeof setTimeout> | undefined;
   // True while the player's own pick is awaiting server confirmation. The
-  // optimistic lid-flip for this tile is driven by GSAP (App.onPick ->
+  // optimistic press/flip for this tile is driven by GSAP (App.onPick ->
   // playback.beginTilePickFx); the CSS entrance below must NOT also fire on it,
   // or two animations fight over the same lid transform and the reveal reads as
   // a stutter/delay. Set synchronously in handleClick — before any await — so
@@ -103,24 +102,45 @@
     if (!revealed) {
       justRevealed = false;
       ownPickPending = false;
-      clearTimeout(revealTimer);
       return;
     }
     if (wasHidden && !justRevealed) {
       const mineOwnPick = ownPickPending;
       ownPickPending = false;
       if (!mineOwnPick) {
+        // Zero-timer entrance: the `both` fill on the keyframes holds the final
+        // resting pose, and `.tile.just-revealed` only ever matches during the
+        // hidden→revealed transition itself (a new pick re-enters with the flag
+        // false). The previous 700ms setTimeout existed only to unmount the
+        // class — pure artificial latency plus a needless reactive write; gone.
         justRevealed = true;
-        clearTimeout(revealTimer);
-        revealTimer = setTimeout(() => (justRevealed = false), 700);
+      } else {
+        // Player-picked tile: the GSAP chain leaves the lid mid-flip (opacity
+        // <1) because Svelte's visibility toggle cannot override an inline
+        // opacity. Clear the leftovers synchronously in THIS pre-paint flush —
+        // the lid is already `visibility:hidden` in the committed DOM, so no
+        // flash occurs and no animation ever waits on the network tail.
+        clearLidInlinePose();
       }
     }
   });
-  onDestroy(() => clearTimeout(revealTimer));
+
+  function clearLidInlinePose() {
+    if (typeof document === 'undefined') return;
+    const el = tileEl;
+    const lid = el?.querySelector('.tile-lid') as HTMLElement | null;
+    if (lid?.style.length) {
+      lid.style.removeProperty('transform');
+      lid.style.removeProperty('opacity');
+    }
+  }
+
+  let tileEl = $state<HTMLButtonElement | undefined>();
 </script>
 
 <button
   type="button"
+  bind:this={tileEl}
   class="tile {symClass}"
   class:revealed={cell.state !== 'hidden'}
   class:safe={cell.state === 'safe'}

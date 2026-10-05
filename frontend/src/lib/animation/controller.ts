@@ -68,24 +68,31 @@ export class AnimationController {
    */
   startPendingReveal(index: number, el: HTMLElement | null): void {
     if (!el || this.pendingReveals.has(index)) return;
-    // Cancel any CSS transition on the tile face BEFORE GSAP writes transforms.
-    // The `.tile-inner` hover/press transitions (transform 0.16s) would
-    // otherwise interpolate against the tween every frame — a classic
+    // Cancel any CSS transition / stale inline transform on the tile face
+    // BEFORE GSAP writes transforms. The `.tile-inner` hover/press transitions
+    // would otherwise interpolate against the tween every frame — a classic
     // JS-animation-vs-CSS-transition fight that reads as sluggish, smeared
-    // motion on click. clearProps also drops any stale inline transform left by
-    // a previous reveal so the press/pop starts from rest in the same frame.
+    // motion on click. clearProps also drops any leftover pose from a killed
+    // prior reveal so the press starts from rest in the SAME frame as the
+    // pointer event.
     const inner = (el.querySelector('.tile-inner') as HTMLElement | null) ?? el;
     gsap.set(inner, { clearProps: 'transform', overwrite: true });
     const lid = el.querySelector('.tile-lid') as HTMLElement | null;
     if (lid) gsap.set(lid, { clearProps: 'transform,opacity' });
+    // Press-down + pop ONLY (~0.14s total). The authoritative lid-flip is
+    // deliberately NOT started here: flipping the lid optimistically and then
+    // FREEZING it open until the server confirms produced a visible
+    // "open → wait → snap shut → reopen" stutter whenever the round-trip took
+    // longer than the tween. Now the tile responds instantly with a tactile
+    // press, rests for the remainder of the round-trip, and the lid flip plays
+    // once — cleanly — when the confirmed reveal claims this timeline.
     const tl = gsap.timeline({ paused: true });
     tl.to(inner, { y: 3, scale: 0.94, duration: 0.06, ease: 'power2.in' })
       .to(inner, { y: -2, scale: 1.01, duration: 0.08, ease: 'power1.out' });
-    if (lid) tl.to(lid, { rotateX: -72, opacity: 0, duration: 0.14, transformOrigin: '50% 0%' }, '-=0.02');
     this.pendingReveals.set(index, tl);
     tl.play();
-    // Safety net ONLY: drop the map entry after the pending animation has long
-    // since finished naturally (total tween length ≈ 0.26s). The guard is
+    // Safety net ONLY: drop the map entry shortly after the press animation
+    // has long since finished naturally (total length ≈ 0.14s). The guard is
     // cleared the moment the tween completes, so it never delays any visual —
     // it just prevents orphaned entries if a round aborts abnormally.
     const guard = window.setTimeout(() => {
@@ -222,16 +229,31 @@ export class AnimationController {
     // a non-blocking polish fade whose promise we intentionally do not await,
     // so the NEXT queued reveal (e.g. multi-tile loss disclosure) starts sooner.
     const tl = gsap.timeline();
-    if (pending && !pending.totalProgress()) {
-      // The click-time press/pop/lid-flip started synchronously at pointerdown
-      // and is STILL in flight: let it finish untouched (no restart, no snap)
-      // and begin the rest of the reveal right where the pending tween ends.
-      const hold = Math.max(0, 0.26 - pending.time());
-      if (hold > 0) tl.to({}, { duration: hold });
-    } else if (pending) {
-      // Pending already completed — the tile sits in its flipped-open pose;
-      // skip the press/pop + lid re-tween entirely.
-      pending.kill();
+    if (pending) {
+      // Claim the click-time press tween. If it is still in flight, chain the
+      // lid-flip directly onto it (no restart, no snap, and NO dead-time hold
+      // gap — the previous `to({}, {duration: 0.26 - t})` empty tween added up
+      // to 40ms of nothing between the press release and the flip). If it
+      // already completed, the tile rests at its pop pose; continue from there.
+      pending.to(
+        lid ?? target,
+        lid
+          ? { rotateX: -72, opacity: 0, duration: 0.14, transformOrigin: '50% 0%' }
+          : { y: 0, scale: 1, duration: 0.08 },
+      );
+      // Hand the pending timeline over AS the reveal timeline: everything below
+      // appends to it, so symbol/glow/burst start the instant the press+flip
+      // ends instead of waiting on a parallel fixed-length track.
+      tl.add(pending, 0);
+    } else if (lid && !gsap.getProperty(lid, 'opacity') && gsap.getProperty(lid, 'x') !== undefined) {
+      // No pending tween AND the lid is still mid-flip from an optimistic
+      // bluff that was rewound (killed at progress 0 with inline props intact):
+      // clear leftovers so this play-from-rest pass starts clean. Fresh tiles
+      // have no inline styles at all and skip this branch entirely.
+      this.resetToRest(el);
+      tl.to(target, { y: 3, scale: 0.94, duration: 0.06, ease: 'power2.in' })
+        .to(target, { y: -2, scale: 1.01, duration: 0.08, ease: 'power1.out' });
+      tl.to(lid, { rotateX: -72, opacity: 0, duration: 0.14, transformOrigin: '50% 0%' }, '-=0.02');
     } else {
       // No pending tween (reduced-motion path / restored round): play from rest.
       tl.to(target, { y: 3, scale: 0.94, duration: 0.06, ease: 'power2.in' })
