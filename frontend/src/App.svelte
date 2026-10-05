@@ -158,6 +158,10 @@
   }
 
   async function applyEvents(events: import('@crypto-mines/shared').GameEvent[], animate: boolean) {
+    // Defensive guard: a malformed/absent payload must never reach the slice /
+    // ingest pipeline — indexing an undefined events array was the source of
+    // "Cannot read properties of undefined (reading '0')".
+    if (!Array.isArray(events)) return;
     const prev = playback.getEventCount();
     const delta = events.slice(prev);
     bumpFxFromDelta(delta);
@@ -170,6 +174,9 @@
     });
     playDeltaSounds(delta);
   }
+
+  /** Safe per-cell state lookup for template/logic use (no raw `snap.cells[i]`). */
+  const cellStateAt = (index: number) => playback.getCellState(index);
 
   function applyWalletBalance(amount: number) {
     balance = apiToDisplay(amount);
@@ -252,50 +259,59 @@
     }
   }
 
-  async function startRound() {
+  function startRound() {
     if (!client || !canPlaceBets) return;
+    // Zero-latency feedback: commit the pending visual state SYNCHRONOUSLY in
+    // the click task (same frame as pointerdown), before any await. The board
+    // resets immediately and the button shows its spinner instantly — the
+    // player never stares at a frozen UI while /bet/action round-trips.
     playInFlight = true;
-    try {
-      playback.resetRound();
-      showWin = false;
-      clearLossState();
-      vaultTheatreActive = false;
-      const amountApi = displayToApi(bet);
-      const res = await client.play(amountApi, mines, 'base');
-      applyWalletBalance(res.balance.amount);
-      roundActive = true;
-      connectionState = client.connectionState;
-      vaultVariant = 'organic';
-      vaultTitle = 'BONUS UNLOCKED';
-      await applyEvents(extractRoundEvents(res.round), true);
-    } catch (e) {
-      errorMsg = e instanceof Error ? e.message : String(e);
-    } finally {
-      playInFlight = false;
-    }
+    playback.resetRound();
+    showWin = false;
+    clearLossState();
+    vaultTheatreActive = false;
+    void (async () => {
+      try {
+        const amountApi = displayToApi(bet);
+        const res = await client!.play(amountApi, mines, 'base');
+        applyWalletBalance(res.balance.amount);
+        roundActive = true;
+        connectionState = client!.connectionState;
+        vaultVariant = 'organic';
+        vaultTitle = 'BONUS UNLOCKED';
+        await applyEvents(extractRoundEvents(res.round), true);
+      } catch (e) {
+        errorMsg = e instanceof Error ? e.message : String(e);
+      } finally {
+        playInFlight = false;
+      }
+    })();
   }
 
   async function startBuyVault() {
     if (!client || !canPlaceBets) return;
+    // Same synchronous-first pattern as startRound: instant visual response.
     playInFlight = true;
-    try {
-      playback.resetRound();
-      showWin = false;
-      clearLossState();
-      const amountApi = displayToApi(bet);
-      const res = await client.play(amountApi, mines, 'buyVault');
-      applyWalletBalance(res.balance.amount);
-      roundActive = true;
-      connectionState = client.connectionState;
-      vaultVariant = 'buy';
-      vaultTitle = 'BONUS UNLOCKED';
-      vaultTheatreActive = true;
-      await applyEvents(extractRoundEvents(res.round), true);
-    } catch (e) {
-      errorMsg = e instanceof Error ? e.message : String(e);
-    } finally {
-      playInFlight = false;
-    }
+    playback.resetRound();
+    showWin = false;
+    clearLossState();
+    void (async () => {
+      try {
+        const amountApi = displayToApi(bet);
+        const res = await client!.play(amountApi, mines, 'buyVault');
+        applyWalletBalance(res.balance.amount);
+        roundActive = true;
+        connectionState = client!.connectionState;
+        vaultVariant = 'buy';
+        vaultTitle = 'BONUS UNLOCKED';
+        vaultTheatreActive = true;
+        await applyEvents(extractRoundEvents(res.round), true);
+      } catch (e) {
+        errorMsg = e instanceof Error ? e.message : String(e);
+      } finally {
+        playInFlight = false;
+      }
+    })();
   }
 
   async function onPick(cellIndex: number) {

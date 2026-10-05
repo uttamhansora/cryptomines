@@ -1,7 +1,7 @@
 import type { GameEvent } from '@crypto-mines/shared';
 import { AnimationController, type AnimContext, type PendingReveal } from '../animation/controller.js';
 import { applyEventsToSnapshot, emptySnapshot, snapshotFromEvents } from './apply-event.js';
-import type { PlayerSnapshot } from './snapshot.js';
+import type { PlayerSnapshot, BoardViewCell } from './snapshot.js';
 
 export type SnapshotListener = (snap: Readonly<PlayerSnapshot>) => void;
 
@@ -29,6 +29,23 @@ export class PlaybackCoordinator {
    * when the hand-off cursor evaluated `claimed[0]`.
    */
   private claimedPending: (PendingReveal | null)[] = [];
+
+  /**
+   * Defensive cell accessor for the snapshot board. Server payloads can in
+   * rare cases arrive with a short/absent `cells` array; reading `cells[i].x`
+   * directly then crashes with "Cannot read properties of undefined (reading
+   * '…')". Exposed publicly so App-level consumers use it too.
+   */
+  cellAt(index: number): BoardViewCell | undefined {
+    const cells = Array.isArray(this.snap.cells) ? this.snap.cells : [];
+    if (index < 0 || index >= cells.length) return undefined;
+    return cells[index];
+  }
+
+  /** Current state of one board cell — safe even when the payload is malformed. */
+  getCellState(index: number): BoardViewCell['state'] | null {
+    return this.cellAt(index)?.state ?? null;
+  }
 
   private cached<T extends HTMLElement>(key: 'board' | 'mult' | 'stage' | 'chain', sel: string): T | null {
     const hit = this.domCache[key] as T | undefined;
@@ -58,8 +75,8 @@ export class PlaybackCoordinator {
 
   /** Replace snapshot without animation (replay scrub / reduced motion). */
   hydrate(events: GameEvent[]): void {
-    this.events = events;
-    this.snap = snapshotFromEvents(events);
+    this.events = Array.isArray(events) ? events : [];
+    this.snap = snapshotFromEvents(this.events);
     this.anim.cancelPendingReveals();
     // Drop the claimed-pending hand-off with the old round's timelines and
     // tile element cache so a later animated ingest can never read stale
@@ -95,17 +112,25 @@ export class PlaybackCoordinator {
     events: GameEvent[],
     opts: { animate: boolean; reducedMotion: boolean; onChainComplete?: () => void },
   ): Promise<void> {
+    // Defensive: a malformed/absent payload must never crash the game loop or
+    // index into an undefined array ("Cannot read properties of undefined
+    // (reading '0')"). Treat anything non-array as "no new events".
+    if (!Array.isArray(events)) {
+      return Promise.resolve();
+    }
     // Fast-path for the normal case: the server always returns the previous
     // event log with new events appended. Compare lengths + last index first
     // so we never re-scan the whole history on every pick.
+    const prevEvents = Array.isArray(this.events) ? this.events : [];
     let prefixOk =
-      this.events.length <= events.length &&
-      (this.events.length === 0 || events[this.events.length - 1]?.index === this.events[this.events.length - 1]?.index);
-    if (prefixOk && this.events.length > 0) {
+      prevEvents.length <= events.length &&
+      (prevEvents.length === 0 ||
+        events[prevEvents.length - 1]?.index === prevEvents[prevEvents.length - 1]?.index);
+    if (prefixOk && prevEvents.length > 0) {
       // Defensive verification only when the cheap check could not prove it
       // (e.g. streams without monotonic `index` fields).
-      if (events[this.events.length - 1]?.index === undefined) {
-        prefixOk = this.events.every((e, i) => events[i]?.type === e.type);
+      if (events[prevEvents.length - 1]?.index === undefined) {
+        prefixOk = prevEvents.every((e, i) => events[i]?.type === e.type);
       }
     }
 
@@ -116,7 +141,7 @@ export class PlaybackCoordinator {
       return Promise.resolve();
     }
 
-    const delta = events.slice(this.events.length);
+    const delta = events.slice(prevEvents.length);
     if (delta.length === 0) return Promise.resolve();
 
     // Claim every click-time pending lid-flip BEFORE the snapshot emit below.
