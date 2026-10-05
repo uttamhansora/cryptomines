@@ -1,14 +1,26 @@
+import { memo } from 'react';
 import Tile from './Tile.jsx';
+import CryptoSymbol from './CryptoSymbol.jsx';
 import { TILES } from '../game/logic.js';
 
 /**
- * 5x5 board inside a beveled frame with decorative corner brackets.
- * `shake` triggers the CSS screen-shake keyframe when a mine detonates.
+ * 5×5 board inside a dark metallic frame with a cyan glow edge and
+ * decorative corner brackets (reference image §3).
+ *
+ * RENDERING: `tiles` is mutated immutably upstream (only one entry changes
+ * per reveal), so each memoized <Tile> bails out on shallow prop compare —
+ * clicking tile #13 re-renders exactly one component. The shake class lives
+ * on the frame element and is applied via CSS, not React remounts.
  */
-export default function Board({ tiles, roundActive, shake, onReveal }) {
+function BoardBase({ tiles, roundActive, shake, onReveal }) {
   return (
     <div className={`cm-board-frame${shake ? ' is-shaking' : ''}`}>
-      {/* Corner brackets (decorative) */}
+      {/* Inner bevel + brand watermark (decorative) */}
+      <span className="cm-board-inner" aria-hidden="true">
+        <span className="cm-board-watermark"><CryptoSymbol size={220} /></span>
+      </span>
+
+      {/* Corner brackets */}
       <span className="cm-bracket cm-bracket--tl" aria-hidden="true" />
       <span className="cm-bracket cm-bracket--tr" aria-hidden="true" />
       <span className="cm-bracket cm-bracket--bl" aria-hidden="true" />
@@ -33,3 +45,6 @@ export default function Board({ tiles, roundActive, shake, onReveal }) {
     </div>
   );
 }
+
+const Board = memo(BoardBase);
+export default Board;

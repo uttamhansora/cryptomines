@@ -2,27 +2,28 @@ import { Link2 } from 'lucide-react';
 import { CHAIN_STEPS } from '../game/logic.js';
 
 /**
- * Crypto Chain stepper card — 5 circular nodes joined by a track whose
- * fill animates via transform: scaleX (GPU-friendly). Completed nodes get
- * a glowing cyan fill; the next node pulses with a ring to draw the eye.
+ * Crypto Chain — full-width horizontal HUD strip below the header (spec §2).
+ * 5 circular nodes joined by a thin track; the fill animates with
+ * transform: scaleX (GPU friendly, no layout thrash). Completed nodes glow
+ * cyan; the next node carries a static ring highlight.
  */
 export default function ChainStepper({ progress }) {
   const pct = Math.min(1, progress / CHAIN_STEPS);
 
   return (
-    <section className="cm-card cm-chain-card" aria-label="Crypto Chain progress">
-      <div className="cm-card-head">
-        <span className="cm-card-title">
-          <Link2 size={15} className="cm-title-icon" aria-hidden="true" />
-          CRYPTO CHAIN
-        </span>
-        <span className="cm-counter">
-          <strong className="num">{progress}</strong>
-          <span className="cm-counter-max num">/{CHAIN_STEPS}</span>
-        </span>
-      </div>
+    <section className="cm-chain-strip" aria-label="Crypto Chain progress">
+      <span className="cm-chain-title">
+        <Link2 size={14} className="cm-title-icon" aria-hidden="true" />
+        CRYPTO CHAIN
+      </span>
 
-      <div className="cm-stepper" role="progressbar" aria-valuemin={0} aria-valuemax={CHAIN_STEPS} aria-valuenow={progress}>
+      <div
+        className="cm-stepper"
+        role="progressbar"
+        aria-valuemin={0}
+        aria-valuemax={CHAIN_STEPS}
+        aria-valuenow={progress}
+      >
         <div className="cm-stepper-track" aria-hidden="true">
           <div className="cm-stepper-fill" style={{ transform: `scaleX(${pct})` }} />
         </div>
@@ -41,6 +42,11 @@ export default function ChainStepper({ progress }) {
           );
         })}
       </div>
+
+      <span className="cm-counter">
+        <strong className="num">{progress}</strong>
+        <span className="cm-counter-max num">/{CHAIN_STEPS}</span>
+      </span>
     </section>
   );
 }

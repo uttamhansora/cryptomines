@@ -1,13 +1,16 @@
 import { Trophy, Layers, Minus, Plus, PlayCircle, Landmark } from 'lucide-react';
 import { useAnimatedNumber } from '../hooks/useAnimatedNumber.js';
+import CryptoSymbol from './CryptoSymbol.jsx';
 import { MIN_MINES, MAX_MINES, VAULT_COST_MULT } from '../game/logic.js';
 
 const PRESETS = [1, 5, 10, 15, 20, 24];
 
 /**
- * Right-hand control panel: multiplier hero, stat boxes, bet controls,
- * mines selector, primary CTA and the Buy Vault card.
- * `locked` disables every input while a round is running.
+ * Right-hand control panel (spec §9–§15): circular multiplier HUD,
+ * Potential Win / Bet stat boxes, segmented bet controls, mines stepper +
+ * preset chips, the large cyan Start Round CTA (green Cash Out while a round
+ * runs) and the Crypto Vault purchase card.
+ * Every input locks while `gameState === 'playing'`.
  */
 export default function ControlPanel({
   multiplier,
@@ -33,21 +36,28 @@ export default function ControlPanel({
   const vaultCost = bet * VAULT_COST_MULT;
   const canBuyVault = !locked && balance >= vaultCost;
 
-  // Count-up animation for the two hero numbers (presentational only)
+  // Count-up animation for the two hero numbers (presentational only —
+  // it never delays or gates any value render; final value lands instantly).
   const animMult = useAnimatedNumber(multiplier);
   const animWin = useAnimatedNumber(potentialWin);
 
   return (
     <aside className="cm-panel" aria-label="Game controls">
-      {/* ---- Current multiplier hero ---- */}
+      {/* ---- Current multiplier — circular HUD ring ---- */}
       <div className="cm-mult-block">
         <span className="cm-section-label cm-center">
           <span className="cm-dot" aria-hidden="true" /> CURRENT MULTIPLIER
         </span>
-        <div className={`cm-mult-badge${playing ? ' is-live' : ''}`} key={multiplier /* retrigger glow pulse */}>
+        <div
+          className={`cm-mult-badge${playing ? ' is-live' : ''}`}
+          key={multiplier /* retrigger glow pulse on change */}
+        >
+          {/* thin decorative ring + faint brand watermark inside the dial */}
+          <span className="cm-mult-ring" aria-hidden="true" />
+          <span className="cm-mult-watermark" aria-hidden="true"><CryptoSymbol size={72} /></span>
           <span className="cm-mult-value num">
             {animMult.toFixed(2)}
-            <span className="cm-mult-x">x</span>
+            <span className="cm-mult-x">×</span>
           </span>
         </div>
         <div className="cm-divider" aria-hidden="true" />
@@ -74,7 +84,7 @@ export default function ControlPanel({
         <span className="cm-section-label">BET AMOUNT</span>
         <div className={`cm-bet-grid${locked ? ' is-locked' : ''}`}>
           <button type="button" className="cm-sq-btn" onClick={onBetMin} disabled={locked} title="Minimum bet">MIN</button>
-          <button type="button" className="cm-sq-btn" onClick={onBetHalf} disabled={locked} title="Halve bet">1/2</button>
+          <button type="button" className="cm-sq-btn" onClick={onBetHalf} disabled={locked} title="Halve bet">½</button>
           <button type="button" className="cm-sq-btn" onClick={() => onBetStep(-1)} disabled={locked} aria-label="Decrease bet by 0.10" title="-0.10">
             <Minus size={16} />
           </button>
@@ -82,7 +92,7 @@ export default function ControlPanel({
           <button type="button" className="cm-sq-btn" onClick={() => onBetStep(1)} disabled={locked} aria-label="Increase bet by 0.10" title="+0.10">
             <Plus size={16} />
           </button>
-          <button type="button" className="cm-sq-btn" onClick={onBetDouble} disabled={locked} title="Double bet">2x</button>
+          <button type="button" className="cm-sq-btn" onClick={onBetDouble} disabled={locked} title="Double bet">2×</button>
           <button type="button" className="cm-sq-btn cm-sq-btn--max" onClick={onBetMax} disabled={locked} title="Bet entire balance">MAX</button>
         </div>
       </div>
@@ -138,7 +148,7 @@ export default function ControlPanel({
         </button>
       )}
 
-      {/* ---- Buy Crypto Vault ---- */}
+      {/* ---- Crypto Vault purchase card ---- */}
       <button
         type="button"
         className="cm-vault-card"
@@ -149,8 +159,8 @@ export default function ControlPanel({
         <span className="cm-vault-icon" aria-hidden="true">
           <Landmark size={18} />
         </span>
-        <span className="cm-vault-label">BUY CRYPTO VAULT</span>
-        <span className="cm-vault-price num">{VAULT_COST_MULT}x BET</span>
+        <span className="cm-vault-label">CRYPTO VAULT</span>
+        <span className="cm-vault-price num">{VAULT_COST_MULT}× BET</span>
         <span className="cm-vault-caption">Instant vault bonus entry</span>
       </button>
     </aside>

@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
 import Header from './components/Header.jsx';
 import ChainStepper from './components/ChainStepper.jsx';
 import Board from './components/Board.jsx';
@@ -49,6 +49,45 @@ export default function App() {
   const soundRef = useRef(soundOn);
   const play = useCallback((fn) => { if (soundRef.current) fn(); }, []);
 
+  /* Refs mirror the latest values so `revealTile` can stay referentially
+     STABLE (required for memoized tiles to bail out on re-render). Reading
+     refs gives synchronous access to current state inside the handler. */
+  const gameStateRef = useRef(gameState);
+  const boardDataRef = useRef(boardData);
+  const tilesRef = useRef(tiles);
+  const safeRevealsRef = useRef(safeReveals);
+  const chainProgressRef = useRef(chainProgress);
+  const vaultCountRef = useRef(vaultCount);
+  const minesCountRef = useRef(minesCount);
+  const betRef = useRef(bet);
+  const chainBoostsRef = useRef(chainBoosts);
+  gameStateRef.current = gameState;
+  boardDataRef.current = boardData;
+  tilesRef.current = tiles;
+  safeRevealsRef.current = safeReveals;
+  chainProgressRef.current = chainProgress;
+  vaultCountRef.current = vaultCount;
+  minesCountRef.current = minesCount;
+  betRef.current = bet;
+  chainBoostsRef.current = chainBoosts;
+
+  /* Cash-out core — reads from refs so it can be called from stable
+     callbacks (manual click OR auto-cashout timer) with identical math. */
+  const doCashOut = useCallback(() => {
+    if (gameStateRef.current !== 'playing' || safeRevealsRef.current === 0) return;
+    const win = round2(
+      betRef.current * effectiveMultiplier(
+        safeRevealsRef.current, minesCountRef.current, chainBoostsRef.current
+      )
+    );
+    if (soundRef.current) sfx.cashout();
+    setBalance((b) => round2(b + win));
+    setGameState('cashedOut');
+    setWinModal({ amount: win, isVault: false });
+    setConfettiKey((k) => k + 1);
+    setTimeout(() => setGameState('idle'), 900);
+  }, []);
+
   const toggleSound = () => {
     setSoundOn((v) => {
       soundRef.current = !v;
@@ -91,8 +130,20 @@ export default function App() {
   const startRound = () => {
     if (gameState === 'playing' || balance < bet) return;
     play(sfx.click);
-    setBalance((b) => round2(b - bet));                    // deduct stake
-    setBoardData(buildBoard(minesCount));                  // Fisher-Yates placement
+    /* Everything needed by the reveal handler is committed synchronously
+       into refs BEFORE setState, so a click landing on the very first paint
+       of the new round already resolves correctly — zero artificial delay. */
+    const freshBoard = buildBoard(minesCount);               // Fisher-Yates placement
+    boardDataRef.current = freshBoard;
+    tilesRef.current = HIDDEN;
+    safeRevealsRef.current = 0;
+    chainProgressRef.current = 0;
+    vaultCountRef.current = 0;
+    minesCountRef.current = minesCount;
+    gameStateRef.current = 'playing';
+
+    setBalance((b) => round2(b - bet));                     // deduct stake
+    setBoardData(freshBoard);
     setTiles(HIDDEN);
     setSafeReveals(0);
     setChainProgress(0);
@@ -101,80 +152,78 @@ export default function App() {
     setGameState('playing');
   };
 
-  const revealTile = (index) => {
-    if (gameState !== 'playing' || tiles[index] !== 'hidden') return;
-    const cell = boardData[index];
+  const revealTile = useCallback((index) => {
+    if (gameStateRef.current !== 'playing') return;
 
+    /* Resolve mine/safe synchronously from the latest board — the result
+       state is committed in THIS render, so the correct symbol appears on
+       the very next paint (no timers gate the icon). */
+    const cell = boardDataRef.current[index];
+    if (!cell || tilesRef.current[index] !== 'hidden') return;
+
+    let nextTiles;
     if (cell.mine) {
-      /* ---- BUST: explode the hit tile, dim-reveal remaining mines ---- */
       play(sfx.mine);
       setShake(true);
-      setTimeout(() => setShake(false), 480);
-      setTiles((t) => t.map((s, i) => {
+      setTimeout(() => setShake(false), 480); // presentation only
+      nextTiles = tilesRef.current.map((s, i) => {
         if (i === index) return 'mine';
-        if (boardData[i].mine) return 'mine-ghost';
+        if (boardDataRef.current[i].mine) return 'mine-ghost';
         return s;
-      }));
+      });
+      setTiles(nextTiles);
       setGameState('busted');
       // Bet already deducted at start — nothing returned on a bust.
-      setTimeout(() => setGameState('idle'), 1600);        // auto-reset to allow new round
+      setTimeout(() => setGameState('idle'), 1600); // auto-reset for new round
       return;
     }
 
-    /* ---- SAFE reveal ---- */
     play(sfx.reveal);
-    const nextK = safeReveals + 1;
-    setTiles((t) => t.map((s, i) => (i === index ? (cell.vault ? 'safe-vault' : 'safe') : s)));
+    const nextK = safeRevealsRef.current + 1;
+    nextTiles = tilesRef.current.map((s, i) =>
+      i === index ? (cell.vault ? 'safe-vault' : 'safe') : s
+    );
+    setTiles(nextTiles);
     setSafeReveals(nextK);
 
     // Chain: every safe reveal advances one step; completing step 5 boosts & resets.
-    setChainProgress((c) => {
-      const next = c + 1;
-      if (next >= CHAIN_STEPS) {
-        setChainBoosts((b) => b + 1);
-        play(sfx.chain);
-        return 0;                                          // reset after boost
-      }
-      return next;
-    });
+    const c = chainProgressRef.current + 1;
+    if (c >= CHAIN_STEPS) {
+      setChainBoosts((b) => b + 1);
+      setChainProgress(0); // reset after boost
+      play(sfx.chain);
+    } else {
+      setChainProgress(c);
+    }
 
     // Vault symbol collection
     if (cell.vault) {
-      setVaultCount((v) => {
-        const nv = Math.min(VAULT_SLOTS, v + 1);
-        if (nv === VAULT_SLOTS) unlockVault();
-        else play(sfx.vault);
-        return nv;
-      });
+      const nv = Math.min(VAULT_SLOTS, vaultCountRef.current + 1);
+      setVaultCount(nv);
+      if (nv === VAULT_SLOTS) unlockVault();
+      else play(sfx.vault);
     }
 
     // Filled every safe tile — auto cash out.
-    if (nextK === TILES - minesCount) {
+    if (nextK === TILES - minesCountRef.current) {
       setTimeout(cashOut, 350);
     }
-  };
+  }, [play]);
 
-  const cashOut = () => {
-    if (gameState !== 'playing' || safeReveals === 0) return;
-    const win = round2(bet * effectiveMultiplier(safeReveals, minesCount, chainBoosts));
-    play(sfx.cashout);
-    setBalance((b) => round2(b + win));
-    setGameState('cashedOut');
-    setWinModal({ amount: win, isVault: false });
-    setConfettiKey((k) => k + 1);
-    setTimeout(() => setGameState('idle'), 900);
-  };
-
-  /** Shared vault bonus reward — used by collect-3 and by Buy Vault. */
-  const grantVaultBonus = (cost = 0) => {
-    const reward = round2(Math.max(bet * 2, cost));         // simple bonus payout
-    setBalance((b) => round2(b - cost + reward));
+  /* Shared vault bonus reward — used by collect-3 and by Buy Vault.
+     Stable + ref-based so revealTile (memoized tiles) can call it safely. */
+  const grantVaultBonus = useCallback((cost = 0) => {
+    const b = betRef.current;
+    const reward = round2(Math.max(b * 2, cost));           // simple bonus payout
+    setBalance((bal) => round2(bal - cost + reward));
     setWinModal({ amount: reward, isVault: true });
     setConfettiKey((k) => k + 1);
-    play(sfx.vault);
-  };
+    if (soundRef.current) sfx.vault();
+  }, []);
 
-  const unlockVault = () => grantVaultBonus(0);
+  const unlockVault = useCallback(() => grantVaultBonus(0), [grantVaultBonus]);
+
+  const cashOut = doCashOut;
 
   const buyVault = () => {
     const cost = round2(bet * VAULT_COST_MULT);
@@ -203,11 +252,12 @@ export default function App() {
           onInfo={() => setShowRules(true)}
         />
 
-        <main className="cm-layout">
-          {/* ============ LEFT COLUMN — board area ============ */}
-          <div className="cm-col-board">
-            <ChainStepper progress={chainProgress} />
+        {/* Full-width Crypto Chain HUD strip between header and main grid */}
+        <ChainStepper progress={chainProgress} />
 
+        <main className="cm-layout">
+          {/* ============ LEFT COLUMN — board area (focal point) ============ */}
+          <div className="cm-col-board">
             <p className="cm-tagline">REVEAL&nbsp;&nbsp;·&nbsp;&nbsp;MULTIPLY&nbsp;&nbsp;·&nbsp;&nbsp;CASH OUT</p>
 
             <Board
