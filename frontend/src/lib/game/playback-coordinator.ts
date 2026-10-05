@@ -1,34 +1,32 @@
 import type { GameEvent } from '@crypto-mines/shared';
 import { AnimationController, type AnimContext, type PendingReveal } from '../animation/controller.js';
-import { applyEventToSnapshot, emptySnapshot, snapshotFromEvents } from './apply-event.js';
+import { applyEventsToSnapshot, emptySnapshot, snapshotFromEvents } from './apply-event.js';
 import type { PlayerSnapshot } from './snapshot.js';
 
 export type SnapshotListener = (snap: Readonly<PlayerSnapshot>) => void;
-
-/**
- * Playback ordering for the decoupled animation pass. Lower runs first: the tile
- * the player actually clicked must animate before chain banners, multiplier bumps
- * or post-loss disclosure of untouched tiles. Stable sort preserves event order
- * within each priority class.
- */
-function eventPriority(ev: GameEvent): number {
-  const type = String(ev.type).toLowerCase();
-  if (type === 'reveal') {
-    const rt = String(ev.revealType ?? '');
-    if (rt === 'tileSafe' || rt === 'tileMine') return 0;
-    if (rt === 'enterbonus') return 1;
-    if (rt === 'tileFinal') return 3;
-    return 2;
-  }
-  if (type === 'multiplierupdate') return 2;
-  return 4;
-}
 
 export class PlaybackCoordinator {
   private snap: PlayerSnapshot = emptySnapshot();
   private events: GameEvent[] = [];
   private listeners = new Set<SnapshotListener>();
   private anim = new AnimationController();
+
+  /**
+   * Cached DOM lookups for the animation context. The board/header/panel markup is
+   * stable during a round, so we query at most once per element and re-verify only
+   * when the cached node has left the document (remounts / round resets). This keeps
+   * per-reveal work off the critical path instead of running document-wide selector
+   * scans inside the awaited animation sequence after every click.
+   */
+  private domCache: Partial<Record<'board' | 'mult' | 'stage' | 'chain', HTMLElement>> = {};
+
+  private cached<T extends HTMLElement>(key: 'board' | 'mult' | 'stage' | 'chain', sel: string): T | null {
+    const hit = this.domCache[key] as T | undefined;
+    if (hit && hit.isConnected) return hit;
+    const fresh = document.querySelector(sel) as T | null;
+    if (fresh) this.domCache[key] = fresh;
+    return fresh;
+  }
 
   subscribe(fn: SnapshotListener): () => void {
     this.listeners.add(fn);
@@ -70,26 +68,9 @@ export class PlaybackCoordinator {
   }
 
   /**
-   * Cached DOM lookups for the animation context. The board/header/panel markup is
-   * stable during a round, so we query at most once per element and re-verify only
-   * when the cached node has left the document (remounts / round resets). This keeps
-   * per-reveal work off the critical path instead of running document-wide selector
-   * scans inside the awaited animation sequence after every click.
-   */
-  private domCache: Partial<Record<'board' | 'mult' | 'stage' | 'chain', HTMLElement>> = {};
-
-  private cached<T extends HTMLElement>(key: 'board' | 'mult' | 'stage' | 'chain', sel: string): T | null {
-    const hit = this.domCache[key] as T | undefined;
-    if (hit && hit.isConnected) return hit;
-    const fresh = document.querySelector(sel) as T | null;
-    if (fresh) this.domCache[key] = fresh;
-    return fresh;
-  }
-
-  /**
    * Authoritative server stream update: apply full state immediately, animate only new tail.
    */
-  async ingest(
+  ingest(
     events: GameEvent[],
     opts: { animate: boolean; reducedMotion: boolean; onChainComplete?: () => void },
   ): Promise<void> {
@@ -111,11 +92,11 @@ export class PlaybackCoordinator {
       this.snap = snapshotFromEvents(events);
       this.events = events;
       this.emit();
-      return;
+      return Promise.resolve();
     }
 
     const delta = events.slice(this.events.length);
-    if (delta.length === 0) return;
+    if (delta.length === 0) return Promise.resolve();
 
     // Claim every click-time pending lid-flip BEFORE the snapshot emit below.
     // The emit synchronously re-renders all Tile components, which toggles the
@@ -140,24 +121,26 @@ export class PlaybackCoordinator {
           t.kill();
         }
       }
-      for (const ev of delta) applyEventToSnapshot(this.snap, ev);
+      applyEventsToSnapshot(this.snap, delta);
       this.emit();
-      return;
+      return Promise.resolve();
     }
 
     // CRITICAL PATH: fold the ENTIRE delta into the snapshot and notify Svelte
-    // exactly once, synchronously — the board state is authoritative the moment
-    // the response lands, with zero waiting on animation frames. The old loop
-    // emitted a full app-wide notification per event and awaited each reveal's
-    // GSAP timeline before applying the next one, which serialized multi-tile
-    // loss disclosures behind ~250ms of animation latency each.
-    for (const ev of delta) applyEventToSnapshot(this.snap, ev);
+    // exactly once, SYNCHRONOUSLY inside the response-handling task — the
+    // board/multiplier/potential-win DOM commits before a single frame is
+    // painted, with zero waiting on animation frames or microtask chains. The
+    // old implementation awaited each reveal's GSAP timeline before applying
+    // the next one, which serialized multi-tile loss disclosures behind
+    // ~250ms of animation latency each.
+    applyEventsToSnapshot(this.snap, delta);
     this.emit();
 
-    // Decoupled playback: run the cosmetic timelines AFTER the DOM has been
-    // updated, in priority order (player-picked tile first, then chain/vault,
-    // then multiplier bumps). Awaiting here only gates the NEXT round-end step,
-    // never the visual state itself.
+    // Decoupled playback: run the cosmetic timelines AFTER the authoritative
+    // state has committed, in priority order (player-picked tile first, then
+    // chain/vault, then multiplier bumps). Each reveal event pairs with the
+    // pending tween claimed for it above (same traversal order), and awaiting
+    // here gates ONLY the round-end follow-up steps — never any visual.
     const ctx: AnimContext = {
       getCellEl: (idx) => this.tileCache(idx),
       getBoardEl: () => this.cached('board', '[data-game-board]'),
@@ -166,19 +149,37 @@ export class PlaybackCoordinator {
       getChainEl: () => this.cached('chain', '[data-chain-meter]'),
       onChainComplete: opts.onChainComplete,
     };
+    return this.playDelta(delta, ctx);
+  }
+
+  private async playDelta(delta: GameEvent[], ctx: AnimContext): Promise<void> {
     let claimCursor = 0;
-    const ordered = [...delta].sort((a, b) => {
-      const d = eventPriority(a) - eventPriority(b);
-      if (d !== 0) return d;
-      // Stable tie-break by original delta position so each reveal is paired
-      // with the pending tween claimed for that exact event above.
-      return delta.indexOf(a) - delta.indexOf(b);
-    });
-    for (const ev of ordered) {
-      const isRevealedTile =
-        String(ev.type).toLowerCase() === 'reveal' && typeof ev.cellIndex === 'number';
-      const pending = isRevealedTile ? claimedPending[claimCursor++] : null;
-      await this.anim.playEvent(ev, ctx, pending);
+    const pendingFor = (): PendingReveal | null => claimed[claimCursor++] ?? null;
+    const claimed = this.lastClaimedPending;
+    for (const ev of delta) {
+      const type = String(ev.type).toLowerCase();
+      if (type !== 'reveal') continue;
+      const rt = String(ev.revealType ?? '');
+      if ((rt === 'tileSafe' || rt === 'tileMine') && typeof ev.cellIndex === 'number') {
+        await this.anim.playEvent(ev, ctx, pendingFor());
+      }
+    }
+    for (const ev of delta) {
+      const type = String(ev.type).toLowerCase();
+      if (type !== 'reveal') continue;
+      const rt = String(ev.revealType ?? '');
+      if (rt === 'enterbonus') await this.anim.playEvent(ev, ctx, null);
+    }
+    for (const ev of delta) {
+      if (String(ev.type).toLowerCase() === 'multiplierupdate') {
+        await this.anim.playEvent(ev, ctx, null);
+      }
+    }
+    for (const ev of delta) {
+      const type = String(ev.type).toLowerCase();
+      if (type === 'reveal' && String(ev.revealType ?? '') === 'tileFinal' && typeof ev.cellIndex === 'number') {
+        await this.anim.playEvent(ev, ctx, pendingFor());
+      }
     }
   }
 
