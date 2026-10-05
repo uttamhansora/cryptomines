@@ -1,9 +1,6 @@
 import { X } from 'lucide-react';
 
-/**
- * Accessible modal shell: role=dialog, Escape to close, click-outside to
- * close, focus moved into the dialog on open. Used by rules / win / vault.
- */
+/** Accessible modal shell — Esc/backdrop close, focus on open. */
 export default function Modal({ title, onClose, children, accent = false }) {
   return (
     <div className="cm-overlay" onClick={onClose} role="presentation">

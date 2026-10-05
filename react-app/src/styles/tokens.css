@@ -3,26 +3,29 @@
    Re-theme the entire app by editing ONLY this file.
    ============================================================ */
 :root {
-  /* ---- Core palette (from spec) ---- */
-  --bg: #050B14;
-  --bg-2: #0A1424;
+  /* ---- Core palette (reference image) ---- */
+  --bg: #02070D;              /* page base — near-black navy            */
+  --bg-2: #08111A;            /* lower page gradient stop               */
   --panel: #0B1522;
   --panel-2: #0F1B2D;
   --border: rgba(34, 211, 238, 0.15);
   --border-strong: rgba(34, 211, 238, 0.35);
-  --accent: #22D3EE;
-  --accent-2: #06B6D4;
+  --accent: #22D3EE;          /* primary cyan                           */
+  --accent-2: #06B6D4;        /* deep cyan (gradient end / hover)       */
   --text: #E6F1FF;
   --muted: #7C8DA6;
-  --danger: #FF4D6D;
-  --success: #34D399;
-  --violet: #A78BFA;
-  --gold: #F5B94C;
+  --danger: #FF4D6D;          /* premium red — mines                    */
+  --success: #34D399;         /* cash-out green                         */
+  --violet: #A78BFA;          /* vault symbols                          */
+  --gold: #F5B94C;            /* safe/reward tiles                      */
 
   /* ---- Gradients ---- */
   --grad-accent: linear-gradient(180deg, var(--accent), var(--accent-2));
   --grad-panel: linear-gradient(165deg, var(--panel-2) 0%, var(--panel) 55%, #091120 100%);
   --grad-tile: linear-gradient(160deg, #16263d 0%, #0d1a2c 55%, #0a1424 100%);
+  /* Revealed faces use the reference reward/danger metal gradients */
+  --grad-tile-safe: linear-gradient(160deg, #2b2113 0%, #1a130a 55%, #120d06 100%);
+  --grad-tile-mine: linear-gradient(160deg, #2b1216 0%, #1a0a0d 55%, #120608 100%);
 
   /* ---- Glow / shadow tokens ---- */
   --glow-accent: 0 0 18px rgba(34, 211, 238, 0.35);

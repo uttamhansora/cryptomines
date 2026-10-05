@@ -2,8 +2,9 @@ import { Link2, Shield } from 'lucide-react';
 import { CHAIN_STEPS, VAULT_SLOTS } from '../game/logic.js';
 
 /**
- * Two equal info cards below the board: chain explainer + vault bonus
- * with 3 symbol slots that light up as they are collected.
+ * Bottom information panels (spec §16): two equal compact cards under the
+ * board — Crypto Chain explainer and Crypto Vault Bonus with 3 symbol slots
+ * that light up as they are collected.
  */
 export default function InfoCards({ chainProgress, vaultCount }) {
   return (
@@ -35,11 +36,11 @@ export default function InfoCards({ chainProgress, vaultCount }) {
             <span className="cm-counter-max num">/{VAULT_SLOTS}</span>
           </span>
         </div>
-        {/* Three vault slots — filled ones glow violet */}
+        {/* Three vault slots — filled ones glow gold to match reward palette */}
         <div className="cm-vault-slots" aria-hidden="true">
           {Array.from({ length: VAULT_SLOTS }, (_, i) => (
             <span key={i} className={`cm-vault-slot${i < vaultCount ? ' is-filled' : ''}`}>
-              <Shield size={16} strokeWidth={1.8} />
+              <Shield size={15} strokeWidth={1.8} />
             </span>
           ))}
         </div>

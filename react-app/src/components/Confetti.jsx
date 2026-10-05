@@ -1,14 +1,13 @@
-import { useEffect, useMemo, useRef } from 'react';
-
-const COLORS = ['#22D3EE', '#06B6D4', '#A78BFA', '#F59E0B', '#34D399'];
+import { useMemo } from 'react';
 
 /**
- * Lightweight DOM confetti — 60 absolutely-positioned divs animated with
- * transform/opacity only, removed on animationend. No dependencies.
+ * Win celebration particles — reference palette only (cyan + gold).
+ * Pure CSS transform/opacity keyframes; pieces are static spans so the
+ * effect costs nothing per frame after mount and never blocks interaction.
  */
-export default function Confetti({ count = 60 }) {
-  const ref = useRef(null);
+const COLORS = ['#22D3EE', '#06B6D4', '#F5B94C', '#FFD98A'];
 
+export default function Confetti({ count = 60 }) {
   const pieces = useMemo(
     () =>
       Array.from({ length: count }, (_, i) => ({
@@ -24,14 +23,8 @@ export default function Confetti({ count = 60 }) {
     [count]
   );
 
-  // Clean up if unmounted mid-flight
-  useEffect(() => {
-    const node = ref.current;
-    return () => node?.querySelectorAll('.cm-confetti-piece').forEach((el) => el.remove());
-  }, []);
-
   return (
-    <div className="cm-confetti" ref={ref} aria-hidden="true">
+    <div className="cm-confetti" aria-hidden="true">
       {pieces.map((p) => (
         <span
           key={p.id}

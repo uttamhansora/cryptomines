@@ -1,6 +1,17 @@
 /* ============================================================
-   CryptoMines — full stylesheet (BEM-ish `cm-` namespace)
-   Animations use transform/opacity only; reduced-motion honored.
+   CryptoMines — reference-image stylesheet (`cm-` namespace)
+
+   DESIGN NOTES
+   • Layout order (spec §2/§22): HEADER → full-width CRYPTO CHAIN strip
+     → [BOARD | CONTROL PANEL] two columns → bottom info cards.
+   • Board is the focal point: metallic frame, cyan glow edge, corner
+     brackets, 5×5 grid with 10px gutters.
+   • Tiles are "physical": layered gradients + inner bevels, never flat.
+   • PERFORMANCE (§24): animations use transform/opacity only; static
+     box-shadows are fine, animated shadows/filters are not. No per-frame
+     blur/backdrop-filter on hot paths (board/tiles). Revealed icons mount
+     in the same commit as the state change — CSS flips over them but never
+     gates them.
    ============================================================ */
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -43,6 +54,7 @@ button:disabled { cursor: not-allowed; }
 
 .cm-bg { position: fixed; inset: 0; pointer-events: none; z-index: 0; }
 
+/* Soft radial teal atmosphere behind the board — single static gradient */
 .cm-bg-glow {
   position: absolute;
   left: 34%; top: 46%;
@@ -51,10 +63,11 @@ button:disabled { cursor: not-allowed; }
   background: radial-gradient(ellipse at center, rgba(34, 211, 238, 0.10) 0%, rgba(6, 182, 212, 0.05) 40%, transparent 70%);
 }
 
+/* Faint vertical light streaks at the sides */
 .cm-bg-streak {
   position: absolute; top: 0; bottom: 0; width: 2px;
   background: linear-gradient(180deg, transparent, rgba(34, 211, 238, 0.14) 30%, rgba(34, 211, 238, 0.06) 70%, transparent);
-  filter: blur(0.5px);
+  filter: blur(0.5px); /* one-time paint cost, not animated */
 }
 .cm-bg-streak--l { left: 4vw; }
 .cm-bg-streak--r { right: 4vw; }
@@ -64,13 +77,16 @@ button:disabled { cursor: not-allowed; }
   max-width: 1300px;
   margin: 0 auto;
   padding: var(--s-4) var(--s-4) var(--s-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-3);
 }
 
 /* ---------------- Header ---------------- */
 .cm-header {
   display: flex; align-items: center; justify-content: space-between;
   gap: var(--s-3);
-  padding: var(--s-2) 0 var(--s-4);
+  padding: var(--s-2) 0 var(--s-3);
   flex-wrap: wrap;
 }
 
@@ -97,23 +113,25 @@ button:disabled { cursor: not-allowed; }
 
 .cm-header-utils { display: flex; align-items: center; gap: var(--s-2); }
 
+/* Stacked BALANCE label + token/value row (reference HUD style) */
 .cm-balance-chip {
-  display: flex; align-items: center; gap: var(--s-2);
+  display: flex; flex-direction: column; justify-content: center; gap: 1px;
   padding: var(--s-1) var(--s-3);
-  height: 44px;
+  min-height: 44px;
   border-radius: var(--r-sm);
   border: 1px solid var(--border);
   background: var(--panel);
 }
 .cm-balance-label {
-  font-size: var(--fs-xs); letter-spacing: 0.18em; color: var(--muted); font-weight: 600;
+  font-size: 10px; letter-spacing: 0.22em; color: var(--muted); font-weight: 700;
 }
+.cm-balance-row { display: flex; align-items: center; gap: var(--s-2); }
 .cm-token {
   display: grid; place-items: center;
-  width: 20px; height: 20px; border-radius: 50%;
+  width: 18px; height: 18px; border-radius: 50%;
   background: var(--grad-accent);
   color: #04121a;
-  font-size: 11px; font-weight: 800;
+  font-size: 10px; font-weight: 800;
 }
 .cm-balance-value { color: var(--accent); font-weight: 700; font-size: var(--fs-md); }
 
@@ -123,13 +141,33 @@ button:disabled { cursor: not-allowed; }
   border-radius: var(--r-sm);
   border: 1px solid var(--border);
   background: var(--panel);
-  color: var(--muted);
-  transition: color var(--dur-fast) var(--ease-out), border-color var(--dur-fast) var(--ease-out), box-shadow var(--dur-fast) var(--ease-out), transform var(--dur-fast) var(--ease-out);
+  color: var(--accent);
+  transition: color var(--dur-fast) var(--ease-out), border-color var(--dur-fast), box-shadow var(--dur-fast), transform var(--dur-fast);
 }
 .cm-icon-btn:hover:not(:disabled) {
-  color: var(--accent); border-color: var(--border-strong); box-shadow: var(--glow-accent);
+  border-color: var(--border-strong); box-shadow: var(--glow-accent);
 }
 .cm-icon-btn:active { transform: scale(0.94); }
+.cm-icon-btn.is-off { color: var(--muted); }
+
+/* ---------------- Crypto Chain strip (full width, under header) ---------------- */
+.cm-chain-strip {
+  display: flex; align-items: center; gap: var(--s-4);
+  padding: var(--s-3) var(--s-4);
+  background: var(--grad-panel);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  box-shadow: var(--shadow-panel);
+}
+.cm-chain-title {
+  display: inline-flex; align-items: center; gap: var(--s-2);
+  font-size: var(--fs-xs); font-weight: 700;
+  letter-spacing: 0.18em; color: var(--muted);
+  white-space: nowrap;
+}
+.cm-title-icon { color: var(--accent); }
+.cm-chain-strip .cm-stepper { flex: 1; max-width: 520px; }
+.cm-chain-strip .cm-counter { margin-left: auto; white-space: nowrap; }
 
 /* ---------------- Layout: board | panel ---------------- */
 .cm-layout {
@@ -152,7 +190,7 @@ button:disabled { cursor: not-allowed; }
 
 .cm-card-head {
   display: flex; align-items: center; justify-content: space-between;
-  margin-bottom: var(--s-3);
+  margin-bottom: var(--s-2);
 }
 
 .cm-card-title {
@@ -160,12 +198,11 @@ button:disabled { cursor: not-allowed; }
   font-size: var(--fs-xs); font-weight: 700;
   letter-spacing: 0.18em; color: var(--muted);
 }
-.cm-title-icon { color: var(--accent); }
 
 .cm-counter strong { color: var(--text); font-size: var(--fs-md); }
 .cm-counter-max { color: var(--muted); font-size: var(--fs-sm); }
 
-/* ---------------- Chain stepper ---------------- */
+/* ---------------- Chain stepper nodes ---------------- */
 .cm-stepper {
   position: relative;
   display: flex; justify-content: space-between; align-items: center;
@@ -192,18 +229,17 @@ button:disabled { cursor: not-allowed; }
 .cm-node {
   position: relative; z-index: 1;
   display: grid; place-items: center;
-  width: 32px; height: 32px;
+  width: 30px; height: 30px;
   border-radius: 50%;
   background: var(--panel-2);
   border: 1px solid rgba(124, 141, 166, 0.35);
   transition: transform var(--dur-med) var(--ease-out), border-color var(--dur-med), background var(--dur-med), box-shadow var(--dur-med);
 }
-.cm-node-inner { font-size: 12px; font-weight: 700; color: var(--muted); }
+.cm-node-inner { font-size: 11px; font-weight: 700; color: var(--muted); }
 
 .cm-node.is-next {
   border-color: var(--accent);
   box-shadow: 0 0 0 3px rgba(34, 211, 238, 0.15);
-  animation: node-pulse 1.6s ease-in-out infinite;
 }
 .cm-node.is-done {
   background: var(--grad-accent);
@@ -212,11 +248,6 @@ button:disabled { cursor: not-allowed; }
   transform: scale(1.12);
 }
 .cm-node.is-done .cm-node-inner { color: #04121a; }
-
-@keyframes node-pulse {
-  0%, 100% { box-shadow: 0 0 0 2px rgba(34, 211, 238, 0.10); }
-  50%      { box-shadow: 0 0 0 6px rgba(34, 211, 238, 0.20); }
-}
 
 /* ---------------- Tagline ---------------- */
 .cm-tagline {
@@ -228,25 +259,44 @@ button:disabled { cursor: not-allowed; }
   user-select: none;
 }
 
-/* ---------------- Board frame ---------------- */
+/* ---------------- Board frame (metallic, glowing) ---------------- */
 .cm-board-frame {
   position: relative;
   padding: var(--s-4);
   border-radius: var(--r-lg);
-  background: linear-gradient(160deg, #0c2230 0%, #081522 60%, #060f1b 100%);
-  border: 3px solid rgba(13, 42, 58, 0.9);
+  /* dark metal outer band */
+  background: linear-gradient(160deg, #0e2734 0%, #081522 55%, #050d17 100%);
+  border: 1px solid rgba(34, 211, 238, 0.28);
   box-shadow:
-    inset 0 0 0 1px rgba(34, 211, 238, 0.08),
-    inset 0 4px 18px rgba(0, 0, 0, 0.6),
-    0 24px 60px rgba(0, 0, 0, 0.55);
+    0 0 0 1px rgba(0, 0, 0, 0.6),
+    0 0 26px rgba(34, 211, 238, 0.12),          /* subtle cyan aura        */
+    0 24px 60px rgba(0, 0, 0, 0.55);            /* depth                   */
+}
+
+/* Inner beveled well holding the grid */
+.cm-board-inner {
+  position: absolute;
+  inset: var(--s-2);
+  border-radius: var(--r-md);
+  background: radial-gradient(ellipse at 50% 30%, rgba(34, 211, 238, 0.05), transparent 65%), #060f1b;
+  border: 1px solid rgba(34, 211, 238, 0.10);
+  box-shadow: inset 0 2px 18px rgba(0, 0, 0, 0.7);
+  overflow: hidden;
+  pointer-events: none;
+}
+.cm-board-watermark {
+  position: absolute; inset: 0;
+  display: grid; place-items: center;
+  color: rgba(34, 211, 238, 0.05);              /* faint brand mark, static */
 }
 
 .cm-bracket {
   position: absolute; width: 22px; height: 22px;
   border: 2px solid var(--accent);
-  opacity: 0.8;
-  filter: drop-shadow(0 0 6px rgba(34, 211, 238, 0.6));
+  opacity: 0.85;
+  filter: drop-shadow(0 0 6px rgba(34, 211, 238, 0.6)); /* painted once */
   pointer-events: none;
+  z-index: 2;
 }
 .cm-bracket--tl { top: 8px; left: 8px; border-right: 0; border-bottom: 0; border-radius: 6px 0 0 0; }
 .cm-bracket--tr { top: 8px; right: 8px; border-left: 0; border-bottom: 0; border-radius: 0 6px 0 0; }
@@ -254,6 +304,7 @@ button:disabled { cursor: not-allowed; }
 .cm-bracket--br { bottom: 8px; right: 8px; border-left: 0; border-top: 0; border-radius: 0 0 6px 0; }
 
 .cm-board {
+  position: relative; z-index: 1;
   display: grid;
   grid-template-columns: repeat(5, 1fr);
   gap: 10px;
@@ -261,6 +312,7 @@ button:disabled { cursor: not-allowed; }
 /* Idle state: dim the field so "Start Round" is the obvious next step */
 .cm-board[data-disabled='true'] { opacity: 0.72; }
 
+/* Mine detonation shake — transform only, applied to the frame element */
 .cm-board-frame.is-shaking { animation: board-shake 460ms cubic-bezier(0.36, 0.07, 0.19, 0.97); }
 @keyframes board-shake {
   10%, 90% { transform: translateX(-2px); }
@@ -269,75 +321,76 @@ button:disabled { cursor: not-allowed; }
   40%, 60% { transform: translateX(7px); }
 }
 
-/* ---------------- Tiles ---------------- */
+/* ---------------- Tiles ----------------
+   IMPORTANT (§6): both faces live in normal flow of the button; the back
+   face mounts WITH THE RESULT in the same React commit. The reveal motion
+   is a lightweight pop/scale keyframe on already-painted content — the
+   symbol is never gated by an animation. */
 .cm-tile {
   position: relative;
   aspect-ratio: 1;
-  perspective: 600px;
   border-radius: var(--r-md);
+  isolation: isolate;
 }
-
-.cm-tile-flip {
-  position: absolute; inset: 0;
-  transform-style: preserve-3d;
-  transition: transform 400ms var(--ease-out);
-}
-.cm-tile--safe .cm-tile-flip,
-.cm-tile--safe-vault .cm-tile-flip,
-.cm-tile--mine .cm-tile-flip,
-.cm-tile--mine-ghost .cm-tile-flip { transform: rotateY(180deg); }
 
 .cm-tile-face {
   position: absolute; inset: 0;
   display: grid; place-items: center;
   border-radius: var(--r-md);
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
 }
 
-/* Front face — raised beveled navy tile with faint hex logo */
+/* Closed face — raised beveled navy metal tile */
 .cm-tile-front {
   background: var(--grad-tile);
   border: 1px solid rgba(230, 241, 255, 0.08);
   box-shadow: var(--shadow-tile);
   transition: transform var(--dur-fast) var(--ease-out), border-color var(--dur-fast), box-shadow var(--dur-fast);
+  z-index: 1;
 }
-.cm-tile-hex { position: relative; color: rgba(34, 211, 238, 0.16); display: grid; place-items: center; }
-.cm-tile-dot {
-  position: absolute; width: 4px; height: 4px; border-radius: 50%;
-  background: rgba(34, 211, 238, 0.25);
-}
+.cm-tile-hex { color: rgba(34, 211, 238, 0.35); display: grid; place-items: center; }
 
+/* Subtle hover: brightness + cyan edge + 2px lift. No layout shift. */
 .cm-tile:not(:disabled):hover .cm-tile-front {
   transform: translateY(-2px);
   border-color: var(--border-strong);
   box-shadow: var(--shadow-tile), var(--glow-accent);
+  filter: brightness(1.12);
 }
 .cm-tile:not(:disabled):active .cm-tile-front { transform: scale(0.96); }
 
-/* Back face */
+/* Opened face — sits above the front once revealed */
 .cm-tile-back {
-  transform: rotateY(180deg);
-  background: linear-gradient(165deg, #0a1a2b, #060d18);
+  z-index: 2;
   border: 1px solid rgba(230, 241, 255, 0.06);
   box-shadow: inset 0 0 18px rgba(0, 0, 0, 0.6);
+  background: linear-gradient(165deg, #0a1a2b, #060d18);
+  animation: tile-open 260ms var(--ease-out);   /* micro-flip feel, icon already visible */
+}
+.cm-tile--safe .cm-tile-back,
+.cm-tile--safe-vault .cm-tile-back { background: var(--grad-tile-safe); border-color: rgba(245, 185, 76, 0.35); }
+.cm-tile--mine .cm-tile-back,
+.cm-tile--mine-ghost .cm-tile-back { background: var(--grad-tile-mine); border-color: rgba(255, 77, 109, 0.3); }
+
+@keyframes tile-open {
+  from { transform: rotateY(88deg); opacity: 0.35; }
+  to   { transform: rotateY(0deg); opacity: 1; }
 }
 
-/* Safe gem */
+/* Safe reward gem — GOLD per reference (§7) */
 .cm-gem-wrap { position: relative; display: grid; place-items: center; }
 .cm-gem {
   width: 46%; height: 46%;
   clip-path: polygon(50% 0, 100% 35%, 82% 100%, 18% 100%, 0 35%);
-  background: linear-gradient(160deg, #a5f3fc 0%, var(--accent) 45%, var(--accent-2) 100%);
-  box-shadow: 0 0 18px rgba(34, 211, 238, 0.8);
+  background: linear-gradient(160deg, #ffe6a8 0%, var(--gold) 45%, #c98a1e 100%);
+  box-shadow: 0 0 18px rgba(245, 185, 76, 0.85);
   animation: gem-pulse 1.6s ease-in-out infinite;
 }
 @keyframes gem-pulse {
-  0%, 100% { transform: scale(1); filter: brightness(1); }
-  50%      { transform: scale(1.08); filter: brightness(1.25); }
+  0%, 100% { transform: scale(1); }
+  50%      { transform: scale(1.08); }
 }
 
-/* Vault symbol badge on a safe tile */
+/* Vault symbol badge on a safe tile (violet accent kept distinct) */
 .cm-vault-mark {
   position: absolute; top: 8%; right: 8%;
   display: grid; place-items: center;
@@ -348,17 +401,17 @@ button:disabled { cursor: not-allowed; }
   box-shadow: var(--glow-violet);
 }
 
-/* Particle burst on reveal — 6 rays via conic gradient ring */
+/* Particle burst on reveal — 6 rays via conic gradient ring (static paint) */
 .cm-burst {
   position: absolute; inset: -30%;
   border-radius: 50%;
   background: conic-gradient(from 0deg,
-    rgba(34, 211, 238, 0.9) 0 4deg, transparent 4deg 60deg,
-    rgba(34, 211, 238, 0.9) 60deg 64deg, transparent 64deg 120deg,
-    rgba(34, 211, 238, 0.9) 120deg 124deg, transparent 124deg 180deg,
-    rgba(34, 211, 238, 0.9) 180deg 184deg, transparent 184deg 240deg,
-    rgba(34, 211, 238, 0.9) 240deg 244deg, transparent 244deg 300deg,
-    rgba(34, 211, 238, 0.9) 300deg 304deg, transparent 304deg 360deg);
+    rgba(245, 185, 76, 0.9) 0 4deg, transparent 4deg 60deg,
+    rgba(245, 185, 76, 0.9) 60deg 64deg, transparent 64deg 120deg,
+    rgba(245, 185, 76, 0.9) 120deg 124deg, transparent 124deg 180deg,
+    rgba(245, 185, 76, 0.9) 180deg 184deg, transparent 184deg 240deg,
+    rgba(245, 185, 76, 0.9) 240deg 244deg, transparent 244deg 300deg,
+    rgba(245, 185, 76, 0.9) 300deg 304deg, transparent 304deg 360deg);
   -webkit-mask: radial-gradient(circle, transparent 34%, black 38%, transparent 62%);
           mask: radial-gradient(circle, transparent 34%, black 38%, transparent 62%);
   animation: burst 550ms var(--ease-out) forwards;
@@ -369,7 +422,7 @@ button:disabled { cursor: not-allowed; }
   to   { transform: scale(1.5) rotate(40deg); opacity: 0; }
 }
 
-/* Mine */
+/* Mine — premium red orb with cross spikes (§8) */
 .cm-mine-wrap { position: relative; display: grid; place-items: center; }
 .cm-mine {
   width: 46%; height: 46%; border-radius: 50%;
@@ -396,9 +449,9 @@ button:disabled { cursor: not-allowed; }
   to   { transform: scale(1.8); opacity: 0; }
 }
 
-/* Ghost mines revealed after a bust — dimmed */
-.cm-tile--mine-ghost .cm-tile-flip { transition-duration: 700ms; }
-.cm-tile--mine-ghost .cm-mine { opacity: 0.35; box-shadow: none; filter: grayscale(0.4); }
+/* Ghost mines revealed after a bust — dimmed, no flash animation */
+.cm-tile--mine-ghost .cm-tile-back { animation-duration: 500ms; }
+.cm-tile--mine-ghost .cm-mine { opacity: 0.35; box-shadow: none; }
 
 /* Dim unrevealed tiles after bust/cashout */
 .cm-tile--hidden:disabled { opacity: 0.55; }
@@ -410,17 +463,17 @@ button:disabled { cursor: not-allowed; }
 .cm-vault-slots { display: flex; gap: var(--s-2); margin-bottom: var(--s-2); }
 .cm-vault-slot {
   display: grid; place-items: center;
-  width: 34px; height: 34px; border-radius: var(--r-sm);
+  width: 32px; height: 32px; border-radius: var(--r-sm);
   border: 1px dashed rgba(124, 141, 166, 0.35);
   color: rgba(124, 141, 166, 0.4);
   transition: color var(--dur-med) var(--ease-out), border-color var(--dur-med), box-shadow var(--dur-med), transform var(--dur-med);
 }
 .cm-vault-slot.is-filled {
   border-style: solid;
-  border-color: var(--violet);
-  color: var(--violet);
-  background: rgba(167, 139, 250, 0.1);
-  box-shadow: var(--glow-violet);
+  border-color: var(--gold);
+  color: var(--gold);
+  background: rgba(245, 185, 76, 0.1);
+  box-shadow: 0 0 14px rgba(245, 185, 76, 0.35);
   transform: scale(1.06);
 }
 
@@ -431,7 +484,7 @@ button:disabled { cursor: not-allowed; }
   border: 1px solid var(--border);
   border-radius: var(--r-lg);
   padding: var(--s-4);
-  box-shadow: var(--shadow-panel);
+  box-shadow: var(--shadow-panel), inset 0 0 40px rgba(34, 211, 238, 0.03);
   position: sticky; top: var(--s-4);
 }
 
@@ -447,10 +500,11 @@ button:disabled { cursor: not-allowed; }
   box-shadow: 0 0 8px var(--accent);
 }
 
-/* Multiplier hero */
+/* Multiplier hero — circular HUD dial */
 .cm-mult-block { display: flex; flex-direction: column; align-items: center; gap: var(--s-3); }
 
 .cm-mult-badge {
+  position: relative;
   display: grid; place-items: center;
   width: 118px; height: 118px; border-radius: 50%;
   background: radial-gradient(circle at 50% 35%, #10233a 0%, #081120 70%);
@@ -460,7 +514,25 @@ button:disabled { cursor: not-allowed; }
 }
 .cm-mult-badge.is-live { box-shadow: inset 0 0 24px rgba(0, 0, 0, 0.7), var(--glow-accent); }
 
-.cm-mult-value { font-size: var(--fs-xl); font-weight: 800; color: var(--accent); text-shadow: 0 0 22px rgba(34, 211, 238, 0.55); }
+/* thin decorative inner ring (static, cheap) */
+.cm-mult-ring {
+  position: absolute; inset: 9px;
+  border-radius: 50%;
+  border: 1px dashed rgba(34, 211, 238, 0.22);
+  pointer-events: none;
+}
+.cm-mult-watermark {
+  position: absolute; inset: 0;
+  display: grid; place-items: center;
+  color: rgba(34, 211, 238, 0.07);
+  pointer-events: none;
+}
+
+.cm-mult-value {
+  position: relative;
+  font-size: var(--fs-xl); font-weight: 800; color: var(--accent);
+  text-shadow: 0 0 22px rgba(34, 211, 238, 0.55);
+}
 .cm-mult-x { font-size: 1rem; margin-left: 2px; color: var(--accent); }
 
 @keyframes mult-pop {
@@ -560,7 +632,7 @@ button:disabled { cursor: not-allowed; }
 }
 .cm-chip:disabled { opacity: 0.45; }
 
-/* Primary CTA */
+/* Primary CTA — big cyan Start Round / green Cash Out */
 .cm-cta {
   width: 100%;
   min-height: 64px;
@@ -592,7 +664,7 @@ button:disabled { cursor: not-allowed; }
   50%      { filter: brightness(1.12); }
 }
 
-/* Buy Crypto Vault — gradient-border premium card with shimmer */
+/* Crypto Vault purchase card — cyan-outlined premium card (§15) */
 .cm-vault-card {
   position: relative;
   display: flex; flex-direction: column; align-items: center; gap: var(--s-1);
@@ -600,13 +672,13 @@ button:disabled { cursor: not-allowed; }
   border-radius: var(--r-lg);
   background:
     linear-gradient(var(--panel), var(--panel)) padding-box,
-    linear-gradient(135deg, var(--accent), var(--violet) 55%, var(--gold)) border-box;
+    linear-gradient(135deg, var(--accent), var(--accent-2) 60%, rgba(34, 211, 238, 0.2)) border-box;
   border: 1px solid transparent;
   overflow: hidden;
   transition: transform var(--dur-fast) var(--ease-out), box-shadow var(--dur-fast);
 }
 .cm-vault-card::after {
-  /* shimmer sweep */
+  /* shimmer sweep — transform only */
   content: '';
   position: absolute; top: 0; bottom: 0; width: 60%;
   left: -80%;
@@ -618,7 +690,7 @@ button:disabled { cursor: not-allowed; }
   0%   { transform: translateX(0); }
   60%, 100% { transform: translateX(300%); }
 }
-.cm-vault-card:hover:not(:disabled) { transform: translateY(-2px); box-shadow: var(--glow-violet); }
+.cm-vault-card:hover:not(:disabled) { transform: translateY(-2px); box-shadow: var(--glow-accent); }
 .cm-vault-card:disabled { opacity: 0.5; }
 .cm-vault-card:disabled::after { animation: none; }
 
@@ -626,9 +698,9 @@ button:disabled { cursor: not-allowed; }
   display: grid; place-items: center;
   width: 40px; height: 40px; border-radius: 50%;
   margin-bottom: var(--s-1);
-  background: rgba(167, 139, 250, 0.12);
-  border: 1px solid rgba(167, 139, 250, 0.4);
-  color: var(--violet);
+  background: rgba(34, 211, 238, 0.1);
+  border: 1px solid var(--border-strong);
+  color: var(--accent);
 }
 .cm-vault-label { font-size: var(--fs-xs); letter-spacing: 0.18em; color: var(--muted); font-weight: 700; }
 .cm-vault-price { font-size: var(--fs-lg); font-weight: 800; color: var(--accent); text-shadow: 0 0 14px rgba(34, 211, 238, 0.45); }
@@ -640,7 +712,7 @@ button:disabled { cursor: not-allowed; }
   display: grid; place-items: center;
   padding: var(--s-4);
   background: rgba(3, 8, 15, 0.72);
-  backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);      /* overlay only — not on gameplay hot path */
   -webkit-backdrop-filter: blur(6px);
   animation: fade-in 200ms var(--ease-out);
 }
@@ -656,7 +728,7 @@ button:disabled { cursor: not-allowed; }
   animation: modal-in 280ms var(--ease-out);
   outline: none;
 }
-.cm-modal--accent { border-color: rgba(167, 139, 250, 0.5); box-shadow: var(--shadow-panel), var(--glow-violet); }
+.cm-modal--accent { border-color: rgba(245, 185, 76, 0.5); box-shadow: var(--shadow-panel), 0 0 26px rgba(245, 185, 76, 0.35); }
 
 .cm-modal-close {
   position: absolute; top: var(--s-3); right: var(--s-3);
@@ -677,8 +749,8 @@ button:disabled { cursor: not-allowed; }
 .cm-modal-text { font-size: var(--fs-sm); color: var(--muted); line-height: 1.6; margin-bottom: var(--s-4); }
 
 .cm-win-amount {
-  font-size: 2.6rem; font-weight: 800; color: var(--accent);
-  text-shadow: 0 0 28px rgba(34, 211, 238, 0.6);
+  font-size: 2.6rem; font-weight: 800; color: var(--gold);
+  text-shadow: 0 0 28px rgba(245, 185, 76, 0.6);
   margin-bottom: var(--s-2);
   animation: mult-pop 420ms var(--ease-out);
 }
@@ -739,13 +811,15 @@ button:disabled { cursor: not-allowed; }
 
 @media (max-width: 640px) {
   .cm-container { padding: var(--s-3) var(--s-3) var(--s-6); }
+  .cm-chain-strip { flex-wrap: wrap; gap: var(--s-2); }
+  .cm-chain-strip .stepper { order: 3; width: 100%; max-width: none; }
   .cm-infocards { grid-template-columns: 1fr; }
   .cm-brand-name { font-size: var(--fs-md); letter-spacing: 0.16em; }
   .cm-balance-label { display: none; }
   .cm-board { gap: 6px; }
   .cm-board-frame { padding: var(--s-3); }
   .cm-chips { grid-template-columns: repeat(6, 1fr); gap: var(--s-1); }
-  .cm-chip { min-height: 40px; }
+  .cm-chip { min-height: 44px; }        /* keep touch targets ≥44px */
   .cm-mult-badge { width: 100px; height: 100px; }
 }
 
@@ -756,6 +830,5 @@ button:disabled { cursor: not-allowed; }
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
-  .cm-tile-flip { transition: none; }
   .cm-confetti { display: none; }
 }
