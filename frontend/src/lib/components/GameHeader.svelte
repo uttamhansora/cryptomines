@@ -33,7 +33,8 @@
     </div>
     <button
       type="button"
-      class="icon-btn"
+      class="icon-btn tip"
+      data-tip={soundOn ? 'Sound on — click to mute' : 'Sound off — click to enable'}
       aria-pressed={soundOn}
       title={soundOn ? 'Mute sound' : 'Enable sound'}
       aria-label={soundOn ? 'Mute sound' : 'Enable sound'}
@@ -59,7 +60,7 @@
         </svg>
       {/if}
     </button>
-    <button type="button" class="icon-btn" title="Game rules" aria-label="Game rules" onclick={onRules}>
+    <button type="button" class="icon-btn tip" data-tip="How to play&#10;Rules & bonus features" title="Game rules" aria-label="Game rules" onclick={onRules}>
       <!-- Info "i" glyph -->
       <svg viewBox="0 0 64 64" width="18" height="18" aria-hidden="true" focusable="false">
         <circle cx="32" cy="32" r="25" fill="none" stroke="currentColor" stroke-width="5" />
@@ -192,6 +193,64 @@
     border-color: rgba(34, 211, 238, 0.35);
   }
   .icon-btn[aria-pressed='false'] {
-    color: #7d8ba1;
+    color: #9fb0c2; /* AA contrast vs the dark chip background */
+  }
+
+  /* ── Glass header bar (v2 redesign) ─────────────────────────────── */
+  .header {
+    padding: var(--space-2) var(--space-3);
+    border-radius: var(--radius-lg);
+    background: linear-gradient(180deg, rgba(16, 24, 40, 0.62), rgba(9, 14, 24, 0.72));
+    border: 1px solid var(--border);
+    box-shadow: inset 0 1px 0 var(--hairline-top), var(--shadow-md);
+    backdrop-filter: blur(var(--glass-blur));
+    -webkit-backdrop-filter: blur(var(--glass-blur));
+  }
+  h1 {
+    background: linear-gradient(92deg, #e0f7fa 20%, var(--primary-light) 70%, var(--secondary-light));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent; /* fallback below keeps it visible if clip unsupported */
+  }
+  @supports not (background-clip: text) {
+    h1 { color: #e0f7fa; }
+  }
+  /* gradient-clipped heading can't paint its own span color — restore accent */
+  h1 span {
+    -webkit-text-fill-color: initial;
+  }
+  .brand {
+    gap: 0.65rem;
+  }
+  .mark {
+    width: 38px;
+    height: 38px;
+    border-radius: var(--radius-md);
+    background: var(--grad-hero-soft);
+    border: 1px solid var(--border-strong);
+    box-shadow: var(--glow-cyan), inset 0 1px 0 var(--hairline-top);
+  }
+  .balance {
+    flex-direction: row;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.4rem 0.8rem;
+    border-radius: var(--radius-pill);
+    background: var(--grad-hero-soft);
+    border: 1px solid var(--border-strong);
+  }
+  .balance .label {
+    margin: 0;
+  }
+  .value strong {
+    color: var(--highlight-soft);
+    font-size: 1.05rem;
+  }
+  /* icon buttons meet the 44px touch-target minimum */
+  .icon-btn {
+    width: 44px;
+    height: 44px;
+    border-radius: var(--radius-md);
   }
 </style>
