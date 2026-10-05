@@ -199,14 +199,11 @@
     position: relative;
     overflow: hidden;
     transform: translate3d(0, -1px, 0);
-    /* Only compositor-friendly properties animate here. box-shadow/border are
-       intentionally NOT transitioned: with GSAP already driving the reveal and
-       hover lift per frame, their transitions forced extra paint work during
-       gameplay (identical resting appearance, no lost motion). */
-    transition: transform 0.16s var(--ease-out-soft);
-    /* Promote every tile to its own compositor layer once, up front: press,
-       hover-lift and lid-flip transforms then run purely on the GPU with zero
-       main-thread style/layout cost at click time (sub-frame visual response). */
+    /* No CSS transition on transform here: during a reveal GSAP writes the
+       transform every frame, and any transition duration would make the browser
+       ALSO interpolate between those per-frame values — compounding into smeared,
+       laggy motion (transition delay == perceived animation delay). Hover lift
+       and press still animate smoothly via their GSAP tweens / keyframes. */
     will-change: transform;
     backface-visibility: hidden;
     transform-style: preserve-3d;
@@ -331,7 +328,10 @@
     perspective: 300px;
   }
   .tile.just-revealed .sym-wrap {
-    animation: sym-in 0.3s cubic-bezier(0.22, 1, 0.36, 1) 0.1s both;
+    /* Zero animation-delay: the icon entrance starts on the very first frame
+       after the click/confirmation commit. Overlapping keyframe timings carry
+       the stagger feel without holding any pixels back. */
+    animation: sym-in 0.3s cubic-bezier(0.22, 1, 0.36, 1) both;
   }
   /* one-shot reveal glow: peaks ~250ms then settles — never left glowing forever */
   .tile.just-revealed.safe .tile-glow {
@@ -368,7 +368,7 @@
       opacity: 0;
       transform: scale(0.55) rotateY(70deg);
     }
-    60% {
+    25% {
       opacity: 1;
       transform: scale(1.06) rotateY(-8deg);
     }

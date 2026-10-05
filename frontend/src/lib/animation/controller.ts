@@ -14,8 +14,16 @@ export interface AnimContext {
   onChainComplete?: () => void;
 }
 
-/** Hard ceiling for any single tile interaction animation (seconds). */
+/**
+ * Hard ceiling for any single tile-interaction / hand-off animation (seconds).
+ * Every timeline below is authored to finish well under this bound; `settle`
+ * additionally guarantees the promise resolves within it even if rAF is
+ * throttled or the tween somehow never completes.
+ */
 const MAX_ANIM_SECONDS = 1.0;
+
+/** Clamp an authored duration so no single tween can exceed the 1s ceiling. */
+const capDur = (d: number): number => Math.min(d, MAX_ANIM_SECONDS);
 
 export class AnimationController {
   private active = gsap.timeline();
@@ -24,17 +32,21 @@ export class AnimationController {
    * Await a cosmetic timeline WITHOUT ever blocking longer than the 1s cap —
    * even if GSAP's global timeline is paused (devtools/debug), throttled by
    * the browser in a background tab, or the tween somehow never completes.
+   * The timer is CLEARED as soon as the tween finishes naturally, so it is a
+   * safety net only — never an artificial delay on the happy path.
    */
   private settle(tl: gsap.core.Timeline): Promise<void> {
     return new Promise((resolve) => {
       let done = false;
+      let guard = 0;
       const finish = () => {
         if (done) return;
         done = true;
+        clearTimeout(guard);
         resolve();
       };
       tl.eventCallback('onComplete', finish);
-      window.setTimeout(finish, MAX_ANIM_SECONDS * 1000);
+      guard = window.setTimeout(finish, MAX_ANIM_SECONDS * 1000);
     });
   }
 
@@ -72,13 +84,17 @@ export class AnimationController {
     if (lid) tl.to(lid, { rotateX: -72, opacity: 0, duration: 0.14, transformOrigin: '50% 0%' }, '-=0.02');
     this.pendingReveals.set(index, tl);
     tl.play();
-    // Safety net: never leave an orphaned tween if the round ends abnormally.
-    window.setTimeout(() => {
+    // Safety net ONLY: drop the map entry after the pending animation has long
+    // since finished naturally (total tween length ≈ 0.26s). The guard is
+    // cleared the moment the tween completes, so it never delays any visual —
+    // it just prevents orphaned entries if a round aborts abnormally.
+    const guard = window.setTimeout(() => {
       if (this.pendingReveals.get(index) === tl) {
         this.pendingReveals.delete(index);
         tl.kill();
       }
-    }, 2500);
+    }, MAX_ANIM_SECONDS * 1000);
+    tl.eventCallback('onComplete', () => clearTimeout(guard));
   }
 
   /** Hand a pending reveal's timeline over to the confirmed reveal animation. */
@@ -229,11 +245,11 @@ export class AnimationController {
     tl.fromTo(sym, { scale: 0.5, opacity: 0, y: 10, rotate: -8 }, { scale: 1, opacity: 1, y: 0, rotate: 0, duration: 0.32, ease: 'back.out(1.7)' }, '-=0.05');
     if (glow) {
       tl.fromTo(glow, { opacity: 0, scale: 0.85 }, { opacity: kind === 'vault' ? 0.75 : 0.55, scale: 1.05, duration: 0.18 }, '-=0.28')
-        .to(glow, { opacity: kind === 'vault' ? 0.3 : 0.16, scale: 1, duration: 0.32 });
+        .to(glow, { opacity: kind === 'vault' ? 0.3 : 0.16, scale: 1, duration: capDur(0.32) });
     }
     const burst = el.querySelector('.tile-burst');
     if (burst) {
-      tl.fromTo(burst, { opacity: 0.85, scale: 0.7 }, { opacity: 0, scale: 1.25, duration: 0.38, ease: 'power2.out' }, '-=0.32');
+      tl.fromTo(burst, { opacity: 0.85, scale: 0.7 }, { opacity: 0, scale: 1.25, duration: capDur(0.38), ease: 'power2.out' }, '-=0.32');
     }
     tl.to(target, { y: 0, scale: 1, duration: 0.12, ease: 'power2.out' }, '-=0.08');
     this.burstOnTile(el, seed, palette);
@@ -269,13 +285,13 @@ export class AnimationController {
       }
       if (flash) {
         tl.to(flash, { opacity: 0.55, duration: 0.04, ease: 'power1.in' }, '-=0.14')
-          .to(flash, { opacity: 0, duration: 0.42, ease: 'power2.out' });
+          .to(flash, { opacity: 0, duration: capDur(0.42), ease: 'power2.out' });
       }
       if (shock) {
         tl.fromTo(
           shock,
           { scale: 0.2, opacity: 0.7 },
-          { scale: 1.5, opacity: 0, duration: 0.62, ease: 'power2.out', transformOrigin: '50% 50%' },
+          { scale: 1.5, opacity: 0, duration: capDur(0.62), ease: 'power2.out', transformOrigin: '50% 50%' },
           '-=0.32',
         );
       }
