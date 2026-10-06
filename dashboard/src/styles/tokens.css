@@ -48,15 +48,23 @@
   --glow-gold: 0 0 18px rgba(255, 201, 77, 0.45);
 
   /* ---- Radii / spacing ---- */
+  /* Compact scale: tuned so header + board + sidebar + footer all fit
+     one standard desktop viewport (≥ ~700px tall) with no vertical scroll. */
   --r-sm: 8px;
   --r-md: 12px;
   --r-lg: 18px;
   --r-pill: 999px;
   --s-1: 4px;
-  --s-2: 8px;
-  --s-3: 12px;
-  --s-4: 16px;
-  --s-6: 24px;
+  --s-2: 6px;                 /* was 8px  — tighter panel padding   */
+  --s-3: 9px;                 /* was 12px — tighter inner gaps      */
+  --s-4: 12px;                /* was 16px — tighter section gaps    */
+  --s-6: 14px;                /* was 24px — lighter page bottom pad */
+
+  /* ---- Board sizing knobs (single source of truth for the grid) ---- */
+  --board-max: 500px;         /* metallic frame width cap (was 560px)          */
+  --tile-size: min(88px, 16vw); /* tile edge incl. gap → ≈81px plates         */
+  --grid-gap: 6px;            /* gutter between tiles (was 7px)               */
+  --frame-pad: 8px;           /* metallic rim padding (was 10px)              */
 
   /* ---- Type ---- */
   --font-display: 'Orbitron', 'Rajdhani', sans-serif;
