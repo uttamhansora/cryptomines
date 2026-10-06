@@ -30,7 +30,7 @@
     inset: 0;
     z-index: -1;
     /* base: deep navy with a subtle top light-fall */
-    background: linear-gradient(180deg, #060b16 0%, #04070d 55%, #03060c 100%);
+    background: linear-gradient(180deg, #050d14 0%, #050d14 55%, #02080d 100%);
     overflow: hidden;
   }
   .hall {
@@ -59,8 +59,8 @@
     pointer-events: none;
     opacity: 0.5;
     background-image:
-      linear-gradient(rgba(0, 242, 254, 0.045) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(0, 242, 254, 0.045) 1px, transparent 1px);
+      linear-gradient(rgba(25, 227, 227, 0.045) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(25, 227, 227, 0.045) 1px, transparent 1px);
     background-size: 44px 44px;
     mask-image: radial-gradient(ellipse 90% 80% at 50% 40%, #000 10%, transparent 75%);
     -webkit-mask-image: radial-gradient(ellipse 90% 80% at 50% 40%, #000 10%, transparent 75%);
@@ -78,13 +78,13 @@
   .orb-a {
     left: -12vmax;
     top: -14vmax;
-    background: radial-gradient(circle, rgba(0, 242, 254, 0.14), transparent 62%);
+    background: radial-gradient(circle, rgba(25, 227, 227, 0.14), transparent 62%);
     animation: drift-a 26s ease-in-out infinite alternate;
   }
   .orb-b {
     right: -14vmax;
     bottom: -16vmax;
-    background: radial-gradient(circle, rgba(139, 92, 246, 0.15), transparent 62%);
+    background: radial-gradient(circle, rgba(79, 159, 192, 0.15), transparent 62%);
     animation: drift-b 32s ease-in-out infinite alternate;
   }
   .orb-c {
@@ -92,7 +92,7 @@
     top: 58%;
     width: 30vmax;
     height: 30vmax;
-    background: radial-gradient(circle, rgba(79, 172, 254, 0.10), transparent 60%);
+    background: radial-gradient(circle, rgba(35, 144, 155, 0.10), transparent 60%);
     animation: drift-c 38s ease-in-out infinite alternate;
   }
   @keyframes drift-a {

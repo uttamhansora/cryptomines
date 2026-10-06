@@ -82,8 +82,8 @@
   }
   /* positive live profit glows green — instant reward feedback */
   .stat.live .v {
-    color: #6ee7b7; /* success-bright — positive live profit glows green */
-    text-shadow: 0 0 12px rgba(52, 211, 153, 0.45);
+    color: #6fe9ee; /* success-bright — positive live profit glows green */
+    text-shadow: 0 0 12px rgba(47, 214, 160, 0.45);
   }
   .sep {
     width: 1px;

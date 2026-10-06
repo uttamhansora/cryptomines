@@ -37,6 +37,8 @@
     <span class="corner tr" aria-hidden="true"></span>
     <span class="corner bl" aria-hidden="true"></span>
     <span class="corner br" aria-hidden="true"></span>
+    <span class="bolt-bl" aria-hidden="true"></span>
+    <span class="bolt-br" aria-hidden="true"></span>
     <div class="board-inset">
       <div class="grid-lines" aria-hidden="true"></div>
       <div class="board" role="grid" aria-label="CryptoMines 5 by 5 grid">
@@ -73,20 +75,47 @@
     background: radial-gradient(ellipse 80% 100% at 50% 0%, rgba(0, 0, 0, 0.6), transparent 70%);
     pointer-events: none;
   }
-  /* metallic outer frame */
+  /* metallic outer frame — thick brushed-steel bezel + corner bolts */
   .board-rim {
     position: relative;
     width: min(100%, var(--board-max));
-    padding: 12px;
-    border-radius: 20px;
-    background: var(--metal-frame);
-    border: 1px solid rgba(79, 172, 254, 0.22);
+    padding: 14px;
+    border-radius: 16px;
+    background: var(--metal-frame);          /* #7f98a3 → #3f5560 → #16262e */
+    border: 1px solid rgba(127, 152, 163, 0.35);
     box-shadow:
       0 24px 60px rgba(0, 0, 0, 0.6),
       0 4px 14px rgba(0, 0, 0, 0.5),
-      inset 0 1px 0 rgba(255, 255, 255, 0.1),
-      inset 0 -1px 0 rgba(0, 0, 0, 0.6);
+      0 0 22px rgba(25, 227, 227, 0.10),     /* subtle cyan aura        */
+      inset 0 1px 0 rgba(255, 255, 255, 0.22),
+      inset 0 -2px 0 rgba(0, 0, 0, 0.55);
   }
+  /* four small corner bolts (pure CSS, zero extra DOM) */
+  .board-rim::before,
+  .board-rim::after {
+    content: '';
+    position: absolute;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, var(--metal-light), var(--metal-dark) 70%);
+    box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.4), 0 1px 2px rgba(0, 0, 0, 0.7);
+    pointer-events: none;
+  }
+  .board-rim::before { top: 6px; left: 6px; }
+  .board-rim::after { top: 6px; right: 6px; }
+  .bolt-bl,
+  .bolt-br {
+    position: absolute;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, var(--metal-light), var(--metal-dark) 70%);
+    box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.4), 0 1px 2px rgba(0, 0, 0, 0.7);
+    pointer-events: none;
+  }
+  .bolt-bl { bottom: 6px; left: 6px; }
+  .bolt-br { bottom: 6px; right: 6px; }
   .rim-sheen {
     position: absolute;
     inset: 0;
@@ -105,7 +134,7 @@
     position: absolute;
     width: 14px;
     height: 14px;
-    border-color: rgba(79, 172, 254, 0.55);
+    border-color: rgba(35, 144, 155, 0.55);
     border-style: solid;
     border-width: 0;
     pointer-events: none;
@@ -114,15 +143,15 @@
   .corner.tr { top: 5px; right: 5px; border-top-width: 2px; border-right-width: 2px; border-top-right-radius: 14px; }
   .corner.bl { bottom: 5px; left: 5px; border-bottom-width: 2px; border-left-width: 2px; border-bottom-left-radius: 14px; }
   .corner.br { bottom: 5px; right: 5px; border-bottom-width: 2px; border-right-width: 2px; border-bottom-right-radius: 14px; }
-  /* inner playfield */
+  /* inner playfield — dark teal well (#071c24), 10px tile gaps */
   .board-inset {
     position: relative;
-    padding: clamp(8px, 2.4vw, 14px);
+    padding: clamp(8px, 2.4vw, 10px);
     border-radius: 12px;
     background:
-      radial-gradient(ellipse 90% 70% at 50% -10%, rgba(0, 242, 254, 0.07), transparent 65%),
-      linear-gradient(180deg, #0f1520 0%, #050a12 100%);
-    border: 1px solid rgba(0, 242, 254, 0.16);
+      radial-gradient(ellipse 90% 70% at 50% -10%, rgba(25, 227, 227, 0.07), transparent 65%),
+      #071c24;
+    border: 1px solid rgba(25, 227, 227, 0.16);
     box-shadow:
       inset 0 14px 34px rgba(0, 0, 0, 0.55),
       inset 0 0 0 1px rgba(0, 0, 0, 0.4),
@@ -136,8 +165,8 @@
     pointer-events: none;
     opacity: 0.5;
     background-image:
-      linear-gradient(rgba(0, 242, 254, 0.05) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(0, 242, 254, 0.05) 1px, transparent 1px);
+      linear-gradient(rgba(25, 227, 227, 0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(25, 227, 227, 0.05) 1px, transparent 1px);
     background-size: 26px 26px;
     mask-image: radial-gradient(ellipse 75% 70% at 50% 45%, #000 20%, transparent 78%);
   }
@@ -151,7 +180,7 @@
   .mine-flash {
     position: absolute;
     inset: 0;
-    background: rgba(239, 68, 68, 0.24);
+    background: rgba(229, 48, 63, 0.24);
     opacity: 0;
     pointer-events: none;
     border-radius: var(--radius-md);
@@ -165,7 +194,7 @@
     height: 40%;
     margin: -20% 0 0 -20%;
     border-radius: 50%;
-    border: 2px solid rgba(239, 68, 68, 0.5);
+    border: 2px solid rgba(229, 48, 63, 0.5);
     opacity: 0;
     pointer-events: none;
     z-index: 4;
@@ -178,10 +207,10 @@
     height: 40%;
     transform: translate(-50%, -50%);
     border-radius: 50%;
-    border: 1px solid rgba(79, 172, 254, 0.4);
+    border: 1px solid rgba(35, 144, 155, 0.4);
     opacity: 0;
     pointer-events: none;
     z-index: 2;
-    box-shadow: 0 0 24px rgba(79, 172, 254, 0.16);
+    box-shadow: 0 0 24px rgba(35, 144, 155, 0.16);
   }
 </style>
