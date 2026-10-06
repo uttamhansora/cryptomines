@@ -478,30 +478,41 @@ button:disabled { cursor: not-allowed; }
   to   { transform: rotateY(0deg); opacity: 1; }
 }
 
-/* Safe reward gem — GOLD per reference (§7) */
+/* Safe reward gem — GOLD per reference (§7). HD multi-stop facet gradient,
+   dual-layer glow (tight core + wide halo), inner bevel highlight, gentle
+   pulsing micro-interaction. Pure CSS state styling — no JS touched. */
 .cm-gem-wrap { position: relative; display: grid; place-items: center; }
 .cm-gem {
   width: 46%; height: 46%;
   clip-path: polygon(50% 0, 100% 35%, 82% 100%, 18% 100%, 0 35%);
-  background: linear-gradient(160deg, #ffe6a8 0%, var(--gold) 45%, #c98a1e 100%);
-  box-shadow: 0 0 18px rgba(245, 185, 76, 0.85);
+  background: linear-gradient(160deg, #fff2cf 0%, #ffe6a8 18%, var(--gold) 48%, #d99a26 78%, #a86e12 100%);
+  box-shadow:
+    0 0 6px rgba(255, 236, 180, 0.9),       /* tight hot core      */
+    0 0 18px rgba(245, 185, 76, 0.85),      /* mid gold halo       */
+    0 0 34px rgba(245, 185, 76, 0.35);      /* wide soft bloom     */
+  filter: drop-shadow(0 3px 5px rgba(0, 0, 0, 0.55));  /* ground in the dark well */
   animation: gem-pulse 1.6s ease-in-out infinite;
 }
 @keyframes gem-pulse {
-  0%, 100% { transform: scale(1); }
-  50%      { transform: scale(1.08); }
+  0%, 100% { transform: scale(1);    filter: drop-shadow(0 3px 5px rgba(0, 0, 0, 0.55)) brightness(1); }
+  50%      { transform: scale(1.08); filter: drop-shadow(0 3px 5px rgba(0, 0, 0, 0.55)) brightness(1.15); }
 }
 
-/* Vault symbol badge on a safe tile (Solana-style purple token glow) */
+/* Vault symbol badge on a safe tile (Solana-style purple token glow) —
+   polished coin: radial metal sheen + rim light + inset shadow + purple aura */
 .cm-vault-mark {
   position: absolute; top: 8%; right: 8%;
   display: grid; place-items: center;
   width: 20px; height: 20px; border-radius: 50%;
-  background: var(--violet);
+  background: radial-gradient(circle at 32% 28%, #d9b8ff 0%, var(--violet) 55%, #4c1d95 100%);
   color: #170b2e;
   font-size: 11px; font-weight: 800;
-  box-shadow: 0 0 14px rgba(162, 89, 255, 0.85),   /* Solana-purple glow */
-              inset 0 0 6px rgba(255, 255, 255, 0.35);
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.35);
+  box-shadow:
+    0 0 6px rgba(162, 89, 255, 0.9),                     /* tight purple core  */
+    0 0 14px rgba(162, 89, 255, 0.85),                   /* Solana-purple glow */
+    inset 0 0 6px rgba(255, 255, 255, 0.35),             /* glass inner shine  */
+    inset 0 -2px 3px rgba(23, 11, 46, 0.6);              /* bottom depth bevel */
 }
 
 /* Particle burst on reveal — 6 rays via conic gradient ring (static paint) */
@@ -525,19 +536,35 @@ button:disabled { cursor: not-allowed; }
   to   { transform: scale(1.5) rotate(40deg); opacity: 0; }
 }
 
-/* Mine — premium red orb with cross spikes (§8) */
+/* Mine — premium red hazard orb (§8): HD specular sphere, layered neon glow,
+   crisp spike cross with red light bloom, and a gentle pulsing highlight so
+   the hazard reads as live/interactive inside the dark obsidian well. */
 .cm-mine-wrap { position: relative; display: grid; place-items: center; }
 .cm-mine {
   width: 46%; height: 46%; border-radius: 50%;
-  background: radial-gradient(circle at 35% 30%, #ff8ba0, var(--danger) 55%, #7f1d34);
-  box-shadow: 0 0 16px rgba(255, 77, 109, 0.7);
+  background:
+    radial-gradient(circle at 32% 26%, rgba(255, 255, 255, 0.55) 0%, transparent 26%), /* specular dot */
+    radial-gradient(circle at 35% 30%, #ff8ba0, var(--danger) 55%, #7f1d34 100%);
+  box-shadow:
+    0 0 6px rgba(255, 120, 140, 0.9),                    /* tight hot core   */
+    0 0 16px rgba(255, 77, 109, 0.7),                    /* mid red halo     */
+    0 0 30px rgba(255, 50, 70, 0.4),                     /* wide danger bloom*/
+    inset 0 -4px 8px rgba(0, 0, 0, 0.5);                 /* bottom depth     */
   position: relative;
+  animation: mine-hazard-pulse 1.2s ease-in-out infinite;
 }
 .cm-mine::before, .cm-mine::after {
-  content: ''; position: absolute; background: var(--danger); border-radius: 2px;
+  content: ''; position: absolute;
+  background: linear-gradient(90deg, transparent, var(--danger) 20%, #ffb3c0 50%, var(--danger) 80%, transparent);
+  border-radius: 2px;
+  box-shadow: 0 0 8px rgba(255, 77, 109, 0.8);           /* glowing spikes   */
 }
 .cm-mine::before { width: 130%; height: 3px; left: -15%; top: 50%; transform: translateY(-50%) rotate(45deg); }
 .cm-mine::after  { width: 130%; height: 3px; left: -15%; top: 50%; transform: translateY(-50%) rotate(-45deg); }
+@keyframes mine-hazard-pulse {
+  0%, 100% { transform: scale(1);    filter: brightness(1); }
+  50%      { transform: scale(1.06); filter: brightness(1.25); }
+}
 
 /* Explosion flash on the hit tile */
 .cm-boom {

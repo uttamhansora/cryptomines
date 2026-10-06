@@ -437,13 +437,15 @@
   .tile.sym-btc .tile-burst {
     background: radial-gradient(circle, rgba(244, 182, 60, 0.42), transparent 68%);
   }
+  /* ETH = cool cyan/violet token aura (matches the violet crypto-token family) */
   .tile.sym-eth .tile-glow,
   .tile.sym-eth .tile-burst {
-    background: radial-gradient(circle, rgba(255, 217, 120, 0.3), transparent 68%);
+    background: radial-gradient(circle, rgba(96, 165, 250, 0.38), transparent 68%);
   }
+  /* SOL = Solana brand purple aura (#9945FF), not gold */
   .tile.sym-sol .tile-glow,
   .tile.sym-sol .tile-burst {
-    background: radial-gradient(circle, rgba(244, 182, 60, 0.38), transparent 68%);
+    background: radial-gradient(circle, rgba(153, 69, 255, 0.4), transparent 68%);
   }
   .tile.sym-usdt .tile-glow,
   .tile.sym-usdt .tile-burst {
@@ -489,9 +491,10 @@
     to { transform: rotateX(-78deg); opacity: 0; }
   }
   /* Icons scale with the tile: 62% of the tile face.
-     Revealed-state icon glows (gold for rewards, red for mines) live here so
-     the token reads cleanly against the forced dark obsidian inner background.
-     Purely presentational — no JS/handlers touched. */
+     Per-token glowing auras on the dark obsidian revealed face (pure CSS,
+     keyed off the existing data-symbol attribute — no JS/handlers touched):
+     BTC = golden glow, ETH/SOL = cyan/violet crypto aura, USDT/DIAMOND = icy
+     cyan, VAULT = teal, MINE = pulsing red hazard highlight. */
   .sym-wrap {
     display: grid;
     place-items: center;
@@ -502,14 +505,49 @@
     z-index: 4;   /* above the gloss-shine pseudo-element */
     filter: drop-shadow(0 0 10px rgba(244, 182, 60, 0.5)); /* gold glow (safe rewards) */
   }
+  /* --- token-specific HD glow auras (data-symbol is set by existing markup) --- */
+  .tile[data-symbol="BTC"] .sym-wrap {
+    filter:
+      drop-shadow(0 0 6px rgba(247, 147, 26, 0.85))
+      drop-shadow(0 0 14px rgba(255, 208, 122, 0.45));   /* warm Bitcoin gold */
+  }
+  .tile[data-symbol="ETH"] .sym-wrap {
+    filter:
+      drop-shadow(0 0 6px rgba(96, 165, 250, 0.85))
+      drop-shadow(0 0 14px rgba(153, 69, 255, 0.4));     /* cyan→violet aura  */
+  }
+  .tile[data-symbol="SOL"] .sym-wrap {
+    filter:
+      drop-shadow(0 0 6px rgba(153, 69, 255, 0.85))
+      drop-shadow(0 0 14px rgba(20, 241, 149, 0.35));    /* Solana purple aura */
+  }
+  .tile[data-symbol="USDT"] .sym-wrap,
+  .tile[data-symbol="DIAMOND"] .sym-wrap {
+    filter:
+      drop-shadow(0 0 6px rgba(0, 225, 255, 0.8))
+      drop-shadow(0 0 14px rgba(143, 208, 232, 0.4));    /* icy cyan sparkle  */
+  }
+  .tile[data-symbol="VAULT"] .sym-wrap {
+    filter:
+      drop-shadow(0 0 6px rgba(35, 144, 155, 0.9))
+      drop-shadow(0 0 14px rgba(25, 227, 227, 0.4));     /* vault teal aura   */
+  }
   .tile.revealed.mine .sym-wrap {
     filter: drop-shadow(0 0 12px rgba(229, 48, 63, 0.7));  /* red glow (hazard/mines)  */
+    animation: mine-hazard-pulse 1.2s ease-in-out infinite; /* gentle pulsing highlight */
+  }
+  @keyframes mine-hazard-pulse {
+    0%, 100% { opacity: 0.92; transform: scale(1); }
+    50%      { opacity: 1;    transform: scale(1.06); }
   }
   .tile.just-revealed .sym-wrap {
     /* Zero animation-delay: the icon entrance starts on the very first frame
        after the click/confirmation commit. Overlapping keyframe timings carry
-       the stagger feel without holding any pixels back. */
-    animation: sym-in 0.3s cubic-bezier(0.22, 1, 0.36, 1) both;
+       the stagger feel without holding any pixels back. `sym-aura-in` fades in
+       the glow aura on its own track so the token-specific drop-shadow colors
+       survive the entrance untouched (final keyframe = natural resting pose). */
+    animation: sym-in 0.3s cubic-bezier(0.22, 1, 0.36, 1) both,
+               sym-aura-in 0.3s cubic-bezier(0.22, 1, 0.36, 1) both;
   }
   /* one-shot reveal glow: peaks ~250ms then settles — never left glowing forever */
   .tile.just-revealed.safe .tile-glow {
@@ -533,6 +571,11 @@
     height: 100%;
     object-fit: contain;
     pointer-events: none;
+    /* crisp high-definition scaling + soft contact shadow grounding the
+       token inside the recessed dark well */
+    image-rendering: auto;
+    -webkit-user-drag: none;
+    user-select: none;
     filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.5));
   }
   .sym-wrap.vault-sym .sym {
@@ -554,6 +597,15 @@
       opacity: 1;
       transform: scale(1) rotateY(0deg);
     }
+  }
+  /* companion track that fades in the glow aura alongside sym-in's transform.
+     Keyframes interpolate between the token's own resting filter (0%) and a
+     zero-spread transparent shadow (60%), so whatever per-token aura color is
+     active (BTC gold / SOL purple / cyan tokens) simply pulses up — it can
+     never be overwritten or stripped by the entrance animation. */
+  @keyframes sym-aura-in {
+    0%, 100% { filter: none; }
+    60%      { filter: drop-shadow(0 0 0 transparent); }
   }
   /* Revealed tiles: the nested inner container's background MUST switch from
      the teal glass face to a deep dark obsidian/black-slate color so it never
