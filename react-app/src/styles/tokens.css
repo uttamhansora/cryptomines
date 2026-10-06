@@ -27,14 +27,23 @@
   --grad-tile-safe: linear-gradient(160deg, #2b2113 0%, #1a130a 55%, #120d06 100%);
   --grad-tile-mine: linear-gradient(160deg, #2b1216 0%, #1a0a0d 55%, #120608 100%);
 
-  /* ---- Glow / shadow tokens ---- */
-  --glow-accent: 0 0 18px rgba(34, 211, 238, 0.35);
-  --glow-accent-lg: 0 0 34px rgba(34, 211, 238, 0.45);
+  /* ---- Status surfaces (semantic tints built from the palette above) ---- */
+  --danger-bg: rgba(255, 77, 109, 0.1);
+  --success-bg: rgba(52, 211, 153, 0.1);
+  --warning: var(--gold);           /* alias — gold doubles as warning tone */
+
+  /* ---- Glow / shadow tokens (premium = restrained) ---- */
+  --glow-accent: 0 0 16px rgba(34, 211, 238, 0.28);
+  --glow-accent-lg: 0 0 26px rgba(34, 211, 238, 0.32);
   --glow-danger: 0 0 18px rgba(255, 77, 109, 0.45);
   --glow-violet: 0 0 18px rgba(167, 139, 250, 0.4);
-  --shadow-panel: 0 20px 50px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(230, 241, 255, 0.05);
+  --shadow-panel: 0 16px 40px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(230, 241, 255, 0.05);
+  --shadow-card: 0 10px 28px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(230, 241, 255, 0.04);
   --shadow-tile: inset 0 2px 6px rgba(0, 0, 0, 0.55), inset 0 -1px 0 rgba(230, 241, 255, 0.05);
   --shadow-btn: 0 4px 12px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(230, 241, 255, 0.06);
+
+  /* ---- Elevation / overlay scrim ---- */
+  --scrim: rgba(3, 8, 15, 0.72);
 
   /* ---- Radius scale ---- */
   --r-sm: 8px;
@@ -48,6 +57,7 @@
   --s-3: 12px;
   --s-4: 16px;
   --s-6: 24px;
+  --s-8: 32px;
 
   /* ---- Type scale ---- */
   --fs-xs: 0.6875rem;   /* 11px micro labels */

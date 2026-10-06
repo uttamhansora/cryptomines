@@ -4,6 +4,7 @@ import ChainStepper from './components/ChainStepper.jsx';
 import Board from './components/Board.jsx';
 import InfoCards from './components/InfoCards.jsx';
 import ControlPanel from './components/ControlPanel.jsx';
+import StatusBanner from './components/StatusBanner.jsx';
 import Modal from './components/Modal.jsx';
 import Confetti from './components/Confetti.jsx';
 import { sfx } from './game/sound.js';
@@ -61,6 +62,7 @@ export default function App() {
   const minesCountRef = useRef(minesCount);
   const betRef = useRef(bet);
   const chainBoostsRef = useRef(chainBoosts);
+  const balanceRef = useRef(balance);
   gameStateRef.current = gameState;
   boardDataRef.current = boardData;
   tilesRef.current = tiles;
@@ -70,6 +72,7 @@ export default function App() {
   minesCountRef.current = minesCount;
   betRef.current = bet;
   chainBoostsRef.current = chainBoosts;
+  balanceRef.current = balance;
 
   /* Cash-out core — reads from refs so it can be called from stable
      callbacks (manual click OR auto-cashout timer) with identical math. */
@@ -101,48 +104,50 @@ export default function App() {
     : 1;
   const potentialWin = round2(bet * multiplier);
 
-  /* ---------------- bet controls (locked while playing) ---------------- */
-  const adjustBet = (updater) => {
-    if (gameState === 'playing') return;
+  /* ---------------- bet controls (locked while playing) ----------------
+     All handlers are useCallback-stable so memoized children (ControlPanel)
+     bail out of re-renders when only board state changes. */
+  const adjustBet = useCallback((updater) => {
+    if (gameStateRef.current === 'playing') return;
     play(sfx.click);
-    setBet((b) => clampBet(updater(b), balance));
-  };
-  const onBetMin = () => adjustBet(() => MIN_BET);
-  const onBetHalf = () => adjustBet((b) => b / 2);
-  const onBetDouble = () => adjustBet((b) => b * 2);
-  const onBetMax = () => adjustBet(() => balance);
-  const onBetStep = (dir) => adjustBet((b) => b + dir * BET_STEP);
-  const onSetBet = (v) => adjustBet(() => v);
+    setBalance((bal) => setBet((b) => clampBet(updater(b), bal)));
+  }, [play]);
+  const onBetMin = useCallback(() => adjustBet(() => MIN_BET), [adjustBet]);
+  const onBetHalf = useCallback(() => adjustBet((b) => b / 2), [adjustBet]);
+  const onBetDouble = useCallback(() => adjustBet((b) => b * 2), [adjustBet]);
+  const onBetMax = useCallback(() => adjustBet((b) => b), [adjustBet]); // clamp caps at balance
+  const onBetStep = useCallback((dir) => adjustBet((b) => b + dir * BET_STEP), [adjustBet]);
+  const onSetBet = useCallback((v) => adjustBet(() => v), [adjustBet]);
 
   /* ---------------- mines controls ---------------- */
-  const onSetMines = (v) => {
-    if (gameState === 'playing') return;
+  const onSetMines = useCallback((v) => {
+    if (gameStateRef.current === 'playing') return;
     play(sfx.click);
     setMinesCount(clampMines(v));
-  };
-  const onMinesStep = (dir) => {
-    if (gameState === 'playing') return;
+  }, [play]);
+  const onMinesStep = useCallback((dir) => {
+    if (gameStateRef.current === 'playing') return;
     play(sfx.click);
     setMinesCount((m) => clampMines(m + dir));
-  };
+  }, [play]);
 
   /* ---------------- round lifecycle ---------------- */
-  const startRound = () => {
-    if (gameState === 'playing' || balance < bet) return;
+  const startRound = useCallback(() => {
+    if (gameStateRef.current === 'playing') return;
+    // Read balance synchronously from the latest committed value.
+    if (balanceRef.current < betRef.current) return;
     play(sfx.click);
     /* Everything needed by the reveal handler is committed synchronously
        into refs BEFORE setState, so a click landing on the very first paint
        of the new round already resolves correctly — zero artificial delay. */
-    const freshBoard = buildBoard(minesCount);               // Fisher-Yates placement
+    const freshBoard = buildBoard(minesCountRef.current);    // Fisher-Yates placement
     boardDataRef.current = freshBoard;
     tilesRef.current = HIDDEN;
     safeRevealsRef.current = 0;
     chainProgressRef.current = 0;
     vaultCountRef.current = 0;
-    minesCountRef.current = minesCount;
-    gameStateRef.current = 'playing';
 
-    setBalance((b) => round2(b - bet));                     // deduct stake
+    setBalance((b) => round2(b - betRef.current));           // deduct stake
     setBoardData(freshBoard);
     setTiles(HIDDEN);
     setSafeReveals(0);
@@ -150,7 +155,7 @@ export default function App() {
     setChainBoosts(0);
     setVaultCount(0);
     setGameState('playing');
-  };
+  }, [play]);
 
   const revealTile = useCallback((index) => {
     if (gameStateRef.current !== 'playing') return;
@@ -225,14 +230,16 @@ export default function App() {
 
   const cashOut = doCashOut;
 
-  const buyVault = () => {
-    const cost = round2(bet * VAULT_COST_MULT);
-    if (gameState === 'playing' || balance < cost) return;
+  const buyVault = useCallback(() => {
+    const cost = round2(betRef.current * VAULT_COST_MULT);
+    if (gameStateRef.current === 'playing' || balanceRef.current < cost) return;
     grantVaultBonus(cost);
     setVaultCount(VAULT_SLOTS);                              // show slots as filled
-  };
+  }, [grantVaultBonus]);
 
-  const closeWinModal = () => setWinModal(null);
+  const closeWinModal = useCallback(() => setWinModal(null), []);
+  const openRules = useCallback(() => setShowRules(true), []);
+  const closeRules = useCallback(() => setShowRules(false), []);
 
   /* ---------------- layout ---------------- */
   return (
@@ -249,7 +256,7 @@ export default function App() {
           balance={balance}
           soundOn={soundOn}
           onToggleSound={toggleSound}
-          onInfo={() => setShowRules(true)}
+          onInfo={openRules}
         />
 
         {/* Full-width Crypto Chain HUD strip between header and main grid */}
@@ -266,6 +273,9 @@ export default function App() {
               shake={shake}
               onReveal={revealTile}
             />
+
+            {/* Clear, human-readable game feedback (never colour alone) */}
+            <StatusBanner gameState={gameState} balance={balance} bet={bet} />
 
             <InfoCards chainProgress={chainProgress} vaultCount={vaultCount} />
           </div>
@@ -309,16 +319,29 @@ export default function App() {
       )}
 
       {showRules && (
-        <Modal title="HOW TO PLAY" onClose={() => setShowRules(false)}>
-          <ul className="cm-rules-list">
-            <li>Set your <strong>bet</strong> and choose how many <strong>mines</strong> hide in the 5×5 field.</li>
-            <li><strong>Start Round</strong>, then reveal tiles. Every safe gem raises your multiplier.</li>
-            <li><strong>Cash Out</strong> any time before hitting a mine to bank bet × multiplier.</li>
-            <li>Fill the <strong>Crypto Chain</strong> (5 safe reveals) for a +0.25x boost.</li>
-            <li>Collect <strong>3 Vault symbols</strong> on safe tiles — or buy instant entry — to crack the vault for a bonus.</li>
-            <li>Hit a mine and the round is lost. House edge: 1%.</li>
-          </ul>
-          <button type="button" className="cm-btn-primary" onClick={() => setShowRules(false)}>GOT IT</button>
+        <Modal title="HOW TO PLAY" onClose={closeRules}>
+          <div className="cm-rules-section">
+            <h3 className="cm-rules-subtitle">THE BASICS</h3>
+            <ul className="cm-rules-list">
+              <li>Set your <strong>bet</strong> and choose how many <strong>mines</strong> hide in the 5×5 field.</li>
+              <li><strong>Start Round</strong>, then reveal tiles. Every safe gem raises your multiplier.</li>
+              <li><strong>Cash Out</strong> any time before hitting a mine to bank bet × multiplier.</li>
+            </ul>
+          </div>
+          <div className="cm-rules-section">
+            <h3 className="cm-rules-subtitle">BONUS FEATURES</h3>
+            <ul className="cm-rules-list">
+              <li>Fill the <strong>Crypto Chain</strong> (5 safe reveals) for a +0.25x boost.</li>
+              <li>Collect <strong>3 Vault symbols</strong> on safe tiles — or buy instant entry — to crack the vault for a bonus.</li>
+            </ul>
+          </div>
+          <div className="cm-rules-section">
+            <h3 className="cm-rules-subtitle">GOOD TO KNOW</h3>
+            <ul className="cm-rules-list">
+              <li>Hit a mine and the round is lost. House edge: 1%.</li>
+            </ul>
+          </div>
+          <button type="button" className="cm-btn-primary" onClick={closeRules}>GOT IT</button>
         </Modal>
       )}
     </div>

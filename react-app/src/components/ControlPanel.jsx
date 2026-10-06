@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { Trophy, Layers, Minus, Plus, PlayCircle, Landmark } from 'lucide-react';
 import { useAnimatedNumber } from '../hooks/useAnimatedNumber.js';
 import CryptoSymbol from './CryptoSymbol.jsx';
@@ -5,14 +6,27 @@ import { MIN_MINES, MAX_MINES, VAULT_COST_MULT } from '../game/logic.js';
 
 const PRESETS = [1, 5, 10, 15, 20, 24];
 
+/* SVG progress-ring geometry for the multiplier dial */
+const RING_R = 56;                       // ring radius in a 120×120 viewBox
+const RING_CIRC = 2 * Math.PI * RING_R;  // circumference (dash units)
+
+/** Map the multiplier onto a 0–1 ring fill on a log-ish ladder scale. */
+function ringProgress(multiplier) {
+  const pct = Math.min(1, Math.max(0, (multiplier - 1) / 9));
+  return 0.02 + pct * 0.98;              // small base arc so the ring is never empty
+}
+
 /**
- * Right-hand control panel (spec §9–§15): circular multiplier HUD,
- * Potential Win / Bet stat boxes, segmented bet controls, mines stepper +
- * preset chips, the large cyan Start Round CTA (green Cash Out while a round
- * runs) and the Crypto Vault purchase card.
- * Every input locks while `gameState === 'playing'`.
+ * Right-hand control panel (spec §9–§15): circular multiplier HUD with an
+ * SVG progress ring, Potential Win / Bet stat boxes, one-row segmented bet
+ * controls (MIN · ½ · [− value +] · 2× · MAX), mines stepper + preset chips,
+ * the large cyan Start Round CTA (green Cash Out while a round runs) and the
+ * Crypto Vault purchase card. Every input locks while `gameState === 'playing'`.
+ *
+ * Memoized: stable callbacks from App mean this panel only re-renders when
+ * its own props (bet/mines/multiplier/game state) actually change.
  */
-export default function ControlPanel({
+function ControlPanelBase({
   multiplier,
   potentialWin,
   bet,
@@ -51,9 +65,26 @@ export default function ControlPanel({
         <div
           className={`cm-mult-badge${playing ? ' is-live' : ''}`}
           key={multiplier /* retrigger glow pulse on change */}
+          role="img"
+          aria-label={`Current multiplier ${multiplier.toFixed(2)}×`}
         >
-          {/* thin decorative ring + faint brand watermark inside the dial */}
-          <span className="cm-mult-ring" aria-hidden="true" />
+          {/* SVG progress ring — communicates ladder position, not colour alone */}
+          <svg className="cm-mult-ring-svg" viewBox="0 0 120 120" aria-hidden="true" focusable="false">
+            <defs>
+              <linearGradient id="cmRingGrad" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stopColor="var(--accent)" />
+                <stop offset="100%" stopColor="var(--accent-2)" />
+              </linearGradient>
+            </defs>
+            <circle className="cm-mult-ring-track" cx="60" cy="60" r={RING_R} />
+            <circle
+              className="cm-mult-ring-fill"
+              cx="60" cy="60" r={RING_R}
+              strokeDasharray={RING_CIRC}
+              strokeDashoffset={RING_CIRC * (1 - ringProgress(multiplier))}
+            />
+          </svg>
+          {/* faint brand watermark inside the dial */}
           <span className="cm-mult-watermark" aria-hidden="true"><CryptoSymbol size={72} /></span>
           <span className="cm-mult-value num">
             {animMult.toFixed(2)}
@@ -79,20 +110,22 @@ export default function ControlPanel({
         </div>
       </div>
 
-      {/* ---- Bet amount ---- */}
+      {/* ---- Bet amount — MIN · ½ · [− value +] · 2× · MAX on one row ---- */}
       <div className="cm-field">
         <span className="cm-section-label">BET AMOUNT</span>
         <div className={`cm-bet-grid${locked ? ' is-locked' : ''}`}>
-          <button type="button" className="cm-sq-btn" onClick={onBetMin} disabled={locked} title="Minimum bet">MIN</button>
-          <button type="button" className="cm-sq-btn" onClick={onBetHalf} disabled={locked} title="Halve bet">½</button>
-          <button type="button" className="cm-sq-btn" onClick={() => onBetStep(-1)} disabled={locked} aria-label="Decrease bet by 0.10" title="-0.10">
-            <Minus size={16} />
-          </button>
-          <output className="cm-bet-value num" aria-label={`Bet amount ${bet.toFixed(2)}`}>{bet.toFixed(2)}</output>
-          <button type="button" className="cm-sq-btn" onClick={() => onBetStep(1)} disabled={locked} aria-label="Increase bet by 0.10" title="+0.10">
-            <Plus size={16} />
-          </button>
-          <button type="button" className="cm-sq-btn" onClick={onBetDouble} disabled={locked} title="Double bet">2×</button>
+          <button type="button" className="cm-sq-btn cm-sq-btn--min" onClick={onBetMin} disabled={locked} title="Minimum bet">MIN</button>
+          <button type="button" className="cm-sq-btn cm-sq-btn--half" onClick={onBetHalf} disabled={locked} title="Halve bet">½</button>
+          <div className="cm-bet-stepper">
+            <button type="button" className="cm-sq-btn" onClick={() => onBetStep(-1)} disabled={locked} aria-label="Decrease bet by 0.10" title="-0.10">
+              <Minus size={16} />
+            </button>
+            <output className="cm-bet-value num" aria-label={`Bet amount ${bet.toFixed(2)}`}>{bet.toFixed(2)}</output>
+            <button type="button" className="cm-sq-btn" onClick={() => onBetStep(1)} disabled={locked} aria-label="Increase bet by 0.10" title="+0.10">
+              <Plus size={16} />
+            </button>
+          </div>
+          <button type="button" className="cm-sq-btn cm-sq-btn--double" onClick={onBetDouble} disabled={locked} title="Double bet">2×</button>
           <button type="button" className="cm-sq-btn cm-sq-btn--max" onClick={onBetMax} disabled={locked} title="Bet entire balance">MAX</button>
         </div>
       </div>

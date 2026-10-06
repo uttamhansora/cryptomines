@@ -94,10 +94,17 @@
     return () => cancelAnimationFrame(rafId);
   });
 
-  /* circular energy ring: fill proportional to progress toward a big multiplier */
-  const ringPct = $derived(Math.min(100, ((displayMult - 1) / 9) * 100));
+  /* Circular glowing ring: stroke-dashoffset encodes progress toward the next
+     big multiplier tier. Pure derived value — zero reactive writes per frame,
+     and the CSS transition below renders every change smoothly (<1s). */
+  const RING_R = 46;
+  const RING_CIRC = 2 * Math.PI * RING_R; // ≈ 289.03
+  const ringPct = $derived(Math.max(0, Math.min(100, ((displayMult - 1) / 9) * 100)));
+  const ringDashOffset = $derived(RING_CIRC * (1 - ringPct / 100));
 
-  const ladderEnabled = $derived(!!walletConfig && walletConfig.betLevels.length > 0);
+  const ladderEnabled = $derived(
+    !!walletConfig && Array.isArray(walletConfig.betLevels) && walletConfig.betLevels.length > 0,
+  );
 
   /**
    * Effective MIN / MAX targets, computed from the exact constraints the server enforces
@@ -127,24 +134,64 @@
    * click handler on the UI hot path).
    */
   const betLadder = $derived(
-    walletConfig && walletConfig.betLevels.length > 0
+    walletConfig && Array.isArray(walletConfig.betLevels) && walletConfig.betLevels.length > 0
       ? walletConfig.betLevels.map((v) => apiToDisplay(v)).sort((a, b) => a - b)
       : [],
   );
 
+  /**
+   * Memoized "next ladder rung above the current bet" cursor. The naive
+   * implementation ran `findIndex` on every render of this component — and it
+   * re-renders on EVERY snapshot emission (each pick/animation step). We only
+   * recompute when the bet or the ladder actually changes, so the ± buttons,
+   * MIN/MAX and the whole panel stay perfectly responsive mid-round.
+   */
+  let upperIdxCache = { bet: NaN, ladderRef: null as number[] | null, idx: -1 };
+  const upperIdx = $derived.by(() => {
+    const levels = betLadder ?? [];
+    if (upperIdxCache.ladderRef === levels && upperIdxCache.bet === bet) {
+      return upperIdxCache.idx;
+    }
+    const idx = levels.findIndex((v) => v > bet + 1e-9);
+    upperIdxCache = { bet, ladderRef: levels, idx };
+    return idx;
+  });
+
+  /**
+   * All bet/mines mutators are guarded so a click can NEVER be swallowed by an
+   * undefined array read (the class of bug behind "Cannot read properties of
+   * undefined (reading '0')" when a wallet config arrives with an empty or
+   * missing `betLevels`): every ladder lookup goes through `levelAt()`, which
+   * returns null instead of indexing an absent array, and every handler bails
+   * out silently (no crash, no stale write) when there is nothing to apply.
+   */
+  const levelAt = (i: number): number | null => {
+    const l = betLadder ?? [];
+    if (i < 0 || i >= l.length) return null;
+    const v = l[i];
+    return typeof v === 'number' && Number.isFinite(v) ? v : null;
+  };
+
+  /** True only when the ladder actually has usable rungs. */
+  const canAdjustBet = $derived(
+    ladderEnabled && levelAt(0) !== null && levelAt((betLadder ?? []).length - 1) !== null,
+  );
+
   function adjustBet(deltaSteps: number) {
     if (ladderEnabled) {
-      const levels = betLadder;
-      const idx = levels.findIndex((v) => v > bet + 1e-9);
-      let next: number;
+      if (!canAdjustBet) return;
+      const len = (betLadder ?? []).length;
+      const idx = upperIdx; // memoized — no per-click scan of the ladder
+      let next: number | null;
       if (deltaSteps < 0) {
         const down = idx - 1;
-        next = levels[down >= 0 ? down : 0]!;
+        next = levelAt(down >= 0 ? down : 0);
       } else if (idx === -1) {
-        next = levels[levels.length - 1]!;
+        next = levelAt(len - 1);
       } else {
-        next = levels[Math.min(levels.length - 1, idx + deltaSteps)]!;
+        next = levelAt(Math.min(len - 1, idx + deltaSteps));
       }
+      if (next == null) return; // defensive: never index an undefined rung
       // Never step below MIN or above the effective cap.
       if (next < betMin) next = betMin;
       if (next > betCap) next = betCap;
@@ -154,6 +201,24 @@
     const next = Math.min(betCap, Math.max(betMin, +(bet + deltaSteps * betStep).toFixed(2)));
     if (next !== bet) onBetChange(next);
   }
+
+  function applyBet(v: number) {
+    if (!Number.isFinite(v)) return; // never write NaN/undefined into the bet state
+    onBetChange(v);
+  }
+
+  onDestroy(() => cancelAnimationFrame(rafId));
+
+  /* ── Instant, zero-latency button handlers ────────────────────────────
+     MIN / MAX / ½ / 2× mutate the bet SYNCHRONOUSLY inside the click task —
+     no debounce, no rAF deferral, no await — so Svelte flushes the new value
+     in the same frame the pointer event fires. Each button additionally
+     carries a CSS :active press pose (transform only), so even the visual
+     response lands before the browser would paint any delay. */
+  const setMinBet = () => applyBet(betMin);
+  const setMaxBet = () => applyBet(maxBetValue);
+  const halveBet = () => applyBet(Math.max(betMin, +(bet / 2).toFixed(2)));
+  const doubleBet = () => applyBet(Math.min(betCap, +(bet * 2).toFixed(2)));
 </script>
 
 <section class="panel" aria-label="Game controls">
@@ -162,14 +227,26 @@
       <Icon name="multiplier" size={14} />
       Current multiplier
     </span>
-    <!-- v2 hero: the number itself is the star (large, glowing, count-up).
-         The ring SVG was removed because the animation controller locates it
-         via `.mult-ring .ring-svg` selectors — keeping those hooks absent just
-         makes those cosmetic sub-tweens no-ops. GSAP still bumps
-         [data-multiplier-display] directly. -->
+    <!-- Circular glowing ring widget for the Current Multiplier. The fill arc
+         tracks the live count-up value via stroke-dashoffset only (GPU-cheap);
+         the halo/orbit layers provide the ambient glow. Animation hooks kept
+         intact: `.mult-ring .ring-svg` / `.ring-orbit` are what
+         AnimationController.multiplierBump() looks up, and
+         [data-multiplier-display] is what GSAP bumps on each event. -->
     <div class="mult-ring" data-multiplier-ring>
       <span class="mult-halo" aria-hidden="true"></span>
-      <span class="mult-orbit" aria-hidden="true"></span>
+      <svg class="ring-svg" viewBox="0 0 100 100" aria-hidden="true" focusable="false" style="transform: rotate(-90deg)">
+        <circle class="ring-track" cx="50" cy="50" r="46" />
+        <circle
+          class="ring-fill"
+          cx="50"
+          cy="50"
+          r="46"
+          stroke-dasharray={RING_CIRC.toFixed(2)}
+          stroke-dashoffset={ringDashOffset.toFixed(2)}
+        />
+      </svg>
+      <span class="ring-orbit" aria-hidden="true"></span>
       <span class="mult-value" key={multKey} data-multiplier-display>{displayMult.toFixed(2)}×</span>
     </div>
   </div>
@@ -207,12 +284,14 @@
         <svg viewBox="0 0 24 24" width="13" height="13" aria-hidden="true"><circle cx="12" cy="12" r="9.2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 10.6v6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="7.2" r="1.5" fill="currentColor"/></svg>
       </span>
     </span>
-    <!-- v2 segmented bet group: MIN · ½ · ( − value + ) · 2× · MAX,
-         all cells share one track so edges/heights are perfectly even. -->
-    <div class="seg-group" role="group" aria-label="Bet amount controls" class:locked={roundActive}>
-      <button type="button" class="seg-btn" data-bet-min disabled={roundActive} title="Minimum bet" aria-label="Minimum bet" onclick={() => onBetChange(betMin)}>MIN</button>
-      <button type="button" class="seg-btn" data-bet-half disabled={roundActive} title="Halve bet" aria-label="Halve bet" onclick={() => onBetChange(Math.max(betMin, +(bet / 2).toFixed(2)))}>½</button>
-      <div class="seg-center">
+    <!-- Bet control grid: a clean 6-column layout — MIN · ½ · ( − value + ) · 2× · MAX.
+         All cells sit on one shared track (equal heights/gaps via CSS grid), the
+         label row above stays aligned, and every button commits its change in the
+         click task itself (see setMinBet/setMaxBet/halveBet/doubleBet). -->
+    <div class="bet-grid" role="group" aria-label="Bet amount controls" class:locked={roundActive}>
+      <button type="button" class="grid-btn wide" data-bet-min disabled={roundActive} title="Minimum bet" aria-label="Minimum bet" onclick={setMinBet}>MIN</button>
+      <button type="button" class="grid-btn" data-bet-half disabled={roundActive} title="Halve bet" aria-label="Halve bet" onclick={halveBet}>½</button>
+      <div class="value-cell">
         <button type="button" class="step-btn" disabled={roundActive} aria-label="Decrease bet" onclick={() => adjustBet(-1)}>
           <Icon name="minus" size={16} />
         </button>
@@ -221,8 +300,8 @@
           <Icon name="plus" size={16} />
         </button>
       </div>
-      <button type="button" class="seg-btn" data-bet-double disabled={roundActive} title="Double bet" aria-label="Double bet" onclick={() => onBetChange(Math.min(betCap, +(bet * 2).toFixed(2)))}>2×</button>
-      <button type="button" class="seg-btn" data-bet-max disabled={roundActive} title="Maximum bet" aria-label="Maximum bet" onclick={() => onBetChange(maxBetValue)}>MAX</button>
+      <button type="button" class="grid-btn" data-bet-double disabled={roundActive} title="Double bet" aria-label="Double bet" onclick={doubleBet}>2×</button>
+      <button type="button" class="grid-btn wide accent" data-bet-max disabled={roundActive} title="Maximum bet" aria-label="Maximum bet" onclick={setMaxBet}>MAX</button>
     </div>
   </div>
 
@@ -376,11 +455,20 @@
     height: 108px;
     margin-top: 0.15rem;
   }
+  /* Ambient halo behind the ring — static radial glow, no per-frame repaints */
+  .mult-halo {
+    position: absolute;
+    inset: -14px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 50% 50%, rgba(34, 211, 238, 0.16), transparent 68%);
+    pointer-events: none;
+  }
   .ring-svg {
     position: absolute;
     inset: 0;
     width: 100%;
     height: 100%;
+    overflow: visible;
     /* rotation lives in an inline style attribute (see markup) so GSAP can
        animate scale on this element without clobbering the -90deg offset */
   }
@@ -499,6 +587,168 @@
   .presets button.active {
     border-color: rgba(34, 211, 238, 0.65);
     color: var(--accent-secondary);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.08),
+      0 0 14px rgba(34, 211, 238, 0.25);
+  }
+
+  /* ── Bet control grid (sidebar layout v2) ────────────────────────────
+     One shared CSS-grid track keeps MIN / ½ / value / 2× / MAX perfectly
+     aligned; every cell is a first-class button (not decorative text), and
+     all motion is transform/opacity-only with durations far under 1s so a
+     click reads as instant. */
+  .bet-grid {
+    display: grid;
+    grid-template-columns: auto auto minmax(0, 1fr) auto auto;
+    gap: 0.35rem;
+    align-items: stretch;
+  }
+  .bet-grid.locked {
+    opacity: 0.72;
+  }
+  .grid-btn {
+    min-width: 44px;
+    min-height: 44px;
+    padding: 0 0.6rem;
+    border-radius: var(--radius-sm);
+    border: 1px solid rgba(112, 132, 165, 0.2);
+    background: linear-gradient(165deg, #1d2840 0%, #121721 45%, #0c111a 100%);
+    color: var(--text-primary);
+    font-weight: 700;
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.06),
+      0 2px 6px rgba(0, 0, 0, 0.35);
+    transition: transform 0.1s ease, border-color 0.15s, box-shadow 0.15s;
+  }
+  .grid-btn:hover:not(:disabled) {
+    border-color: rgba(34, 211, 238, 0.4);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.08),
+      0 0 12px rgba(34, 211, 238, 0.14);
+  }
+  /* :active fires in the SAME frame as pointerdown — zero-JS tactile press */
+  .grid-btn:active:not(:disabled) {
+    transform: scale(0.94);
+  }
+  .grid-btn:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+  .grid-btn.wide {
+    min-width: 52px;
+  }
+  .grid-btn.accent {
+    border-color: rgba(34, 211, 238, 0.35);
+    color: var(--highlight-soft);
+  }
+  .value-cell {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.25rem;
+    min-height: 44px;
+    padding: 0 0.3rem;
+    border-radius: var(--radius-sm);
+    border: 1px solid rgba(112, 132, 165, 0.2);
+    background: linear-gradient(180deg, rgba(9, 14, 22, 0.9), rgba(16, 21, 31, 0.85));
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  }
+  .step-btn {
+    display: grid;
+    place-items: center;
+    width: 34px;
+    height: 34px;
+    flex-shrink: 0;
+    border-radius: var(--radius-xs);
+    border: 1px solid rgba(112, 132, 165, 0.22);
+    background: linear-gradient(165deg, #1d2840 0%, #121721 55%, #0c111a 100%);
+    color: var(--text-primary);
+    padding: 0;
+    transition: transform 0.1s ease, border-color 0.15s, box-shadow 0.15s;
+  }
+  .step-btn:hover:not(:disabled) {
+    border-color: rgba(34, 211, 238, 0.45);
+    box-shadow: 0 0 10px rgba(34, 211, 238, 0.16);
+  }
+  .step-btn:active:not(:disabled) {
+    transform: scale(0.9);
+  }
+  .step-btn:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+  .label-center {
+    justify-content: center;
+  }
+  .label-row {
+    justify-content: space-between;
+    width: 100%;
+  }
+  .label-inner {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+  }
+  .lock-hint {
+    display: inline-grid;
+    place-items: center;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    color: var(--text-muted);
+    cursor: help;
+  }
+  .lock-hint:hover {
+    color: var(--highlight-soft);
+  }
+  /* Mines selector grid: stepper on its own row, presets in an even grid */
+  .mines-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.35rem;
+  }
+  .mines-stepper {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.35rem;
+    min-height: 44px;
+    padding: 0 0.3rem;
+    border-radius: var(--radius-sm);
+    border: 1px solid rgba(112, 132, 165, 0.2);
+    background: linear-gradient(180deg, rgba(9, 14, 22, 0.9), rgba(16, 21, 31, 0.85));
+  }
+  .chips {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 0.3rem;
+  }
+  .chip {
+    min-height: 36px;
+    border-radius: var(--radius-xs);
+    border: 1px solid rgba(112, 132, 165, 0.2);
+    background: linear-gradient(165deg, #1d2840 0%, #121721 45%, #0c111a 100%);
+    color: var(--text-primary);
+    font-weight: 600;
+    font-size: 0.78rem;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+    transition: transform 0.1s ease, border-color 0.15s, box-shadow 0.15s, color 0.15s;
+  }
+  .chip:hover:not(:disabled) {
+    border-color: rgba(34, 211, 238, 0.4);
+  }
+  .chip:active:not(:disabled) {
+    transform: scale(0.93);
+  }
+  .chip:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+  .chip.active {
+    border-color: rgba(34, 211, 238, 0.65);
+    color: var(--highlight-soft);
     box-shadow:
       inset 0 1px 0 rgba(255, 255, 255, 0.08),
       0 0 14px rgba(34, 211, 238, 0.25);
