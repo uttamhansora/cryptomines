@@ -590,6 +590,12 @@
     min-height: 100dvh;
     transition: opacity 0.35s ease;
   }
+  /* Extra-wide screens: give the board room to grow into the main focus */
+  @media (min-width: 1400px) {
+    .shell {
+      max-width: 1380px;
+    }
+  }
   .shell.dimmed {
     opacity: 0.35;
     pointer-events: none;

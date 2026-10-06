@@ -75,12 +75,17 @@
     background: radial-gradient(ellipse 80% 100% at 50% 0%, rgba(0, 0, 0, 0.6), transparent 70%);
     pointer-events: none;
   }
-  /* metallic outer frame — thick brushed-steel bezel + corner bolts */
+  /* metallic outer frame — THIN compared to the tiles (reference proportion),
+     so the tiles fill almost the whole board. Corner bolts kept. */
   .board-rim {
     position: relative;
     width: min(100%, var(--board-max));
-    padding: 14px;
+    aspect-ratio: 1 / 1;
+    margin: 0 auto;
+    padding: 12px;
     border-radius: 16px;
+    display: flex;
+    flex-direction: column;
     background: var(--metal-frame);          /* #7f98a3 → #3f5560 → #16262e */
     border: 1px solid rgba(127, 152, 163, 0.35);
     box-shadow:
@@ -143,10 +148,12 @@
   .corner.tr { top: 5px; right: 5px; border-top-width: 2px; border-right-width: 2px; border-top-right-radius: 14px; }
   .corner.bl { bottom: 5px; left: 5px; border-bottom-width: 2px; border-left-width: 2px; border-bottom-left-radius: 14px; }
   .corner.br { bottom: 5px; right: 5px; border-bottom-width: 2px; border-right-width: 2px; border-bottom-right-radius: 14px; }
-  /* inner playfield — very dark RECESSED area so tiles read as raised boxes */
+  /* inner playfield — very dark RECESSED area so tiles read as raised boxes.
+     Small padding keeps the tiles filling the frame (reference look). */
   .board-inset {
     position: relative;
-    padding: 14px;
+    flex: 1;
+    padding: 12px;
     border-radius: 12px;
     background: #04141a;
     border: 1px solid rgba(25, 227, 227, 0.16);
@@ -154,7 +161,8 @@
       inset 0 6px 18px rgba(0, 0, 0, 0.9),
       inset 0 -2px 6px rgba(0, 0, 0, 0.6),
       inset 0 0 0 1px rgba(0, 0, 0, 0.4);
-    overflow: hidden;
+    display: flex;
+    flex-direction: column;
   }
   /* faint crypto-grid texture */
   .grid-lines {
@@ -171,11 +179,35 @@
   .board {
     display: grid;
     grid-template-columns: repeat(5, minmax(0, 1fr));
-    gap: 12px;
+    /* Tiles almost touch (gap ≈ 12–14% of tile size) — reference proportion */
+    gap: 8px;
     position: relative;
+    flex: 1;
     transform: translate3d(0, 0, 0);
     /* leave room at the bottom of each row for the tiles' extruded 3D edge */
     padding-bottom: 6px;
+  }
+  /* Tablet: slightly smaller board + tighter gaps */
+  @media (max-width: 1023px) {
+    .board-rim {
+      width: min(100%, 520px, 90vw);
+    }
+    .board {
+      gap: 7px;
+    }
+  }
+  /* Phone: full-bleed feel, thin frame, compact gaps */
+  @media (max-width: 600px) {
+    .board-rim {
+      width: min(100%, 94vw);
+      padding: 8px;
+    }
+    .board-inset {
+      padding: 8px;
+    }
+    .board {
+      gap: 6px;
+    }
   }
   .mine-flash {
     position: absolute;
