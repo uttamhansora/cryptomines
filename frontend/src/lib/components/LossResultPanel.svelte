@@ -49,9 +49,9 @@
     text-align: center;
     color: var(--text-primary);
     background: linear-gradient(165deg, #111825 0%, #0b101a 55%, #060a12 100%);
-    border: 1px solid rgba(34, 211, 238, 0.4);
+    border: 1px solid rgba(0, 240, 255, 0.4);
     box-shadow:
-      0 0 0 1px rgba(34, 211, 238, 0.12),
+      0 0 0 1px rgba(0, 240, 255, 0.12),
       0 24px 60px rgba(0, 0, 0, 0.6),
       inset 0 1px 0 rgba(255, 255, 255, 0.06);
     position: relative;
@@ -90,9 +90,9 @@
     width: 58px;
     height: 58px;
     border-radius: 50%;
-    background: radial-gradient(circle at 50% 35%, rgba(34, 211, 238, 0.2), rgba(8, 13, 20, 0.9) 70%);
-    border: 1px solid rgba(34, 211, 238, 0.5);
-    box-shadow: 0 0 22px rgba(34, 211, 238, 0.3);
+    background: radial-gradient(circle at 50% 35%, rgba(0, 240, 255, 0.2), rgba(8, 13, 20, 0.9) 70%);
+    border: 1px solid rgba(0, 240, 255, 0.5);
+    box-shadow: 0 0 22px rgba(0, 240, 255, 0.3);
     animation: badge-in 0.4s var(--ease-out-soft);
   }
   @keyframes badge-in {
@@ -128,14 +128,14 @@
   dd.lost {
     color: var(--danger);
     text-decoration: line-through;
-    text-decoration-color: rgba(34, 211, 238, 0.5);
+    text-decoration-color: rgba(0, 240, 255, 0.5);
   }
   .again {
     width: 100%;
     min-height: 48px;
     border-radius: var(--radius-md);
-    border: 1px solid rgba(34, 211, 238, 0.45);
-    background: linear-gradient(180deg, #155e75, #083344);
+    border: 1px solid rgba(0, 240, 255, 0.45);
+    background: linear-gradient(180deg, #008C93, #003B44);
     color: #ecfeff;
     font-weight: 700;
     font-size: 0.95rem;
@@ -145,7 +145,7 @@
     box-shadow: 0 8px 22px rgba(0, 0, 0, 0.4);
   }
   .again:hover {
-    box-shadow: 0 0 18px rgba(34, 211, 238, 0.3);
+    box-shadow: 0 0 18px rgba(0, 240, 255, 0.3);
   }
   .again:active {
     transform: scale(0.97);

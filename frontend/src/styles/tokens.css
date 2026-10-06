@@ -12,20 +12,20 @@
   --surface-elevated: rgba(23, 33, 58, 0.72);/* raised inner card       */
 
   /* Primary accent (cyan) — canonical knobs live here */
-  --primary: #22d3ee;
-  --primary-light: #67e8f9;
-  --primary-dark: #0e7490;
+  --primary: #00F0FF;
+  --primary-light: #5CF5FF;
+  --primary-dark: #00A6AC;
   /* Secondary accent (violet) — chain / vault / buy features */
   --secondary: #a78bfa;
   --secondary-light: #c4b5fd;
   --secondary-dark: #6d28d9;
 
-  --primary-glow: rgba(34, 211, 238, 0.30);
+  --primary-glow: rgba(0, 240, 255, 0.30);
   --secondary-glow: rgba(139, 92, 246, 0.34);
 
-  --blue-deep: #083344;
-  --blue-mid: #155e75;
-  --blue-light: #0891b2;
+  --blue-deep: #003B44;
+  --blue-mid: #008C93;
+  --blue-light: #00D2D3;
   --graphite: #121c2a;
   --graphite-light: #1e2a3d;
 
@@ -62,7 +62,7 @@
 
   /* ── Glassmorphism + hairline chrome ────────────────────────────── */
   --border: rgba(148, 163, 184, 0.16);        /* neutral 1px translucent */
-  --border-strong: rgba(34, 211, 238, 0.28);
+  --border-strong: rgba(0, 240, 255, 0.28);
   --glass: rgba(13, 20, 32, 0.78);
   --glass-blur: 14px;
   --hairline-top: rgba(255, 255, 255, 0.07);  /* inset top highlight     */
@@ -90,8 +90,8 @@
   );
   --tile-face: linear-gradient(168deg, #1b2f42 0%, #131f2e 46%, #0e1826 100%);
   /* cyan → violet hero gradient (CTA, fills, accents) */
-  --grad-hero: linear-gradient(135deg, #06b6d4 0%, #22d3ee 34%, #8b5cf6 100%);
-  --grad-hero-soft: linear-gradient(135deg, rgba(34, 211, 238, 0.16), rgba(139, 92, 246, 0.16));
+  --grad-hero: linear-gradient(135deg, #00D2D3 0%, #00F0FF 34%, #8b5cf6 100%);
+  --grad-hero-soft: linear-gradient(135deg, rgba(0, 240, 255, 0.16), rgba(139, 92, 246, 0.16));
 
   /* ── Radius scale ───────────────────────────────────────────────── */
   --radius-xs: 6px;

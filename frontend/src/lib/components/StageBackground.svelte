@@ -59,8 +59,8 @@
     pointer-events: none;
     opacity: 0.5;
     background-image:
-      linear-gradient(rgba(34, 211, 238, 0.045) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(34, 211, 238, 0.045) 1px, transparent 1px);
+      linear-gradient(rgba(0, 240, 255, 0.045) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0, 240, 255, 0.045) 1px, transparent 1px);
     background-size: 44px 44px;
     mask-image: radial-gradient(ellipse 90% 80% at 50% 40%, #000 10%, transparent 75%);
     -webkit-mask-image: radial-gradient(ellipse 90% 80% at 50% 40%, #000 10%, transparent 75%);
@@ -78,7 +78,7 @@
   .orb-a {
     left: -12vmax;
     top: -14vmax;
-    background: radial-gradient(circle, rgba(34, 211, 238, 0.14), transparent 62%);
+    background: radial-gradient(circle, rgba(0, 240, 255, 0.14), transparent 62%);
     animation: drift-a 26s ease-in-out infinite alternate;
   }
   .orb-b {
@@ -92,7 +92,7 @@
     top: 58%;
     width: 30vmax;
     height: 30vmax;
-    background: radial-gradient(circle, rgba(8, 145, 178, 0.10), transparent 60%);
+    background: radial-gradient(circle, rgba(0, 210, 211, 0.10), transparent 60%);
     animation: drift-c 38s ease-in-out infinite alternate;
   }
   @keyframes drift-a {
