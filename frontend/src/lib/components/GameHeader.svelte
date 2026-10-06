@@ -9,15 +9,27 @@
 </script>
 
 <header class="header">
+  <!-- Sci-fi header: left nav pod · central coin emblem badge with the
+       CRYPTO/MINES wordmark split across it · right balance + icon cluster -->
+  <nav class="nav-pod" aria-label="Game sections">
+    <a class="nav-link active" href="#game" aria-current="page">Play</a>
+    <a class="nav-link" href="#crypto-chain">Chain</a>
+    <a class="nav-link" href="#crypto-vault">Vault</a>
+  </nav>
+
   <div class="brand">
+    <span class="wordmark wordmark-left" aria-hidden="true">CRYPTO</span>
     <span class="mark" aria-hidden="true">
-      <svg viewBox="0 0 64 64" width="22" height="22">
+      <!-- Bitcoin-style emblem inside a hexagonal metallic badge -->
+      <svg viewBox="0 0 64 64" width="24" height="24">
         <polygon points="32,7 54,20 54,44 32,57 10,44 10,20" fill="#12161f" stroke="#22d3ee" stroke-width="2.4" />
-        <polygon points="32,17 45,25 45,39 32,47 19,39 19,25" fill="none" stroke="#22d3ee" stroke-width="2" opacity=".85" />
-        <circle cx="32" cy="32" r="4.6" fill="#67e8f9" />
+        <g fill="none" stroke="#67e8f9" stroke-width="3.4" stroke-linecap="round">
+          <path d="M25 21v22M25 21h9.5a5.5 5.5 0 0 1 0 11H25zM25 32h10.5a5.5 5.5 0 0 1 0 11H25z" />
+          <path d="M29 16.5v4.5M36 16.5v4.5M29 43v4.5M36 43v4.5" stroke-width="2.6" />
+        </g>
       </svg>
     </span>
-    <h1>Crypto<span>Mines</span></h1>
+    <h1><span class="sr-only">CryptoMines</span><span class="wordmark wordmark-right" aria-hidden="true">MINES</span></h1>
   </div>
   <div class="actions">
     <div class="balance" data-balance-chip role="status" aria-label={`Balance ${balance.toFixed(2)}`}>
@@ -196,40 +208,145 @@
     color: #9fb0c2; /* AA contrast vs the dark chip background */
   }
 
-  /* ── Glass header bar (v2 redesign) ─────────────────────────────── */
+  /* ── Sci-fi header (v3): nav pod · center emblem badge · right HUD ── */
   .header {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    gap: var(--space-sm);
     padding: var(--space-2) var(--space-3);
     border-radius: var(--radius-lg);
-    background: linear-gradient(180deg, rgba(16, 24, 40, 0.62), rgba(9, 14, 24, 0.72));
+    background:
+      radial-gradient(120% 180% at 50% -60%, rgba(34, 211, 238, 0.10), transparent 60%),
+      linear-gradient(180deg, rgba(16, 24, 40, 0.72), rgba(9, 14, 24, 0.82));
     border: 1px solid var(--border);
     box-shadow: inset 0 1px 0 var(--hairline-top), var(--shadow-md);
     backdrop-filter: blur(var(--glass-blur));
     -webkit-backdrop-filter: blur(var(--glass-blur));
+    position: relative;
   }
-  h1 {
+  /* thin cyan scan line along the top edge */
+  .header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 12%;
+    right: 12%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(34, 211, 238, 0.55), transparent);
+    pointer-events: none;
+  }
+  .nav-pod {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    justify-self: start;
+    padding: 0.25rem;
+    border-radius: var(--radius-pill);
+    border: 1px solid var(--border);
+    background: linear-gradient(180deg, rgba(18, 28, 45, 0.85), rgba(8, 13, 22, 0.9));
+    box-shadow: inset 0 1px 0 var(--hairline-top);
+  }
+  .nav-link {
+    font-family: var(--font-display);
+    font-size: 0.66rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    text-decoration: none;
+    color: var(--text-secondary);
+    padding: 0.32rem 0.7rem;
+    border-radius: var(--radius-pill);
+    transition: color 0.15s, background-color 0.15s, box-shadow 0.15s;
+  }
+  .nav-link:hover {
+    color: var(--highlight-soft);
+    background: rgba(34, 211, 238, 0.08);
+  }
+  .nav-link.active {
+    color: #06131d;
+    background: linear-gradient(180deg, var(--primary-light), var(--blue-light));
+    box-shadow: 0 0 14px rgba(34, 211, 238, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+  }
+  .nav-link:focus-visible {
+    outline: 2px solid rgba(34, 211, 238, 0.6);
+    outline-offset: 2px;
+  }
+  /* Center brand: CRYPTO [₿ badge] MINES */
+  .brand {
+    justify-self: center;
+    gap: 0.55rem;
+  }
+  .wordmark {
+    font-family: var(--font-display);
+    font-size: clamp(0.95rem, 3.5vw, 1.18rem);
+    letter-spacing: 0.16em;
+    font-weight: 700;
+    text-transform: uppercase;
     background: linear-gradient(92deg, #e0f7fa 20%, var(--primary-light) 70%, var(--secondary-light));
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
-    color: transparent; /* fallback below keeps it visible if clip unsupported */
+    color: #e0f7fa; /* fallback if clip unsupported */
+    text-shadow: none;
   }
   @supports not (background-clip: text) {
-    h1 { color: #e0f7fa; }
+    .wordmark { color: #e0f7fa; }
   }
-  /* gradient-clipped heading can't paint its own span color — restore accent */
-  h1 span {
+  .wordmark-right {
+    color: var(--accent-primary);
+  }
+  h1 {
+    margin: 0;
+    display: inline-flex;
+    font-size: inherit;
+    background: none;
     -webkit-text-fill-color: initial;
   }
-  .brand {
-    gap: 0.65rem;
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+    border: 0;
+  }
+  .actions {
+    justify-self: end;
   }
   .mark {
-    width: 38px;
-    height: 38px;
+    width: 40px;
+    height: 40px;
     border-radius: var(--radius-md);
-    background: var(--grad-hero-soft);
+    background:
+      radial-gradient(circle at 50% 30%, rgba(34, 211, 238, 0.18), transparent 70%),
+      var(--grad-hero-soft);
     border: 1px solid var(--border-strong);
     box-shadow: var(--glow-cyan), inset 0 1px 0 var(--hairline-top);
+    position: relative;
+  }
+  /* small pulsing status light on the badge corner */
+  .mark::after {
+    content: '';
+    position: absolute;
+    top: -2px;
+    right: -2px;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--primary);
+    box-shadow: 0 0 8px rgba(34, 211, 238, 0.8);
+    animation: badge-blink 2.4s ease-in-out infinite;
+  }
+  @keyframes badge-blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.35; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .mark::after { animation: none; }
   }
   .balance {
     flex-direction: row;
@@ -252,5 +369,26 @@
     width: 44px;
     height: 44px;
     border-radius: var(--radius-md);
+  }
+
+  /* ── Responsive header reflow (no horizontal overflow on mobile) ──── */
+  @media (max-width: 860px) {
+    .nav-pod {
+      display: none; /* brand stays centered; sections reachable via anchors below */
+    }
+    .header {
+      grid-template-columns: auto 1fr;
+    }
+    .brand {
+      justify-self: start;
+    }
+  }
+  @media (max-width: 480px) {
+    .balance .label {
+      display: none; /* value + coin glyph stay, label drops to save width */
+    }
+    .wordmark {
+      letter-spacing: 0.1em;
+    }
   }
 </style>

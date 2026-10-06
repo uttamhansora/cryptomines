@@ -238,11 +238,15 @@
     will-change: transform;
     backface-visibility: hidden;
     transform-style: preserve-3d;
-    border: 1px solid rgba(112, 132, 165, 0.16);
+    /* metallic sci-fi bevel: glowing cyan-tinted rim + layered light/shadow edges */
+    border: 1px solid rgba(34, 211, 238, 0.26);
     background: var(--tile-face);
     box-shadow:
       0 3px 0 rgba(0, 0, 0, 0.45),
-      inset 0 1px 0 rgba(255, 255, 255, 0.09),
+      0 0 12px rgba(34, 211, 238, 0.08),
+      inset 0 1px 0 rgba(255, 255, 255, 0.12),
+      inset 1px 0 0 rgba(103, 232, 249, 0.07),
+      inset -1px 0 0 rgba(103, 232, 249, 0.07),
       inset 0 -6px 12px rgba(0, 0, 0, 0.35);
   }
   /* GPU layer is only needed while a tile is actually interactive. Once the
@@ -273,7 +277,15 @@
     inset: 0 0 auto 0;
     height: 42%;
     border-radius: 10px 10px 40% 40%;
-    background: linear-gradient(180deg, rgba(255, 255, 255, 0.07), transparent 85%);
+    background: linear-gradient(180deg, rgba(165, 243, 252, 0.10), transparent 85%);
+    pointer-events: none;
+  }
+  /* diagonal reflection sweep on the metal face — static, zero-cost */
+  .tile-inner::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(118deg, transparent 42%, rgba(103, 232, 249, 0.07) 50%, transparent 58%);
     pointer-events: none;
   }
   .tile-glow {

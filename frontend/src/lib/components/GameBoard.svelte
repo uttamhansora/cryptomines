@@ -29,7 +29,7 @@
   };
 </script>
 
-<div class="board-wrap" data-game-board>
+<div class="board-wrap" data-game-board id="game">
   <div class="floor-shadow" aria-hidden="true"></div>
   <div class="board-rim">
     <span class="rim-sheen" aria-hidden="true"></span>
@@ -39,7 +39,7 @@
     <span class="corner br" aria-hidden="true"></span>
     <div class="board-inset">
       <div class="grid-lines" aria-hidden="true"></div>
-      <div class="board" role="grid" aria-label="Crypto vault grid">
+      <div class="board" role="grid" aria-label="CryptoMines 5 by 5 grid">
         <div class="mine-flash" data-mine-flash aria-hidden="true"></div>
         <div class="shockwave" data-shockwave aria-hidden="true"></div>
         <div class="vault-portal" data-vault-portal aria-hidden="true"></div>
