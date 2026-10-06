@@ -166,6 +166,8 @@
   --ease-ui: cubic-bezier(0.25, 0.8, 0.35, 1); /* 150–300ms interactions */
 
   --tile-size: min(16vw, 72px);
-  --board-max: 460px;
+  /* Board sizing tokens — the grid is the main focus of the page.
+     Desktop default ~640px, tablet 520px, phone 94vw, >=1400px up to 700px. */
+  --board-max: min(640px, 92vw);
   --safe-bottom: env(safe-area-inset-bottom, 0px);
 }
