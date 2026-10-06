@@ -1,76 +1,107 @@
 /* ════════════════════════════════════════════════════════════════════
-   CryptoMines — Design System Tokens (v2 "Neon Vault")
+   CryptoMines — Design System Tokens (v3 "Cyber Vault")
    Single source of truth for color, spacing, radius, shadow/glow and
    type. Every component consumes these variables only — to re-theme the
    game, change --primary / --secondary and the glow/border aliases below.
+
+   Reference palette (all consumers below map onto these exact values):
+     backgrounds   --bg-deep #050d14 · --bg-panel #0a1a24 · --bg-panel-2 #0e2430
+     teal/cyan     tile top #1b6f78 · tile bottom #0c3f4a · hover #23909b
+                   neon glow #19e3e3 · soft cyan text #6fe9ee · border #2a8a94
+     metal frame   light #7f98a3 · mid #3f5560 · dark #16262e
+     gold gems     #f4b63c / #ffd978 / #b9791a
+     mine danger   #e5303f / #7a0f1c / rgba(255,50,70,.6)
+     progress      #2fd6a0 / #148a6a
+     text          main #e6f7f9 · muted #7fa3ac
    ════════════════════════════════════════════════════════════════════ */
 :root {
-  /* ── Core palette: deep space navy + neon cyan + violet ─────────── */
-  --bg-primary: #04070d;          /* deep navy / near-black space      */
-  --bg-secondary: #0a1220;        /* dark blue-gray metallic           */
-  --surface: rgba(15, 23, 42, 0.66);         /* glass panel fill        */
-  --surface-elevated: rgba(23, 33, 58, 0.72);/* raised inner card       */
+  /* ── Raw reference palette (exposed as editable custom properties) ─ */
+  --bg-deep: #050d14;             /* page background, near-black navy  */
+  --bg-panel: #0a1a24;            /* side panels                       */
+  --bg-panel-2: #0e2430;          /* inner panel areas                 */
+  --teal-tile-top: #1b6f78;
+  --teal-tile-bottom: #0c3f4a;
+  --teal-tile-hover: #23909b;
+  --cyan-glow: #19e3e3;           /* neon glow, active rings           */
+  --cyan-soft: #6fe9ee;           /* text highlights, icons            */
+  --teal-border: #2a8a94;
+  --metal-light: #7f98a3;
+  --metal-mid: #3f5560;
+  --metal-dark: #16262e;
+  --gold: #f4b63c;                /* (re-declared below w/ bright/deep) */
+  --mine-red: #e5303f;
+  --green-progress: #2fd6a0;
 
-  /* Primary accent (cyan) — canonical knobs live here */
-  --primary: #00F2FE;
-  --primary-light: #8BE9FD;
-  --primary-dark: #0090A8;
-  /* Secondary accent (violet) — chain / vault / buy features */
-  --secondary: #a78bfa;
-  --secondary-light: #c4b5fd;
-  --secondary-dark: #6d28d9;
+  /* ── Core palette: deep space navy + neon cyan-teal + steel ──────── */
+  --bg-primary: var(--bg-deep);
+  --bg-secondary: var(--bg-panel);
+  --surface: rgba(10, 26, 36, 0.78);          /* glass panel fill       */
+  --surface-elevated: rgba(14, 36, 48, 0.85); /* raised inner card      */
 
-  --primary-glow: rgba(0, 242, 254, 0.30);
-  --secondary-glow: rgba(139, 92, 246, 0.34);
+  /* Primary accent (neon cyan-teal) — canonical knobs live here */
+  --primary: #19e3e3;             /* = --cyan-glow                      */
+  --primary-light: #6fe9ee;       /* = --cyan-soft                      */
+  --primary-dark: #1b6f78;        /* = --teal-tile-top                  */
+  /* Secondary accent (steel blue) — chain / vault / buy features */
+  --secondary: #4f9fc0;
+  --secondary-light: #8fd0e8;
+  --secondary-dark: #2a5a70;
 
-  --blue-deep: #003540;
-  --blue-mid: #007A8F;
-  --blue-light: #4FACFE;
-  --graphite: #121c2a;
-  --graphite-light: #1e2a3d;
+  --primary-glow: rgba(25, 227, 227, 0.30);
+  --secondary-glow: rgba(79, 159, 192, 0.30);
 
-  --accent-primary: var(--primary);          /* cyan   */
-  /* NOTE: --accent-secondary historically mapped to pale-cyan. It now maps to
-     the violet secondary accent — every consumer stays on-theme. */
-  --accent-secondary: var(--secondary);      /* violet */
-  --accent-hot: var(--primary-light);
+  --blue-deep: #071c24;           /* board well / darkest teal surface  */
+  --blue-mid: #2a8a94;            /* = --teal-border                    */
+  --blue-light: #23909b;          /* = --teal-tile-hover                */
+  --graphite: #16262e;            /* = --metal-dark                     */
+  --graphite-light: #3f5560;      /* = --metal-mid                      */
+
+  --accent-primary: var(--primary);          /* neon cyan-teal           */
+  /* NOTE: --accent-secondary historically mapped to pale-cyan/violet. It now
+     maps to the steel-blue secondary accent — every consumer stays on-theme. */
+  --accent-secondary: var(--secondary);      /* steel blue               */
+  --accent-hot: var(--cyan-soft);
   --highlight: var(--primary);
-  --highlight-soft: var(--primary-light);
+  --highlight-soft: var(--cyan-soft);
 
-  /* SUCCESS = gold / amber (reward tiles, wins) */
-  --success: #34d399;
-  --success-bright: #6ee7b7;
-  --gold: #fbbf24;
-  --gold-bright: #fde68a;
-  --gold-deep: #d97706;
-  --glow-gold: rgba(251, 191, 36, 0.32);
-  --glow-green: rgba(52, 211, 153, 0.32);
+  /* SUCCESS = green progress + gold / amber (reward tiles, wins) */
+  --success: #2fd6a0;             /* = --green-progress                 */
+  --success-bright: #6fe9ee;
+  --green-progress-dark: #148a6a;
+  --gold: #f4b63c;
+  --gold-bright: #ffd978;
+  --gold-deep: #b9791a;
+  --glow-gold: rgba(244, 182, 60, 0.34);
+  --glow-green: rgba(47, 214, 160, 0.32);
 
   /* WARNING follows the gold family */
-  --warning: #f59e0b;
+  --warning: #f4b63c;
 
-  /* DANGER = premium red (mines, loss states) */
-  --danger: #ef4444;
-  --danger-bright: #f87171;
-  --danger-deep: #991b1b;
-  --glow-red: rgba(239, 68, 68, 0.35);
+  /* DANGER = glowing mine red (mines, loss states) */
+  --danger: #e5303f;              /* = --mine-red                       */
+  --danger-bright: #ff5a68;
+  --danger-deep: #7a0f1c;         /* = --mine-red-dark                  */
+  --mine-red-dark: #7a0f1c;
+  --mine-glow: rgba(255, 50, 70, 0.6);
+  --glow-red: rgba(229, 48, 63, 0.38);
 
   /* ── Text (WCAG AA on every surface in this system) ─────────────── */
-  --text-primary: #eef7fb;
-  --text-secondary: #9db4c4;
-  --text-muted: #7c93a8;          /* bumped ≥ 4.5:1 vs panels for AA   */
+  --text-primary: #e6f7f9;
+  --text-secondary: #9fc3cd;
+  --text-muted: #7fa3ac;          /* ≥ 4.5:1 vs panels for AA           */
 
   /* ── Glassmorphism + hairline chrome ────────────────────────────── */
-  --border: rgba(148, 163, 184, 0.16);        /* neutral 1px translucent */
-  --border-strong: rgba(0, 242, 254, 0.28);
-  --glass: rgba(13, 20, 32, 0.78);
+  --border: rgba(127, 152, 163, 0.22);        /* metallic 1px translucent */
+  --border-strong: rgba(25, 227, 227, 0.32);  /* cyan glow border         */
+  --teal-border-rgb: 42, 138, 148;            /* --teal-border as rgb triple */
+  --glass: rgba(10, 26, 36, 0.82);
   --glass-blur: 14px;
   --hairline-top: rgba(255, 255, 255, 0.07);  /* inset top highlight     */
 
   --shadow-key: rgba(0, 0, 0, 0.6);
   --shadow-ambient: rgba(4, 10, 18, 0.4);
   --light-key: rgba(255, 255, 255, 0.07);
-  --light-rim: rgba(103, 232, 249, 0.12);
+  --light-rim: rgba(111, 233, 238, 0.14);     /* cyan-soft rim          */
 
   /* Shadow / glow tokens */
   --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.35);
@@ -78,20 +109,26 @@
   --shadow-lg: 0 24px 60px rgba(0, 0, 0, 0.6), 0 4px 14px rgba(0, 0, 0, 0.5);
   --glow-cyan: 0 0 18px var(--primary-glow);
   --glow-violet: 0 0 18px var(--secondary-glow);
+  /* legacy aliases consumed by components (Tile, LoadingShell…) */
+  --glow-blue: rgba(25, 227, 227, 0.42);      /* neon cyan fill         */
+  --glow-hot: rgba(244, 182, 60, 0.46);       /* gold vault fill        */
 
-  /* metallic frame gradient (shared by board + panel chrome) */
+  /* metallic frame gradient (shared by board + panel chrome):
+     light steel → dark slate → mid steel, like a brushed metal bezel */
   --metal-frame: linear-gradient(
     160deg,
-    #1c3446 0%,
-    #0d1520 22%,
-    #182636 48%,
-    #141b33 74%,
-    #2b2a52 100%
+    #7f98a3 0%,
+    #3f5560 22%,
+    #16262e 48%,
+    #1d3540 74%,
+    #0c161c 100%
   );
-  --tile-face: linear-gradient(168deg, #1b2f42 0%, #131f2e 46%, #0e1826 100%);
-  /* cyan → violet hero gradient (CTA, fills, accents) */
-  --grad-hero: linear-gradient(135deg, #4FACFE 0%, #00F2FE 34%, #8b5cf6 100%);
-  --grad-hero-soft: linear-gradient(135deg, rgba(0, 242, 254, 0.16), rgba(139, 92, 246, 0.16));
+  --metal-edge: linear-gradient(180deg, rgba(127, 152, 163, 0.55), rgba(22, 38, 46, 0.9));
+  /* tile face = exact reference teal bevel gradient */
+  --tile-face: linear-gradient(145deg, #1b6f78 0%, #12555f 48%, #0c3f4a 100%);
+  /* cyan hero gradient (CTA, fills, accents) — no violet remaining */
+  --grad-hero: linear-gradient(135deg, #1b6f78 0%, #19e3e3 55%, #6fe9ee 100%);
+  --grad-hero-soft: linear-gradient(135deg, rgba(25, 227, 227, 0.16), rgba(27, 111, 120, 0.18));
 
   /* ── Radius scale ───────────────────────────────────────────────── */
   --radius-xs: 6px;

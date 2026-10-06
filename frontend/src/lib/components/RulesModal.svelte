@@ -148,7 +148,7 @@
     transition: border-color 0.15s, transform 0.1s ease;
   }
   .close:hover {
-    border-color: rgba(79, 172, 254, 0.5);
+    border-color: rgba(35, 144, 155, 0.5);
   }
   .close:active {
     transform: scale(0.94);

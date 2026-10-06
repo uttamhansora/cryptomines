@@ -175,7 +175,7 @@
             <polygon points="32,10 52,22 52,42 32,54 12,42 12,22" />
             <polygon points="32,20 43,27 43,37 32,44 21,37 21,27" opacity=".7" />
           </g>
-          <circle cx="32" cy="32" r="4.2" fill="#00F2FE" opacity=".5" />
+          <circle cx="32" cy="32" r="4.2" fill="#19E3E3" opacity=".5" />
           <path d="M32 10v10M32 44v10M12 22l9 5M43 27l9-5M12 42l9-5M43 37l9 5" stroke="var(--primary)" stroke-width="1.4" opacity=".35" />
         </svg>
       </span>
@@ -238,16 +238,17 @@
     will-change: transform;
     backface-visibility: hidden;
     transform-style: preserve-3d;
-    /* metallic sci-fi bevel: glowing cyan-tinted rim + layered light/shadow edges */
-    border: 1px solid rgba(0, 242, 254, 0.26);
-    background: var(--tile-face);
+    /* metallic sci-fi bevel: teal border + inset top highlight + cyan glow */
+    border: 2px solid rgba(var(--teal-border-rgb), 0.55);   /* --teal-border */
+    background: var(--tile-face);                            /* 145deg #1b6f78 → #0c3f4a */
     box-shadow:
       0 3px 0 rgba(0, 0, 0, 0.45),
-      0 0 12px rgba(0, 242, 254, 0.08),
-      inset 0 1px 0 rgba(255, 255, 255, 0.12),
-      inset 1px 0 0 rgba(103, 232, 249, 0.07),
-      inset -1px 0 0 rgba(103, 232, 249, 0.07),
+      0 0 12px rgba(25, 227, 227, 0.08),
+      inset 0 2px 0 rgba(255, 255, 255, 0.25),               /* top-edge highlight */
+      inset 1px 0 0 rgba(111, 233, 238, 0.07),
+      inset -1px 0 0 rgba(111, 233, 238, 0.07),
       inset 0 -6px 12px rgba(0, 0, 0, 0.35);
+    transition: filter 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
   }
   /* GPU layer is only needed while a tile is actually interactive. Once the
      cell is revealed its pose is final, so we release the composited layer —
@@ -257,12 +258,14 @@
     will-change: auto;
   }
   .tile:not(:disabled):hover .tile-inner {
-    transform: translate3d(0, -3px, 0);
-    border-color: rgba(0, 242, 254, 0.4);
+    transform: translate3d(0, -2px, 0);
+    /* brighter teal face (--teal-tile-hover) + neon cyan glow */
+    filter: brightness(1.28) saturate(1.15);
+    border-color: var(--cyan-glow);                          /* #19e3e3 */
     box-shadow:
       0 6px 14px rgba(0, 0, 0, 0.5),
-      0 0 16px rgba(0, 242, 254, 0.12),
-      inset 0 1px 0 rgba(255, 255, 255, 0.12);
+      0 0 14px var(--cyan-glow),
+      inset 0 2px 0 rgba(255, 255, 255, 0.25);
   }
   .tile:not(:disabled):hover .back-mark {
     opacity: 0.95;
@@ -285,7 +288,7 @@
     content: '';
     position: absolute;
     inset: 0;
-    background: linear-gradient(118deg, transparent 42%, rgba(103, 232, 249, 0.07) 50%, transparent 58%);
+    background: linear-gradient(118deg, transparent 42%, rgba(111, 233, 238, 0.07) 50%, transparent 58%);
     pointer-events: none;
   }
   .tile-glow {
@@ -299,7 +302,7 @@
     background: radial-gradient(circle at 50% 30%, var(--glow-hot), transparent 70%);
   }
   .tile.mine .tile-glow {
-    background: radial-gradient(circle at 50% 50%, rgba(239, 68, 68, 0.5), transparent 72%);
+    background: radial-gradient(circle at 50% 50%, rgba(229, 48, 63, 0.5), transparent 72%);
     opacity: 0.9;
   }
   .tile-fx {
@@ -315,31 +318,31 @@
     inset: 0;
     opacity: 0;
     pointer-events: none;
-    background: radial-gradient(circle, rgba(0, 242, 254, 0.3), transparent 65%);
+    background: radial-gradient(circle, rgba(25, 227, 227, 0.3), transparent 65%);
   }
   .tile.sym-btc .tile-glow,
   .tile.sym-btc .tile-burst {
-    background: radial-gradient(circle, rgba(251, 191, 36, 0.42), transparent 68%);
+    background: radial-gradient(circle, rgba(244, 182, 60, 0.42), transparent 68%);
   }
   .tile.sym-eth .tile-glow,
   .tile.sym-eth .tile-burst {
-    background: radial-gradient(circle, rgba(253, 230, 138, 0.3), transparent 68%);
+    background: radial-gradient(circle, rgba(255, 217, 120, 0.3), transparent 68%);
   }
   .tile.sym-sol .tile-glow,
   .tile.sym-sol .tile-burst {
-    background: radial-gradient(circle, rgba(251, 191, 36, 0.38), transparent 68%);
+    background: radial-gradient(circle, rgba(244, 182, 60, 0.38), transparent 68%);
   }
   .tile.sym-usdt .tile-glow,
   .tile.sym-usdt .tile-burst {
-    background: radial-gradient(circle, rgba(125, 211, 252, 0.42), transparent 68%);
+    background: radial-gradient(circle, rgba(143, 208, 232, 0.42), transparent 68%);
   }
   .tile.sym-diamond .tile-glow,
   .tile.sym-diamond .tile-burst {
-    background: radial-gradient(circle, rgba(125, 211, 252, 0.45), transparent 68%);
+    background: radial-gradient(circle, rgba(143, 208, 232, 0.45), transparent 68%);
   }
   .tile.sym-vault .tile-glow,
   .tile.sym-vault .tile-burst {
-    background: radial-gradient(circle, rgba(79, 172, 254, 0.48), transparent 68%);
+    background: radial-gradient(circle, rgba(35, 144, 155, 0.48), transparent 68%);
   }
   /* unrevealed lid emblem */
   .tile-lid {
@@ -408,10 +411,10 @@
     filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.5));
   }
   .sym-wrap.vault-sym .sym {
-    filter: drop-shadow(0 4px 12px rgba(79, 172, 254, 0.5));
+    filter: drop-shadow(0 4px 12px rgba(35, 144, 155, 0.5));
   }
   .sym-wrap.mine-sym .sym {
-    filter: drop-shadow(0 4px 14px rgba(239, 68, 68, 0.55));
+    filter: drop-shadow(0 4px 14px rgba(229, 48, 63, 0.55));
   }
   @keyframes sym-in {
     from {
@@ -427,21 +430,35 @@
       transform: scale(1) rotateY(0deg);
     }
   }
+  /* Revealed SAFE = dark empty cavity (#06161c) with deep inner shadow; the
+     gold reward icon sits inside it glowing (gold drop-shadow below). */
   .tile.revealed.safe .tile-inner {
-    border-color: rgba(251, 191, 36, 0.42);
-    background: linear-gradient(168deg, #241f12 0%, #100d07 100%);
+    border-color: rgba(244, 182, 60, 0.45);   /* --gold rim             */
+    background: #06161c;
     box-shadow:
-      0 0 0 1px rgba(251, 191, 36, 0.12),
+      0 0 0 1px rgba(244, 182, 60, 0.12),
       0 4px 12px rgba(0, 0, 0, 0.45),
-      inset 0 1px 0 rgba(253, 230, 138, 0.14);
+      inset 0 4px 14px rgba(0, 0, 0, 0.75),
+      inset 0 0 18px rgba(244, 182, 60, 0.10);
   }
+  /* Revealed MINE = dark tile + red neon square border + pulsing glow */
   .tile.mine .tile-inner {
-    border-color: rgba(239, 68, 68, 0.55);
-    background: linear-gradient(160deg, #241115, #14070b);
+    border-color: var(--danger);              /* --mine-red #e5303f     */
+    background: linear-gradient(160deg, #1c0a10, #0b0508);
     box-shadow:
-      0 0 18px rgba(239, 68, 68, 0.28),
-      inset 0 1px 0 rgba(248, 113, 113, 0.14);
-    animation: mine-shake 0.3s ease-out;
+      0 0 0 1px rgba(229, 48, 63, 0.55),
+      0 0 18px var(--mine-glow),
+      inset 0 0 14px rgba(229, 48, 63, 0.22);
+    animation: mine-shake 0.3s ease-out, mine-pulse 1.2s ease-in-out 0.3s infinite;
+  }
+  @keyframes mine-pulse {
+    0%, 100% { box-shadow: 0 0 0 1px rgba(229, 48, 63, 0.55), 0 0 12px rgba(255, 50, 70, 0.35), inset 0 0 10px rgba(229, 48, 63, 0.18); }
+    50% { box-shadow: 0 0 0 1px rgba(229, 48, 63, 0.85), 0 0 22px rgba(255, 50, 70, 0.6), inset 0 0 16px rgba(229, 48, 63, 0.3); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .tile.mine .tile-inner {
+      animation: none;
+    }
   }
   @keyframes mine-shake {
     0% { transform: translate3d(0, 0, 0); }
@@ -455,10 +472,11 @@
   }
   .tile.ghost.mine .tile-inner {
     opacity: 0.92;
-    border-color: rgba(239, 68, 68, 0.3);
+    border-color: rgba(229, 48, 63, 0.32);
+    animation: none;
   }
   .tile.ghost.safe .tile-inner {
-    border-color: rgba(251, 191, 36, 0.16);
+    border-color: rgba(244, 182, 60, 0.18);
   }
   .tile.mine:not(.ghost) .tile-inner {
     z-index: 2;
