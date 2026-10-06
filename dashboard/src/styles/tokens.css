@@ -64,10 +64,10 @@
   /* --- Explicit compact board sizing (viewport-driven so the whole
      layout — header + board + sidebar + footer — always fits 100vh).
      Grid height = 5 × clamp(...) + gaps ≤ ~430px on a 900px screen. --- */
-  --board-max: 420px;                  /* metallic frame width cap (was 500px) */
-  --tile-size: clamp(56px, calc((100vh - 380px) / 5), 72px); /* explicit smaller square edge */
-  --grid-gap: 5px;                     /* gutter between tiles (was 6px)       */
-  --frame-pad: 6px;                    /* metallic rim padding (was 8px)       */
+  --board-max: 340px;                  /* metallic frame width cap (was 420px) — hard fixed max so the board is physically smaller on every screen */
+  --tile-size: clamp(44px, calc((100vh - 430px) / 5), 60px); /* explicit smaller square edge (was 56–72px): 60px ceiling guarantees a visibly reduced grid */
+  --grid-gap: 4px;                     /* gutter between tiles (was 5px)       */
+  --frame-pad: 5px;                    /* metallic rim padding (was 6px)       */
 
   /* ---- Type ---- */
   --font-display: 'Orbitron', 'Rajdhani', sans-serif;
