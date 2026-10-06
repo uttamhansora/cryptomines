@@ -23,6 +23,8 @@
   --grad-accent: linear-gradient(180deg, var(--accent), var(--accent-2));
   --grad-panel: linear-gradient(165deg, var(--panel-2) 0%, var(--panel) 55%, #091120 100%);
   --grad-tile: linear-gradient(160deg, #16263d 0%, #0d1a2c 55%, #0a1424 100%);
+  /* Metallic band used on the board frame + header chrome (dark → light → dark) */
+  --grad-metal: linear-gradient(180deg, #12283b 0%, #0a1a2b 42%, #12293d 58%, #071120 100%);
   /* Revealed faces use the reference reward/danger metal gradients */
   --grad-tile-safe: linear-gradient(160deg, #2b2113 0%, #1a130a 55%, #120d06 100%);
   --grad-tile-mine: linear-gradient(160deg, #2b1216 0%, #1a0a0d 55%, #120608 100%);

@@ -82,12 +82,26 @@ button:disabled { cursor: not-allowed; }
   gap: var(--s-3);
 }
 
-/* ---------------- Header ---------------- */
+/* ---------------- Header (compact metallic HUD bar — spec §4) ---------------- */
 .cm-header {
   display: flex; align-items: center; justify-content: space-between;
   gap: var(--s-3);
-  padding: var(--s-2) 0;
+  padding: var(--s-2) var(--s-3);
   flex-wrap: wrap;
+  position: relative;
+  background: var(--grad-metal);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  box-shadow: var(--shadow-card), inset 0 1px 0 rgba(230, 241, 255, 0.06);
+}
+/* thin cyan light-line along the top edge (HUD chrome) */
+.cm-header::before {
+  content: '';
+  position: absolute;
+  left: 12%; right: 12%; top: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(34, 211, 238, 0.5), transparent);
+  pointer-events: none;
 }
 
 .cm-brand { display: flex; align-items: center; gap: var(--s-3); }
@@ -98,8 +112,8 @@ button:disabled { cursor: not-allowed; }
   border-radius: var(--r-sm);
   border: 1px solid var(--border-strong);
   color: var(--accent);
-  background: rgba(34, 211, 238, 0.06);
-  box-shadow: inset 0 0 12px rgba(34, 211, 238, 0.12);
+  background: radial-gradient(circle at 50% 30%, rgba(34, 211, 238, 0.14), rgba(34, 211, 238, 0.04));
+  box-shadow: inset 0 0 12px rgba(34, 211, 238, 0.16), 0 0 10px rgba(34, 211, 238, 0.12);
 }
 
 .cm-brand-name {
@@ -120,8 +134,9 @@ button:disabled { cursor: not-allowed; }
   padding: var(--s-1) var(--s-3);
   min-height: 44px;
   border-radius: var(--r-sm);
-  border: 1px solid var(--border);
-  background: var(--panel);
+  border: 1px solid var(--border-strong);
+  background: linear-gradient(180deg, rgba(34, 211, 238, 0.07), rgba(9, 17, 30, 0.9));
+  box-shadow: inset 0 1px 0 rgba(230, 241, 255, 0.05), inset 0 0 14px rgba(34, 211, 238, 0.06);
 }
 .cm-balance-label {
   font-size: 10px; letter-spacing: 0.22em; color: var(--muted); font-weight: 700;
@@ -141,7 +156,8 @@ button:disabled { cursor: not-allowed; }
   width: 40px; height: 40px;
   border-radius: var(--r-sm);
   border: 1px solid var(--border);
-  background: var(--panel);
+  background: linear-gradient(180deg, #101d2f, #0a1424);
+  box-shadow: inset 0 1px 0 rgba(230, 241, 255, 0.06), var(--shadow-btn);
   color: var(--muted);
   transition: color var(--dur-fast) var(--ease-out), border-color var(--dur-fast), box-shadow var(--dur-fast), transform var(--dur-fast);
 }
@@ -267,18 +283,32 @@ button:disabled { cursor: not-allowed; }
   user-select: none;
 }
 
-/* ---------------- Board frame (metallic, glowing) ---------------- */
+/* ---------------- Game instruction line below the board (spec §9) ---------------- */
+.cm-instruction {
+  display: flex; align-items: center; justify-content: center; gap: var(--s-3);
+  font-size: var(--fs-xs); letter-spacing: 0.24em;
+  color: var(--muted); font-weight: 600; user-select: none;
+}
+.cm-instruction::before, .cm-instruction::after {
+  content: '';
+  height: 1px; width: clamp(24px, 8vw, 72px);
+  background: linear-gradient(90deg, transparent, var(--border-strong));
+}
+.cm-instruction::after { transform: scaleX(-1); }
+
+/* ---------------- Board frame (metallic, glowing — spec §5) ---------------- */
 .cm-board-frame {
   position: relative;
   padding: var(--s-4);
   border-radius: var(--r-lg);
-  /* dark metal outer band */
-  background: linear-gradient(160deg, #0e2734 0%, #081522 55%, #050d17 100%);
+  /* outer metallic band with a brushed light sweep in the middle */
+  background: var(--grad-metal);
   border: 1px solid rgba(34, 211, 238, 0.22);
   box-shadow:
-    0 0 0 1px rgba(0, 0, 0, 0.6),
-    0 0 22px rgba(34, 211, 238, 0.08),          /* restrained cyan aura    */
-    0 24px 60px rgba(0, 0, 0, 0.55);            /* depth                   */
+    0 0 0 1px rgba(0, 0, 0, 0.6),                    /* dark separation line   */
+    inset 0 1px 0 rgba(230, 241, 255, 0.07),         /* top edge highlight     */
+    0 0 22px rgba(34, 211, 238, 0.08),               /* restrained cyan aura   */
+    0 24px 60px rgba(0, 0, 0, 0.55);                 /* depth                  */
 }
 
 /* Inner beveled well holding the grid */
@@ -485,21 +515,46 @@ button:disabled { cursor: not-allowed; }
   transform: scale(1.06);
 }
 
-/* ---------------- Control panel ---------------- */
+/* ---------------- Control panel — split into stacked machine panels (§10-§13) */
 .cm-panel {
-  display: flex; flex-direction: column; gap: var(--s-4);
+  display: flex; flex-direction: column; gap: var(--s-3);
+  position: sticky; top: var(--s-4);
+  min-width: 0;
+}
+
+/* Each sub-panel shares one industrial shell: dark metal, thin cyan border,
+   small radius (not SaaS-round), inner + outer shadow. */
+.cm-subpanel {
   background: var(--grad-panel);
   border: 1px solid var(--border);
-  border-radius: var(--r-lg);
+  border-radius: var(--r-md);
   padding: var(--s-4);
-  box-shadow: var(--shadow-panel), inset 0 0 40px rgba(34, 211, 238, 0.03);
-  position: sticky; top: var(--s-4);
+  box-shadow: var(--shadow-card), inset 0 1px 0 rgba(230, 241, 255, 0.05),
+              inset 0 0 34px rgba(34, 211, 238, 0.03);
+  display: flex; flex-direction: column; gap: var(--s-3);
+  position: relative;
 }
+/* decorative HUD notch — tiny cyan tick at the panel's top-left corner */
+.cm-subpanel::before {
+  content: '';
+  position: absolute; top: -1px; left: -1px;
+  width: 14px; height: 14px;
+  border-top: 2px solid var(--accent);
+  border-left: 2px solid var(--accent);
+  border-radius: var(--r-md) 0 0 0;
+  opacity: 0.55;
+  pointer-events: none;
+}
+.cm-subpanel--cta { gap: var(--s-2); }
 
 .cm-section-label {
   display: flex; align-items: center; gap: var(--s-2);
   font-size: var(--fs-xs); font-weight: 700;
   letter-spacing: 0.18em; color: var(--muted);
+}
+.cm-section-label .cm-label-value {
+  margin-left: auto; color: var(--text);
+  font-family: var(--font-display); letter-spacing: 0.04em;
 }
 .cm-center { justify-content: center; }
 .cm-dot {
@@ -508,13 +563,13 @@ button:disabled { cursor: not-allowed; }
   box-shadow: 0 0 8px var(--accent);
 }
 
-/* Multiplier hero — circular HUD dial */
+/* Multiplier hero — circular HUD dial with radar-style decoration (§10) */
 .cm-mult-block { display: flex; flex-direction: column; align-items: center; gap: var(--s-3); }
 
 .cm-mult-badge {
   position: relative;
   display: grid; place-items: center;
-  width: 118px; height: 118px; border-radius: 50%;
+  width: 132px; height: 132px; border-radius: 50%;
   background: radial-gradient(circle at 50% 35%, #10233a 0%, #081120 70%);
   border: 1px solid var(--border-strong);
   box-shadow: inset 0 0 24px rgba(0, 0, 0, 0.7), 0 0 0 6px rgba(34, 211, 238, 0.04);
@@ -524,6 +579,20 @@ button:disabled { cursor: not-allowed; }
   .cm-mult-badge { animation: mult-pop 380ms var(--ease-out); }
 }
 .cm-mult-badge.is-live { box-shadow: inset 0 0 24px rgba(0, 0, 0, 0.7), var(--glow-accent); }
+
+/* radar sweep ring — thin ticked circle just outside the progress ring */
+.cm-mult-radar {
+  position: absolute; inset: -9px;
+  border-radius: 50%;
+  border: 1px dashed rgba(34, 211, 238, 0.22);
+  pointer-events: none;
+}
+.cm-mult-radar::after {
+  content: '';
+  position: absolute; inset: 5px;
+  border-radius: 50%;
+  border: 1px solid rgba(34, 211, 238, 0.08);
+}
 
 /* progress ring — shows how far up the ladder the current multiplier sits */
 .cm-mult-ring-svg {
@@ -585,7 +654,7 @@ button:disabled { cursor: not-allowed; }
 .cm-bet-grid {
   display: grid;
   grid-template-columns: auto auto minmax(0, 1fr) auto auto;
-  grid-template-areas: "min half stepper double max";
+  grid-template-areas: "min half value double max";
   gap: var(--s-2);
 }
 .cm-sq-btn--min    { grid-area: min; }
@@ -593,6 +662,7 @@ button:disabled { cursor: not-allowed; }
 .cm-bet-stepper    { grid-area: stepper; display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: var(--s-2); min-width: 0; }
 .cm-sq-btn--double { grid-area: double; }
 .cm-sq-btn--max    { grid-area: max; }
+.cm-bet-value      { grid-area: value; }
 
 .cm-sq-btn {
   min-height: 48px;
@@ -624,18 +694,34 @@ button:disabled { cursor: not-allowed; }
 
 .is-locked { opacity: 0.55; pointer-events: none; }
 
-/* Mines stepper + preset chips */
-.cm-mines-stepper {
-  display: grid;
-  grid-template-columns: 1fr auto 1fr;
-  gap: var(--s-2);
-  align-items: stretch;
+/* Futuristic density slider (§12) — native input styled as a cyan track */
+.cm-slider-row { display: flex; align-items: center; gap: var(--s-3); }
+.cm-slider-row .cm-sq-btn { width: 44px; flex: none; }
+.cm-slider {
+  flex: 1; min-width: 0;
+  appearance: none; -webkit-appearance: none;
+  height: 6px; border-radius: var(--r-pill);
+  background:
+    linear-gradient(90deg, var(--accent) 0%, var(--accent-2) var(--cm-slider-pct, 0%), rgba(124, 141, 166, 0.25) var(--cm-slider-pct, 0%));
+  outline-offset: 4px;
+  cursor: pointer;
 }
-.cm-mines-value {
-  display: grid; place-items: center;
-  min-width: 72px; min-height: 48px;
-  font-size: var(--fs-lg); font-weight: 700; color: var(--text);
+.cm-slider::-webkit-slider-thumb {
+  appearance: none; -webkit-appearance: none;
+  width: 18px; height: 18px; border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #d7f6ff, var(--accent) 60%, var(--accent-2));
+  border: 2px solid #06131f;
+  box-shadow: 0 0 10px rgba(34, 211, 238, 0.6);
+  transition: transform var(--dur-fast) var(--ease-out);
 }
+.cm-slider::-moz-range-thumb {
+  width: 18px; height: 18px; border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #d7f6ff, var(--accent) 60%, var(--accent-2));
+  border: 2px solid #06131f;
+  box-shadow: 0 0 10px rgba(34, 211, 238, 0.6);
+}
+.cm-slider:active::-webkit-slider-thumb { transform: scale(1.15); }
+.cm-slider:disabled { opacity: 0.5; cursor: not-allowed; }
 
 .cm-chips { display: grid; grid-template-columns: repeat(6, 1fr); gap: var(--s-2); }
 .cm-chip {
@@ -873,11 +959,22 @@ button:disabled { cursor: not-allowed; }
 
 @media (max-width: 768px) {
   .cm-container { padding: var(--s-3) var(--s-3) var(--s-6); gap: var(--s-3); }
+  /* Mobile order (§18): HEADER → MULTIPLIER panel → BOARD → BET → MINES → CTA → INFO.
+     `display: contents` promotes the panels into the layout grid so they can be
+     re-flowed around the board without touching React markup. */
+  .cm-panel { display: contents; }
+  .cm-layout > .cm-col-board { order: 2; }
+  .cm-subpanel:nth-of-type(1) { order: 1; }   /* multiplier */
+  .cm-subpanel:nth-of-type(2) { order: 3; }   /* bet quantum */
+  .cm-subpanel:nth-of-type(3) { order: 4; }   /* mines density */
+  .cm-subpanel--cta           { order: 5; margin-top: var(--s-2); }
+  .cm-layout { gap: var(--s-3); }
   .cm-chain-strip { flex-wrap: wrap; gap: var(--s-2); padding: var(--s-3); }
   .cm-chain-strip .cm-stepper { order: 3; flex-basis: 100%; max-width: none; }
   .cm-infocards { grid-template-columns: 1fr; }
   .cm-brand-name { letter-spacing: 0.14em; }
   .cm-tagline { letter-spacing: 0.28em; }
+  .cm-instruction { letter-spacing: 0.16em; }
   .cm-board { gap: 8px; }
   .cm-board-frame { padding: var(--s-3); }
   .cm-chips { gap: var(--s-1); }
@@ -893,12 +990,10 @@ button:disabled { cursor: not-allowed; }
   .cm-chips { grid-template-columns: repeat(3, 1fr); }  /* 2 rows of 3 — no tiny chips */
   .cm-chip { min-height: 44px; }
   .cm-sq-btn { min-height: 44px; padding-inline: var(--s-2); }
-  /* Bet controls wrap to two aligned rows on very small screens */
+  /* Quick bet controls stay on one aligned row: MIN · ½ · value · 2× · MAX */
   .cm-bet-grid {
     grid-template-columns: auto auto minmax(0, 1fr) auto auto;
-    grid-template-areas:
-      "stepper stepper stepper stepper stepper"
-      "min half . double max";
+    grid-template-areas: "min half value double max";
   }
   .cm-cta { min-height: 56px; }
   .cm-node { width: 26px; height: 26px; }
