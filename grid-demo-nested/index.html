@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>CRYPTOMINES — Nested 5×5 Grid Interface</title>
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- ===================== SPACE BACKDROP (CSS-only) ===================== -->
+  <div class="starfield" aria-hidden="true"></div>
+  <div class="nebula nebula--cyan" aria-hidden="true"></div>
+  <div class="nebula nebula--violet" aria-hidden="true"></div>
+
+  <!-- ===================== SINGLE-VIEWPORT STAGE ===================== -->
+  <main class="stage">
+
+    <!-- Slim HUD header -->
+    <header class="hud hud--top">
+      <span class="hud__tag hud__tag--left">NODE&nbsp;7F&nbsp;·&nbsp;ONLINE</span>
+      <h1 class="hud__brand">CRYPTO<span>MINES</span></h1>
+      <span class="hud__tag hud__tag--right">GRID&nbsp;STATUS:&nbsp;LIVE</span>
+    </header>
+
+    <!-- ============ OUTER METALLIC BOARD FRAME (stays intact on reveal) ============ -->
+    <section class="board-frame" aria-label="Game board">
+      <div class="board-well">
+
+        <!-- ============ 5×5 GRID ============ -->
+        <!--
+          Each cell is a NESTED structure:
+            .tile            -> outer parent: dark metallic frame + bevels (NEVER changes state color)
+              .tile__inner   -> nested inner container: glossy face that swaps background per state
+                .tile__icon  -> centered glowing token icon (hidden until revealed)
+        -->
+        <div class="grid" role="grid">
+
+          <!-- Row 1 (first tile pre-revealed as a state demo; click any tile to toggle) -->
+          <button class="tile revealed tile--gold" role="gridcell"><span class="tile__inner"><span class="tile__icon icon-gold">&#9670;</span></span></button>
+          <button class="tile revealed tile--red" role="gridcell"><span class="tile__inner"><span class="tile__icon icon-red">&#10006;</span></span></button>
+          <button class="tile" role="gridcell"><span class="tile__inner"><span class="tile__icon icon-gold">&#9670;</span></span></button>
+          <button class="tile revealed tile--purple" role="gridcell"><span class="tile__inner"><span class="tile__icon icon-purple">&#9679;</span></span></button>
+          <button class="tile" role="gridcell"><span class="tile__inner"><span class="tile__icon icon-gold">&#9670;</span></span></button>
+
+          <!-- Row 2 -->
+          <button class="tile" role="gridcell"><span class="tile__inner"><span class="tile__icon icon-gold">&#9670;</span></span></button>
+          <button class="tile" role="gridcell"><span class="tile__inner"><span class="tile__icon icon-purple">&#9679;</span></span></button>
+          <button class="tile" role="gridcell"><span class="tile__inner"><span class="tile__icon icon-red">&#10006;</span></span></button>
+          <button class="tile" role="gridcell"><span class="tile__inner"><span class="tile__icon icon-gold">&#9670;</span></span></button>
+          <button class="tile" role="gridcell"><span class="tile__inner"><span class="tile__icon icon-red">&#10006;</span></span></button>
+
+          <!-- Row 3 -->
+          <button class="tile" role="gridcell"><span class="tile__inner"><span class="tile__icon icon-gold">&#9670;</span></span></button>
+          <button class="tile" role="gridcell"><span class="tile__inner"><span class="tile__icon icon-gold">&#9670;</span></span></button>
+          <button class="tile" role="gridcell"><span class="tile__inner"><span class="tile__icon icon-purple">&#9679;</span></span></button>
+          <button class="tile" role="gridcell"><span class="tile__inner"><span class="tile__icon icon-red">&#10006;</span></span></button>
+          <button class="tile" role="gridcell"><span class="tile__inner"><span class="tile__icon icon-gold">&#9670;</span></span></button>
+
+          <!-- Row 4 -->
+          <button class="tile" role="gridcell"><span class="tile__inner"><span class="tile__icon icon-red">&#10006;</span></span></button>
+          <button class="tile" role="gridcell"><span class="tile__inner"><span class="tile__icon icon-gold">&#9670;</span></span></button>
+          <button class="tile" role="gridcell"><span class="tile__inner"><span class="tile__icon icon-gold">&#9670;</span></span></button>
+          <button class="tile" role="gridcell"><span class="tile__inner"><span class="tile__icon icon-purple">&#9679;</span></span></button>
+          <button class="tile" role="gridcell"><span class="tile__inner"><span class="tile__icon icon-gold">&#9670;</span></span></button>
+
+          <!-- Row 5 -->
+          <button class="tile" role="gridcell"><span class="tile__inner"><span class="tile__icon icon-gold">&#9670;</span></span></button>
+          <button class="tile" role="gridcell"><span class="tile__inner"><span class="tile__icon icon-red">&#10006;</span></span></button>
+          <button class="tile" role="gridcell"><span class="tile__inner"><span class="tile__icon icon-purple">&#9679;</span></span></button>
+          <button class="tile" role="gridcell"><span class="tile__inner"><span class="tile__icon icon-gold">&#9670;</span></span></button>
+          <button class="tile" role="gridcell"><span class="tile__inner"><span class="tile__icon icon-red">&#10006;</span></span></button>
+
+        </div><!-- /.grid -->
+      </div><!-- /.board-well -->
+    </section><!-- /.board-frame -->
+
+    <!-- Slim status footer -->
+    <footer class="hud hud--bottom">
+      <span class="hud__stat"><i class="pip pip--gold"></i>BULLION&nbsp;<b id="stat-gold">0</b>/25</span>
+      <span class="hud__stat"><i class="pip pip--purple"></i>TOKENS&nbsp;<b id="stat-token">0</b>/25</span>
+      <span class="hud__stat"><i class="pip pip--red"></i>HAZARD&nbsp;<b id="stat-red">0</b>/25</span>
+    </footer>
+
+  </main>
+
+  <!--
+    Minimal demo script: ONLY toggles the documented state classes
+    (.tile.revealed + .tile--gold / --red / --purple). No game logic.
+  -->
+  <script>
+    const tiles = document.querySelectorAll('.tile');
+    // Seed counters from any tiles pre-revealed in the markup (state demo)
+    const counters = { gold: 0, purple: 0, red: 0 };
+
+    tiles.forEach((tile) => {
+      const kind = [...tile.querySelector('.tile__icon').classList]
+        .find((c) => c.startsWith('icon-')).replace('icon-', '');
+      if (tile.classList.contains('revealed')) counters[kind]++;
+
+      tile.addEventListener('click', () => {
+        // Cycle: unrevealed -> revealed (keeps its pre-assigned icon type) -> unrevealed
+        const isOpen = tile.classList.toggle('revealed');
+        if (isOpen) {
+          tile.classList.add('tile--' + kind);
+          counters[kind]++;
+        } else {
+          tile.classList.remove('tile--' + kind);
+          counters[kind]--;
+        }
+        document.getElementById('stat-gold').textContent  = counters.gold;
+        document.getElementById('stat-token').textContent = counters.purple;
+        document.getElementById('stat-red').textContent   = counters.red;
+      });
+    });
+  </script>
+</body>
+</html>
