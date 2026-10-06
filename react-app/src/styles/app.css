@@ -482,7 +482,22 @@ button:disabled { cursor: not-allowed; }
    dual-layer glow (tight core + wide halo), inner bevel highlight, gentle
    pulsing micro-interaction. Pure CSS state styling — no JS touched. */
 .cm-gem-wrap { position: relative; display: grid; place-items: center; }
+/* Solid circular badge backing behind the gem so it stands out clearly against
+   the dark obsidian tile socket — rich dark disc, gold token ring + halo. */
+.cm-gem-wrap::before {
+  content: '';
+  position: absolute;
+  width: 78%; height: 78%;
+  border-radius: 50%;
+  background: radial-gradient(circle at 32% 26%, #2e2412 0%, #1a1206 55%, #0a0703 100%);
+  box-shadow:
+    inset 0 2px 6px rgba(255, 214, 140, 0.14),           /* top glass bevel  */
+    inset 0 -4px 8px rgba(0, 0, 0, 0.6),                 /* bottom depth     */
+    0 0 0 1px rgba(245, 185, 76, 0.6),                    /* crisp gold ring  */
+    0 0 16px rgba(245, 185, 76, 0.4);                    /* golden outer halo */
+}
 .cm-gem {
+  position: relative;                                     /* above the badge  */
   width: 46%; height: 46%;
   clip-path: polygon(50% 0, 100% 35%, 82% 100%, 18% 100%, 0 35%);
   background: linear-gradient(160deg, #fff2cf 0%, #ffe6a8 18%, var(--gold) 48%, #d99a26 78%, #a86e12 100%);
@@ -540,7 +555,22 @@ button:disabled { cursor: not-allowed; }
    crisp spike cross with red light bloom, and a gentle pulsing highlight so
    the hazard reads as live/interactive inside the dark obsidian well. */
 .cm-mine-wrap { position: relative; display: grid; place-items: center; }
+/* Solid circular badge backing behind the hazard orb — deep dark disc with a
+   neon-red token ring + danger halo so the mine stands out on the obsidian. */
+.cm-mine-wrap::before {
+  content: '';
+  position: absolute;
+  width: 78%; height: 78%;
+  border-radius: 50%;
+  background: radial-gradient(circle at 32% 26%, #3a1220 0%, #220a12 55%, #0d0408 100%);
+  box-shadow:
+    inset 0 2px 6px rgba(255, 170, 190, 0.16),           /* top glass bevel  */
+    inset 0 -4px 8px rgba(0, 0, 0, 0.65),                /* bottom depth     */
+    0 0 0 1px rgba(255, 77, 109, 0.7),                    /* crisp red ring   */
+    0 0 18px rgba(255, 50, 70, 0.45);                     /* danger halo      */
+}
 .cm-mine {
+  position: relative;                                     /* above the badge  */
   width: 46%; height: 46%; border-radius: 50%;
   background:
     radial-gradient(circle at 32% 26%, rgba(255, 255, 255, 0.55) 0%, transparent 26%), /* specular dot */
