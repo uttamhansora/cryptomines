@@ -14,21 +14,15 @@ function CoinEmblem() {
 }
 
 /**
- * App header: compact metallic nav panel on the left, prominent CENTRAL logo
- * badge (crypto/Bitcoin emblem + "CRYPTO|MINES" split wordmark), and a right
- * status pod with the balance readout plus audio/info icon buttons.
- * Icon buttons are 44px touch targets with clear on/off states.
+ * App header: prominent CENTRAL logo badge (crypto/Bitcoin emblem +
+ * "CRYPTO|MINES" split wordmark) and a right status pod with the balance
+ * readout plus audio/info icon buttons. The old PLAY/CHAIN/VAULT nav pill
+ * was removed to match the reference design. Icon buttons are 44px touch
+ * targets with clear on/off states.
  */
 export default function Header({ balance, soundOn, onToggleSound, onInfo }) {
   return (
     <header className="cm-header">
-      {/* Left flanking navigation panel */}
-      <nav className="cm-header-nav" aria-label="Main">
-        <a href="#game" className="cm-nav-link is-active" aria-current="page">PLAY</a>
-        <a href="#chain" className="cm-nav-link">CHAIN</a>
-        <a href="#vault" className="cm-nav-link">VAULT</a>
-      </nav>
-
       {/* Central brand badge — emblem + lettering split across it */}
       <h1 className="cm-brand">
         <span className="cm-brand-word">CRYPTO</span>
