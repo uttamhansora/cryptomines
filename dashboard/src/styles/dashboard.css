@@ -371,12 +371,23 @@ button:disabled { cursor: not-allowed; opacity: 0.55; }
   to   { transform: scale(1);   opacity: 1; }
 }
 
-/* SAFE = golden bullion bar centered on a deep obsidian face */
+/* SAFE tile face: obsidian kept + gold hairline border + warm inset glow. */
 .dm-tile--safe .dm-tile__back {
-  /* background comes from the shared obsidian rule above (state override) */
   border: 1px solid rgba(255, 201, 77, 0.45);          /* clean inner border */
   box-shadow: inset 0 0 14px rgba(255, 201, 77, 0.16), var(--glow-gold);
   color: var(--gold);                                   /* gold token glow    */
+}
+/* The glyph gets its OWN solid circular badge backing (rich dark disc + crisp
+   gold token ring + warm halo) so the icon stands out clearly against the
+   dark tile socket. */
+.dm-tile__glyph {
+  border-radius: 50%;
+  background: radial-gradient(circle at 32% 26%, #2e2412 0%, #1a1206 55%, #0a0703 100%);
+  box-shadow:
+    inset 0 2px 6px rgba(255, 214, 140, 0.14),           /* top glass bevel  */
+    inset 0 -4px 8px rgba(0, 0, 0, 0.6),                 /* bottom depth     */
+    0 0 0 1px rgba(255, 201, 77, 0.6),                   /* crisp gold ring  */
+    0 0 16px rgba(255, 185, 50, 0.4);                    /* golden outer halo */
 }
 .dm-tile--safe .dm-tile__back svg,
 .dm-tile--safe .dm-tile__back .dm-tile__glyph {
@@ -387,11 +398,20 @@ button:disabled { cursor: not-allowed; opacity: 0.55; }
     drop-shadow(0 0 22px rgba(255, 185, 50, 0.35));
   animation: dm-icon-in 260ms cubic-bezier(0.22, 1, 0.36, 1) both;
 }
-/* MINE = red hazard glyph centered on a deep obsidian face — pulsing highlight */
+/* MINE = red hazard glyph centered on a deep obsidian face — pulsing highlight.
+   Badge backing swaps to a deep crimson disc with a neon-red ring/halo. */
 .dm-tile--mine .dm-tile__back {
   border: 1px solid rgba(255, 65, 108, 0.55);          /* clean inner border */
   box-shadow: inset 0 0 16px rgba(255, 65, 108, 0.22), var(--glow-red);
   color: var(--danger);                                 /* red token glow     */
+}
+.dm-tile--mine .dm-tile__glyph {
+  background: radial-gradient(circle at 32% 26%, #3a1220 0%, #220a12 55%, #0d0408 100%);
+  box-shadow:
+    inset 0 2px 6px rgba(255, 170, 190, 0.16),
+    inset 0 -4px 8px rgba(0, 0, 0, 0.65),
+    0 0 0 1px rgba(255, 65, 108, 0.7),                   /* crisp red ring   */
+    0 0 18px rgba(255, 50, 70, 0.45);                    /* danger halo      */
 }
 .dm-tile--mine .dm-tile__back svg,
 .dm-tile--mine .dm-tile__back .dm-tile__glyph {
@@ -407,6 +427,15 @@ button:disabled { cursor: not-allowed; opacity: 0.55; }
   border: 1px solid rgba(162, 89, 255, 0.55);
   box-shadow: inset 0 0 16px rgba(162, 89, 255, 0.22), var(--glow-purple);
   color: var(--purple);
+}
+/* Purple token badge backing for vault tiles (crypto-token aura variant). */
+.dm-tile--vault .dm-tile__glyph {
+  background: radial-gradient(circle at 32% 26%, #2a1d40 0%, #1a1030 55%, #0b0618 100%);
+  box-shadow:
+    inset 0 2px 6px rgba(217, 184, 255, 0.14),
+    inset 0 -4px 8px rgba(0, 0, 0, 0.6),
+    0 0 0 1px rgba(162, 89, 255, 0.65),                 /* crisp purple ring */
+    0 0 16px rgba(153, 69, 255, 0.4);                   /* violet halo       */
 }
 .dm-tile--vault .dm-tile__back svg,
 .dm-tile--vault .dm-tile__back .dm-tile__glyph {

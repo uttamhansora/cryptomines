@@ -495,6 +495,10 @@
      keyed off the existing data-symbol attribute — no JS/handlers touched):
      BTC = golden glow, ETH/SOL = cyan/violet crypto aura, USDT/DIAMOND = icy
      cyan, VAULT = teal, MINE = pulsing red hazard highlight. */
+  /* Each revealed symbol sits on its OWN solid circular badge backing so it
+     stands out clearly against the dark obsidian tile socket. The badge paint
+     lives in CSS custom properties (--badge-bg / --badge-edge) that every
+     token variant below overrides — one shared mechanism, per-token color. */
   .sym-wrap {
     display: grid;
     place-items: center;
@@ -503,36 +507,94 @@
     perspective: 300px;
     position: relative;
     z-index: 4;   /* above the gloss-shine pseudo-element */
+    /* default: rich dark circle with a soft gold rim + warm outer bloom */
+    --badge-bg: radial-gradient(circle at 32% 26%, #1c2a3e 0%, #101b2b 52%, #060b14 100%);
+    --badge-edge: rgba(247, 147, 26, 0.5);
+    border-radius: 50%;
+    background: var(--badge-bg);
+    box-shadow:
+      inset 0 2px 6px rgba(255, 255, 255, 0.08),          /* top glass bevel  */
+      inset 0 -4px 8px rgba(0, 0, 0, 0.6),                /* bottom depth     */
+      0 0 0 1px var(--badge-edge),                        /* crisp token ring */
+      0 0 14px rgba(247, 147, 26, 0.35);                  /* outer token bloom*/
     filter: drop-shadow(0 0 10px rgba(244, 182, 60, 0.5)); /* gold glow (safe rewards) */
   }
-  /* --- token-specific HD glow auras (data-symbol is set by existing markup) --- */
+  /* Token icon shrinks to sit neatly INSIDE the badge disc (visual only). */
+  .tile.revealed .sym {
+    width: 76%;
+    height: 76%;
+  }
+  /* --- token-specific badge backings + matching glows (data-symbol is set by
+         the EXISTING markup — no JS/handlers touched) --- */
   .tile[data-symbol="BTC"] .sym-wrap {
+    --badge-bg: radial-gradient(circle at 32% 26%, #2e2412 0%, #1a1206 55%, #0a0703 100%);
+    --badge-edge: rgba(247, 147, 26, 0.65);
+    box-shadow:
+      inset 0 2px 6px rgba(255, 214, 140, 0.14),
+      inset 0 -4px 8px rgba(0, 0, 0, 0.6),
+      0 0 0 1px var(--badge-edge),
+      0 0 16px rgba(247, 147, 26, 0.4);                  /* golden halo       */
     filter:
       drop-shadow(0 0 6px rgba(247, 147, 26, 0.85))
       drop-shadow(0 0 14px rgba(255, 208, 122, 0.45));   /* warm Bitcoin gold */
   }
   .tile[data-symbol="ETH"] .sym-wrap {
+    --badge-bg: radial-gradient(circle at 32% 26%, #221f38 0%, #141127 55%, #080614 100%);
+    --badge-edge: rgba(120, 130, 255, 0.6);
+    box-shadow:
+      inset 0 2px 6px rgba(180, 190, 255, 0.12),
+      inset 0 -4px 8px rgba(0, 0, 0, 0.6),
+      0 0 0 1px var(--badge-edge),
+      0 0 16px rgba(96, 165, 250, 0.35);                 /* violet-blue halo  */
     filter:
       drop-shadow(0 0 6px rgba(96, 165, 250, 0.85))
       drop-shadow(0 0 14px rgba(153, 69, 255, 0.4));     /* cyan→violet aura  */
   }
   .tile[data-symbol="SOL"] .sym-wrap {
+    --badge-bg: radial-gradient(circle at 32% 26%, #2a1d40 0%, #1a1030 55%, #0b0618 100%);
+    --badge-edge: rgba(153, 69, 255, 0.65);
+    box-shadow:
+      inset 0 2px 6px rgba(217, 184, 255, 0.14),
+      inset 0 -4px 8px rgba(0, 0, 0, 0.6),
+      0 0 0 1px var(--badge-edge),
+      0 0 16px rgba(153, 69, 255, 0.4);                  /* Solana-purple halo*/
     filter:
       drop-shadow(0 0 6px rgba(153, 69, 255, 0.85))
       drop-shadow(0 0 14px rgba(20, 241, 149, 0.35));    /* Solana purple aura */
   }
   .tile[data-symbol="USDT"] .sym-wrap,
   .tile[data-symbol="DIAMOND"] .sym-wrap {
+    --badge-bg: radial-gradient(circle at 32% 26%, #16303a 0%, #0c1f28 55%, #051014 100%);
+    --badge-edge: rgba(0, 225, 255, 0.6);
+    box-shadow:
+      inset 0 2px 6px rgba(180, 240, 255, 0.14),
+      inset 0 -4px 8px rgba(0, 0, 0, 0.6),
+      0 0 0 1px var(--badge-edge),
+      0 0 16px rgba(0, 225, 255, 0.35);                  /* icy cyan halo     */
     filter:
       drop-shadow(0 0 6px rgba(0, 225, 255, 0.8))
       drop-shadow(0 0 14px rgba(143, 208, 232, 0.4));    /* icy cyan sparkle  */
   }
   .tile[data-symbol="VAULT"] .sym-wrap {
+    --badge-bg: radial-gradient(circle at 32% 26%, #123238 0%, #0a2226 55%, #041014 100%);
+    --badge-edge: rgba(25, 227, 227, 0.6);
+    box-shadow:
+      inset 0 2px 6px rgba(160, 240, 240, 0.14),
+      inset 0 -4px 8px rgba(0, 0, 0, 0.6),
+      0 0 0 1px var(--badge-edge),
+      0 0 16px rgba(25, 227, 227, 0.35);                 /* vault-teal halo   */
     filter:
       drop-shadow(0 0 6px rgba(35, 144, 155, 0.9))
       drop-shadow(0 0 14px rgba(25, 227, 227, 0.4));     /* vault teal aura   */
   }
   .tile.revealed.mine .sym-wrap {
+    --badge-bg: radial-gradient(circle at 32% 26%, #3a1220 0%, #220a12 55%, #0d0408 100%);
+    --badge-edge: rgba(255, 77, 109, 0.7);
+    box-shadow:
+      inset 0 2px 6px rgba(255, 170, 190, 0.16),
+      inset 0 -4px 8px rgba(0, 0, 0, 0.65),
+      0 0 0 1px var(--badge-edge),
+      0 0 18px rgba(255, 50, 70, 0.45);                  /* red danger halo   */
     filter: drop-shadow(0 0 12px rgba(229, 48, 63, 0.7));  /* red glow (hazard/mines)  */
     animation: mine-hazard-pulse 1.2s ease-in-out infinite; /* gentle pulsing highlight */
   }
@@ -603,9 +665,16 @@
      zero-spread transparent shadow (60%), so whatever per-token aura color is
      active (BTC gold / SOL purple / cyan tokens) simply pulses up — it can
      never be overwritten or stripped by the entrance animation. */
+  /* NOTE: keyframes are authored in reverse (100% = aura OFF, 0% = resting)
+     because the animation is played with `animation-direction: reverse` —
+     that lets each frame's filter interpolate between the token's OWN resting
+     value and a neutral transparent shadow, so per-token aura colors survive. */
   @keyframes sym-aura-in {
     0%, 100% { filter: none; }
     60%      { filter: drop-shadow(0 0 0 transparent); }
+  }
+  .tile.just-revealed .sym-wrap {
+    animation-direction: reverse;   /* play sym-aura-in from its resting state */
   }
   /* Revealed tiles: the nested inner container's background MUST switch from
      the teal glass face to a deep dark obsidian/black-slate color so it never
