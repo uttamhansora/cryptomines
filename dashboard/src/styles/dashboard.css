@@ -96,8 +96,8 @@ button:disabled { cursor: not-allowed; opacity: 0.55; }
   position: relative; z-index: 1;
   max-width: 1240px;
   margin: 0 auto;
-  padding: 4px var(--s-3);                 /* was s-2/s-4 — tighter page margins for the compact layout */
-  display: flex; flex-direction: column; gap: 4px;   /* was s-2 */
+  padding: 2px var(--s-3);                 /* minimal page margins — compact reference layout */
+  display: flex; flex-direction: column; gap: 2px;   /* was 4px — tighter section gaps */
   height: 100vh;                        /* pin to viewport → no vertical scroll */
   overflow: hidden;                     /* belt-and-braces: never scrolls on desktop */
 }
@@ -129,7 +129,7 @@ button:disabled { cursor: not-allowed; opacity: 0.55; }
 .dm-header {
   display: grid; grid-template-columns: 1fr auto 1fr; align-items: center;
   gap: var(--s-3);
-  padding: 4px var(--s-3);                /* was s-2/s-4 — slimmer header band */
+  padding: 2px var(--s-3);                /* slimmest header band for the compact layout */
 }
 
 /* Left nav pod */
@@ -210,8 +210,8 @@ button:disabled { cursor: not-allowed; opacity: 0.55; }
 /* ---------------- Main split: board + sidebar ---------------- */
 .dm-main {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 340px;   /* slightly narrower sidebar */
-  gap: var(--s-3);
+  grid-template-columns: minmax(0, 1fr) 320px;   /* narrower sidebar — more breathing room for the board row */
+  gap: var(--s-2);                               /* was s-3 — tighter split gutter */
   align-items: stretch;
   flex: 1 1 auto;            /* main row absorbs leftover viewport height */
   min-height: 0;             /* allow children to shrink inside the column */
@@ -221,18 +221,19 @@ button:disabled { cursor: not-allowed; opacity: 0.55; }
 .dm-board-card {
   padding: 4px var(--s-2);                /* was s-2/s-3 — further trim vertical chrome */
   display: flex; flex-direction: column; gap: 4px;
+  align-items: center;                    /* frame hugs its content → center it */
   min-height: 0;                              /* shrink within the pinned column */
 }
 
-.dm-board-head { display: flex; align-items: center; justify-content: space-between; }
+.dm-board-head { display: flex; align-items: center; justify-content: space-between; width: 100%; } /* full-width row inside the now-centered card */
 
 .dm-frame {
   position: relative;
-  width: 100%;
-  max-width: var(--board-max);            /* balanced margins, compact reference proportion */
+  width: fit-content;                   /* hug the grid — no stretched empty rim */
+  max-width: var(--board-max);          /* balanced margins, compact reference proportion */
   margin-inline: auto;
   padding: var(--frame-pad);
-  flex: 1 1 auto;                         /* share leftover card height with header/footer */
+  flex: 0 1 auto;                       /* was 1 1 auto — never inflate beyond intrinsic size */
   min-height: 0;
   display: flex; flex-direction: column; justify-content: center;
   border-radius: var(--r-lg);
@@ -279,12 +280,14 @@ button:disabled { cursor: not-allowed; opacity: 0.55; }
 .dm-grid {
   position: relative; z-index: 1;
   display: grid;
-  /* HARD OVERRIDE — fixed pixel ceiling (60px) instead of a vw-based min()
-     so the tiles are physically smaller on every desktop viewport. */
-  grid-template-columns: repeat(5, clamp(44px, calc((100vh - 430px) / 5), 60px));
-  grid-auto-rows: clamp(44px, calc((100vh - 430px) / 5), 60px);
+  /* HARD FIXED tracks — explicit --tile-size edge (52px cap, height-aware
+     below ~720px viewports). Because the tile size no longer depends on
+     available space, the grid can never inflate to fill the card; it stays
+     at its intrinsic compact size and the frame simply wraps around it. */
+  grid-template-columns: repeat(5, var(--tile-size));
+  grid-auto-rows: var(--tile-size);
   gap: var(--grid-gap);
-  padding: 0;                           /* was 1px — shave remaining chrome */
+  padding: 0;
   width: fit-content;
   max-width: 100%;
   margin-inline: auto;                  /* keep the grid centered in the frame */
@@ -294,8 +297,11 @@ button:disabled { cursor: not-allowed; opacity: 0.55; }
 /* ---------------- Tiles (recessed metallic plates w/ cyan glow) ---------------- */
 .dm-tile {
   position: relative;
-  /* width & height come from the .dm-grid track clamp (44–60px);
-     aspect-ratio removed so tiles can never grow beyond the track */
+  /* Hard-fixed square edge — belt-and-braces so a tile can never grow
+     beyond --tile-size even if the grid track is overridden elsewhere. */
+  width: var(--tile-size);
+  height: var(--tile-size);
+  max-width: 100%;
   border-radius: var(--r-md);
   isolation: isolate;
   overflow: hidden;
@@ -361,6 +367,7 @@ button:disabled { cursor: not-allowed; opacity: 0.55; }
 /* Board footer strip (round status line) */
 .dm-board-foot {
   display: flex; align-items: center; justify-content: space-between;
+  width: 100%;                          /* full-width row inside the centered card */
   font-size: 0.78rem; letter-spacing: 0.08em; color: var(--muted);
 }
 .dm-board-foot strong { color: var(--accent); text-shadow: var(--glow-text); }
@@ -383,7 +390,7 @@ button:disabled { cursor: not-allowed; opacity: 0.55; }
    sidebar column can never push the page past one viewport height --- */
 .dm-radar {
   position: relative;
-  width: min(130px, 20vh, 100%);              /* even smaller dial, scales on short viewports */
+  width: min(120px, 18vh, 100%);              /* smaller dial — keeps sidebar well under one viewport */
   aspect-ratio: 1 / 1;                        /* keeps the dial perfectly round */
   height: auto;
   margin: 0 auto;
@@ -402,8 +409,8 @@ button:disabled { cursor: not-allowed; opacity: 0.55; }
   content: ''; position: absolute; border-radius: 50%;
   border: 1px solid rgba(0, 242, 254, 0.14);
 }
-.dm-radar__ring::before { inset: 21px; }   /* concentric rings re-scaled for the smaller dial */
-.dm-radar__ring::after  { inset: 42px; }
+.dm-radar__ring::before { inset: 19px; }   /* concentric rings re-scaled for the smaller dial */
+.dm-radar__ring::after  { inset: 38px; }
 /* rotating sweep arm (transform-only animation) */
 .dm-radar__sweep {
   position: absolute; inset: 0; border-radius: 50%;
@@ -543,7 +550,7 @@ button:disabled { cursor: not-allowed; opacity: 0.55; }
 
 /* ---------------- 4. Bottom status & footer bar ---------------- */
 .dm-footer {
-  display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--s-3);
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--s-2);   /* was s-3 — tighter tracker windows */
   flex-shrink: 0;                    /* tracker bar always visible at the bottom */
 }
 .dm-status { padding: 3px var(--s-2); display: flex; flex-direction: column; gap: 2px; }   /* slimmest tracker windows */
@@ -587,7 +594,7 @@ button:disabled { cursor: not-allowed; opacity: 0.55; }
 .dm-pip--on { background: var(--grad-accent); box-shadow: 0 0 8px rgba(0, 242, 254, 0.6); }
 
 /* Small legend chips in the board header */
-.dm-legend { display: flex; gap: 10px; }
+.dm-legend { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }   /* centered, wraps gracefully on narrow cards */
 .dm-legend__item { display: inline-flex; align-items: center; gap: 5px; font-size: 0.72rem; letter-spacing: 0.1em; color: var(--muted); text-transform: uppercase; }
 .dm-dot { width: 8px; height: 8px; border-radius: 50%; }
 .dm-dot--cyan { background: var(--accent); box-shadow: 0 0 6px rgba(0, 242, 254, 0.8); }
@@ -600,16 +607,16 @@ button:disabled { cursor: not-allowed; opacity: 0.55; }
   .dm-main { grid-template-columns: 1fr; }
   .dm-container { gap: var(--s-3); }
   .dm-sidebar { flex-direction: column; }
-  .dm-frame { max-width: min(var(--board-max), 92vw); flex: none; }
+  .dm-frame { max-width: min(var(--board-max), 92vw); width: fit-content; flex: none; }
   /* Stacked mode scrolls freely, so tiles may grow a touch — but keep the
-     explicit cap modest (76px) to preserve the compact reference feel. */
-  .dm-grid { grid-template-columns: repeat(5, min(64px, 13vw)); grid-auto-rows: min(64px, 13vw); --grid-gap: 4px; }   /* proportional shrink */
+     explicit cap modest (56px) to preserve the compact reference feel. */
+  .dm-grid { grid-template-columns: repeat(5, min(56px, 12vw)); grid-auto-rows: min(56px, 12vw); --tile-size: min(56px, 12vw); --grid-gap: 4px; }   /* proportional shrink */
 }
 @media (max-width: 640px) {
   .dm-header { grid-template-columns: 1fr; justify-items: center; gap: 10px; }
   .dm-nav, .dm-balance { justify-self: center; }
   .dm-footer { grid-template-columns: 1fr; }
   .dm-frame { padding: 7px; }
-  .dm-grid { grid-template-columns: repeat(5, min(56px, 14vw)); grid-auto-rows: min(56px, 14vw); --grid-gap: 3px; }
+  .dm-grid { grid-template-columns: repeat(5, min(52px, 13vw)); grid-auto-rows: min(52px, 13vw); --tile-size: min(52px, 13vw); --grid-gap: 3px; }
   .dm-brand__name { font-size: 0.95rem; letter-spacing: 0.2em; }
 }
