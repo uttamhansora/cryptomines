@@ -8,10 +8,10 @@
   --bg-2: #08111A;            /* lower page gradient stop               */
   --panel: #0B1522;
   --panel-2: #0F1B2D;
-  --border: rgba(0, 240, 255, 0.15);
-  --border-strong: rgba(0, 240, 255, 0.35);
-  --accent: #00F0FF;          /* primary cyan                           */
-  --accent-2: #00D2D3;        /* deep cyan (gradient end / hover)       */
+  --border: rgba(0, 242, 254, 0.15);
+  --border-strong: rgba(0, 242, 254, 0.35);
+  --accent: #00F2FE;          /* primary cyan                           */
+  --accent-2: #4FACFE;        /* deep cyan (gradient end / hover)       */
   --text: #E6F1FF;
   --muted: #7C8DA6;
   --danger: #FF4D6D;          /* premium red — mines                    */
@@ -35,8 +35,8 @@
   --warning: var(--gold);           /* alias — gold doubles as warning tone */
 
   /* ---- Glow / shadow tokens (premium = restrained) ---- */
-  --glow-accent: 0 0 16px rgba(0, 240, 255, 0.28);
-  --glow-accent-lg: 0 0 26px rgba(0, 240, 255, 0.32);
+  --glow-accent: 0 0 16px rgba(0, 242, 254, 0.28);
+  --glow-accent-lg: 0 0 26px rgba(0, 242, 254, 0.32);
   --glow-danger: 0 0 18px rgba(255, 77, 109, 0.45);
   --glow-violet: 0 0 18px rgba(167, 139, 250, 0.4);
   --shadow-panel: 0 16px 40px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(230, 241, 255, 0.05);

@@ -6,15 +6,15 @@ const PALETTE: Record<ParticlePalette, string[]> = {
   btc: ['#fbbf24', '#fde68a', '#fff7e0'],
   eth: ['#f59e0b', '#fcd34d', '#fef3c7'],
   sol: ['#d97706', '#fbbf24', '#fde68a'],
-  usdt: ['#5CF5FF', '#9BFBFF', '#EAFEFF'],
+  usdt: ['#8BE9FD', '#9BFBFF', '#EAFEFF'],
   diamond: ['#9BFBFF', '#B8FCFF', '#EAFEFF'],
-  vault: ['#00D2D3', '#00F0FF', '#9BFBFF'],
+  vault: ['#4FACFE', '#00F2FE', '#9BFBFF'],
   mine: ['#ef4444', '#f87171', '#fecaca'],
-  chain: ['#00F0FF', '#5CF5FF', '#00D2D3'],
-  cashout: ['#fbbf24', '#fde68a', '#00F0FF'],
+  chain: ['#00F2FE', '#8BE9FD', '#4FACFE'],
+  cashout: ['#fbbf24', '#fde68a', '#00F2FE'],
   good: ['#fcd34d', '#fbbf24', '#fff'],
   big: ['#f59e0b', '#fde68a', '#fff'],
-  mega: ['#fde68a', '#00F0FF', '#fbbf24', '#fff'],
+  mega: ['#fde68a', '#00F2FE', '#fbbf24', '#fff'],
 };
 
 function hashSeed(seed: number, i: number): number {
