@@ -1,5 +1,5 @@
 import React from 'react';
-import { HexIcon, BullionIcon, MineIcon } from './icons.jsx';
+import { HexIcon, BullionIcon, MineIcon, Glyph } from './icons.jsx';
 
 /**
  * Tile — one square of the 5×5 field.
@@ -22,12 +22,13 @@ const Tile = React.memo(function Tile({ state, disabled, onReveal }) {
         <span className="dm-tile__hex"><HexIcon size={26} /></span>
       </span>
 
-      {/* Revealed face mounts WITH the result (never gated by animation) */}
+      {/* Revealed face mounts WITH the result (never gated by animation).
+          CSS paints it deep obsidian; the token icon is centered + glow-colored. */}
       {state === 'safe' && (
-        <span className="dm-tile__back"><BullionIcon size={30} /></span>
+        <span className="dm-tile__back"><Glyph><BullionIcon size={30} /></Glyph></span>
       )}
       {state === 'mine' && (
-        <span className="dm-tile__back"><MineIcon size={30} /></span>
+        <span className="dm-tile__back"><Glyph><MineIcon size={30} /></Glyph></span>
       )}
     </button>
   );

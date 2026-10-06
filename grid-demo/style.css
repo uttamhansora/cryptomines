@@ -221,41 +221,67 @@ body {
   pointer-events: none;
 }
 
-/* --------------------------- Revealed: GOLD ------------------------------ */
+/* --------------------------- Revealed: GOLD ------------------------------
+   Reference design: the revealed inner background is deep obsidian/slate
+   (near-black #080c14 → #06090f) with a clean inner border; only the
+   centered token glyph carries the glowing color (gold / red / purple). */
 .tile--gold {
-  border-color: rgba(255, 185, 50, 0.85);
+  border-color: rgba(255, 185, 50, 0.7);       /* clean gold inner border */
   background:
-    linear-gradient(145deg,
-      rgb(255, 214, 110) 0%,
-      var(--gold) 40%,
-      var(--gold-deep) 100%);
-  color: #4a2f00;
+    linear-gradient(165deg,
+      rgb(8, 12, 20) 0%,                        /* #080c14 obsidian        */
+      rgb(6, 9, 15) 100%);                      /* #06090f deeper slate    */
   box-shadow:
-    0 0 18px rgba(255, 185, 50, 0.65),         /* bright gold glow         */
-    inset 0 0 14px rgba(255, 235, 160, 0.55),
-    inset 0 2px 0 rgba(255, 255, 255, 0.5),
-    inset 0 -3px 8px rgba(120, 70, 0, 0.5);
+    0 0 18px rgba(255, 185, 50, 0.4),           /* bright gold glow (outer)*/
+    inset 0 0 14px rgba(255, 185, 50, 0.16),    /* warm gold inner tint    */
+    inset 0 0 0 1px rgba(255, 185, 50, 0.28);   /* crisp inner hairline    */
 }
-.tile--gold .glyph { color: #5c3a00; text-shadow: 0 0 8px rgba(255, 240, 180, 0.9); }
-.tile--gold::before { border-color: rgba(255, 240, 190, 0.45); }
+.tile--gold .glyph {
+  color: var(--gold);                           /* gold token icon          */
+  text-shadow: 0 0 10px rgba(255, 200, 90, 0.95),
+               0 0 22px rgba(255, 185, 50, 0.55);
+}
+.tile--gold::before { border-color: rgba(255, 240, 190, 0.3); }
 
 /* ---------------------------- Revealed: RED ------------------------------ */
 .tile--red {
-  border-color: rgba(255, 50, 50, 0.85);
+  border-color: rgba(255, 50, 50, 0.7);         /* clean red inner border  */
   background:
-    linear-gradient(145deg,
-      rgb(255, 110, 90) 0%,
-      var(--red) 40%,
-      var(--red-deep) 100%);
-  color: #fff;
+    linear-gradient(165deg,
+      rgb(8, 12, 20) 0%,                         /* #080c14 obsidian        */
+      rgb(6, 9, 15) 100%);                       /* #06090f deeper slate    */
   box-shadow:
-    0 0 18px rgba(255, 50, 50, 0.65),          /* bright red glow          */
-    inset 0 0 14px rgba(255, 140, 120, 0.5),
-    inset 0 2px 0 rgba(255, 255, 255, 0.35),
-    inset 0 -3px 8px rgba(80, 0, 10, 0.55);
+    0 0 18px rgba(255, 50, 50, 0.45),            /* bright red glow (outer) */
+    inset 0 0 14px rgba(255, 50, 50, 0.18),      /* hot red inner tint      */
+    inset 0 0 0 1px rgba(255, 50, 50, 0.3);      /* crisp inner hairline    */
 }
-.tile--red .glyph { color: #ffecec; text-shadow: 0 0 10px rgba(255, 80, 60, 1); }
-.tile--red::before { border-color: rgba(255, 120, 110, 0.5); }
+.tile--red .glyph {
+  color: var(--red);                            /* red hazard icon          */
+  text-shadow: 0 0 10px rgba(255, 80, 60, 1),
+               0 0 22px rgba(255, 50, 50, 0.6);
+}
+.tile--red::before { border-color: rgba(255, 120, 110, 0.35); }
+
+/* ------------------------- Revealed: PURPLE (token) ----------------------
+   Solana-style crypto token state — same obsidian face, purple glow.
+   Opt in by adding class "tile--purple" to any tile (CSS-only variant). */
+.tile--purple {
+  border-color: rgba(162, 89, 255, 0.7);
+  background:
+    linear-gradient(165deg,
+      rgb(8, 12, 20) 0%,
+      rgb(6, 9, 15) 100%);
+  box-shadow:
+    0 0 18px rgba(162, 89, 255, 0.45),
+    inset 0 0 14px rgba(162, 89, 255, 0.18),
+    inset 0 0 0 1px rgba(162, 89, 255, 0.3);
+}
+.tile--purple .glyph {
+  color: rgb(162, 89, 255);
+  text-shadow: 0 0 10px rgba(162, 89, 255, 0.95),
+               0 0 22px rgba(162, 89, 255, 0.55);
+}
+.tile--purple::before { border-color: rgba(190, 140, 255, 0.35); }
 
 /* ---------------------------- Status strip ------------------------------- */
 .hud-bottom {
