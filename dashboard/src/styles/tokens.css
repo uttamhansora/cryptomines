@@ -1,0 +1,66 @@
+/* ============================================================
+   CryptoMines Dashboard — Design tokens
+   Re-theme the entire UI by editing ONLY this file.
+   Palette per spec: deep-space navy bg, cyan/teal primary glow,
+   neon red/orange danger accents, gold rewards.
+   ============================================================ */
+:root {
+  /* ---- Background (deep space gradient) ---- */
+  --bg-top: #0a0f18;                     /* page gradient start        */
+  --bg-bottom: #121c2c;                  /* page gradient end          */
+  --panel: rgba(13, 24, 40, 0.72);       /* glassmorphism panel fill   */
+  --panel-solid: #0d1828;
+  --panel-2: #101d31;
+  --inset-well: #060d18;                 /* recessed wells / slots     */
+
+  /* ---- Primary accent: futuristic teal/cyan glow ---- */
+  --accent: #00f2fe;
+  --accent-2: #4facfe;
+  --grad-accent: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%);
+  --border: rgba(0, 242, 254, 0.16);
+  --border-strong: rgba(0, 242, 254, 0.42);
+
+  /* ---- Danger / high-value warning: neon red-orange ---- */
+  --danger: #ff416c;
+  --danger-2: #ff4b2b;
+  --grad-danger: linear-gradient(135deg, #ff416c 0%, #ff4b2b 100%);
+
+  /* ---- Reward gold (bullion bars) ---- */
+  --gold: #ffc94d;
+  --gold-2: #f59e0b;
+  --grad-gold: linear-gradient(160deg, #ffe27a 0%, #ffc94d 45%, #b97a10 100%);
+
+  /* ---- Metallic chrome (frames, badges, buttons) ---- */
+  --grad-metal: linear-gradient(180deg, #16283e 0%, #0b1828 42%, #152a41 58%, #081120 100%);
+  --grad-metal-btn: linear-gradient(180deg, #1a2c44 0%, #0d1a2c 100%);
+
+  /* ---- Text ---- */
+  --text: #e6f1ff;
+  --muted: #7f93ad;
+  --glow-text: 0 0 12px rgba(0, 242, 254, 0.55);
+
+  /* ---- Shadows / glows (glass + bevel + neon) ---- */
+  --shadow-panel: 0 18px 44px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(230, 241, 255, 0.06);
+  --shadow-inset: inset 0 2px 8px rgba(0, 0, 0, 0.6), inset 0 -1px 0 rgba(230, 241, 255, 0.04);
+  --glow-cyan: 0 0 18px rgba(0, 242, 254, 0.35);
+  --glow-cyan-lg: 0 0 34px rgba(0, 242, 254, 0.4);
+  --glow-red: 0 0 20px rgba(255, 65, 108, 0.5);
+  --glow-gold: 0 0 18px rgba(255, 201, 77, 0.45);
+
+  /* ---- Radii / spacing ---- */
+  --r-sm: 8px;
+  --r-md: 12px;
+  --r-lg: 18px;
+  --r-pill: 999px;
+  --s-1: 4px;
+  --s-2: 8px;
+  --s-3: 12px;
+  --s-4: 16px;
+  --s-6: 24px;
+
+  /* ---- Type ---- */
+  --font-display: 'Orbitron', 'Rajdhani', sans-serif;
+  --font-ui: 'Rajdhani', system-ui, sans-serif;
+
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+}
