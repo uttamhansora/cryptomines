@@ -26,8 +26,10 @@
   /* Metallic band used on the board frame + header chrome (dark → light → dark) */
   --grad-metal: linear-gradient(180deg, #12283b 0%, #0a1a2b 42%, #12293d 58%, #071120 100%);
   /* Revealed faces use the reference reward/danger metal gradients */
-  --grad-tile-safe: linear-gradient(160deg, #2b2113 0%, #1a130a 55%, #120d06 100%);
-  --grad-tile-mine: linear-gradient(160deg, #2b1216 0%, #1a0a0d 55%, #120608 100%);
+  /* Updated to reference design: every opened tile is deep obsidian with a
+     clean inner border; only the centered token icon carries its glow color. */
+  --grad-tile-safe: linear-gradient(165deg, #080c14 0%, #06090f 100%);
+  --grad-tile-mine: linear-gradient(165deg, #080c14 0%, #06090f 100%);
 
   /* ---- Status surfaces (semantic tints built from the palette above) ---- */
   --danger-bg: rgba(255, 77, 109, 0.1);

@@ -445,18 +445,30 @@ button:disabled { cursor: not-allowed; }
 }
 .cm-tile:not(:disabled):active .cm-tile-front { transform: scale(0.96); }
 
-/* Opened face — sits above the front once revealed */
+/* Opened face — deep obsidian inner background (#080c14 → #06090f) with a
+   clean 1px inner border; sits above the front once revealed. The centered
+   token icon carries the state glow color (gold / red / violet-purple). */
 .cm-tile-back {
   z-index: 2;
-  border: 1px solid rgba(230, 241, 255, 0.06);
-  box-shadow: inset 0 0 18px rgba(0, 0, 0, 0.6);
-  background: linear-gradient(165deg, #0a1a2b, #060d18);
+  border: 1px solid rgba(230, 241, 255, 0.1);          /* clean inner border */
+  box-shadow: inset 0 0 18px rgba(0, 0, 0, 0.75);      /* recessed obsidian  */
+  background: linear-gradient(165deg, #080c14 0%, #06090f 100%);
   animation: tile-open 260ms var(--ease-out);   /* micro-flip feel, icon already visible */
 }
 .cm-tile--safe .cm-tile-back,
-.cm-tile--safe-vault .cm-tile-back { background: var(--grad-tile-safe); border-color: rgba(245, 185, 76, 0.35); }
+.cm-tile--safe-vault .cm-tile-back {
+  /* obsidian face kept; gold hairline border + centered gem glows gold */
+  border-color: rgba(245, 185, 76, 0.45);
+  box-shadow: inset 0 0 16px rgba(245, 185, 76, 0.14), 0 0 14px rgba(245, 185, 76, 0.25);
+  color: var(--gold);
+}
 .cm-tile--mine .cm-tile-back,
-.cm-tile--mine-ghost .cm-tile-back { background: var(--grad-tile-mine); border-color: rgba(255, 77, 109, 0.3); }
+.cm-tile--mine-ghost .cm-tile-back {
+  /* obsidian face kept; red hairline border + centered hazard glows red */
+  border-color: rgba(255, 77, 109, 0.5);
+  box-shadow: inset 0 0 16px rgba(255, 77, 109, 0.16), 0 0 14px rgba(255, 77, 109, 0.28);
+  color: var(--danger);
+}
 
 @keyframes tile-open {
   from { transform: rotateY(88deg); opacity: 0.35; }
@@ -477,7 +489,7 @@ button:disabled { cursor: not-allowed; }
   50%      { transform: scale(1.08); }
 }
 
-/* Vault symbol badge on a safe tile (violet accent kept distinct) */
+/* Vault symbol badge on a safe tile (Solana-style purple token glow) */
 .cm-vault-mark {
   position: absolute; top: 8%; right: 8%;
   display: grid; place-items: center;
@@ -485,7 +497,8 @@ button:disabled { cursor: not-allowed; }
   background: var(--violet);
   color: #170b2e;
   font-size: 11px; font-weight: 800;
-  box-shadow: var(--glow-violet);
+  box-shadow: 0 0 14px rgba(162, 89, 255, 0.85),   /* Solana-purple glow */
+              inset 0 0 6px rgba(255, 255, 255, 0.35);
 }
 
 /* Particle burst on reveal — 6 rays via conic gradient ring (static paint) */

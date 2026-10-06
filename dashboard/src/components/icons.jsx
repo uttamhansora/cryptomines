@@ -3,6 +3,12 @@
    All icons inherit `currentColor` so CSS controls the glow color.
    ============================================================ */
 
+/* Shared reveal glyph wrapper: guarantees the token icon is perfectly
+   centered inside its revealed tile (CSS-only layout, no JS changes). */
+export const Glyph = ({ children }) => (
+  <span className="dm-tile__glyph" aria-hidden="true">{children}</span>
+);
+
 const base = (props) => ({
   width: props.size || 20,
   height: props.size || 20,
