@@ -1,0 +1,255 @@
+/* =====================================================================
+   CRYPTOMINES — Nested-card 5×5 grid interface
+   Single-viewport (100vh, zero scroll) · metallic frame + glossy inner face
+   ===================================================================== */
+
+/* ---------- Design tokens (exact spec colors) ---------- */
+:root {
+  /* Tile states */
+  --teal-face:      #0f2d3c;              /* unrevealed inner: deep metallic teal-blue */
+  --teal-face-hi:   rgb(22, 60, 78);
+  --teal-face-lo:   rgb(8, 26, 38);
+  --cyan-glow:      #00e1ff;              /* borders & glow */
+  --gold:           #ffb932;              /* revealed treasure */
+  --red:            #ff3232;              /* revealed hazard */
+  --purple:         #b44dff;              /* revealed crypto token (Solana-style) */
+  --obsidian:       #080c14;              /* revealed inner bg: dark recessed */
+  --obsidian-edge:  #16202f;              /* clean inner border on reveal */
+
+  /* Outer metallic frame */
+  --frame-hi:  #2a3a4d;
+  --frame-mid: #16202e;
+  --frame-lo:  #0a1119;
+
+  /* Page */
+  --bg-top: #0a0f18;
+  --bg-bot: #121c2c;
+
+  /* ---- Scaling math: everything fits inside 100vh ----
+     Chrome reserved: header 46 + footer 40 + stage gaps 2*10 + board frame/well ~46 ≈ 192px
+     Tile = min( (100vh - 192px) / 5 rows incl. gaps, width cap )
+  */
+  --tile: min(calc((100vh - 200px) / 5), 20vw, 72px);
+  --gap:  max(4px, calc(var(--tile) * 0.08));
+}
+
+/* ---------- Reset & page lock (no scrolling ever) ---------- */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  height: 100%;
+  overflow: hidden;                 /* guarantees zero vertical/horizontal scroll */
+  background: linear-gradient(180deg, var(--bg-top) 0%, var(--bg-bot) 100%);
+  color: #cfe9f5;
+  font-family: "Segoe UI", "Rajdhani", system-ui, sans-serif;
+  text-transform: uppercase;
+}
+
+/* ---------- Space backdrop: starfield + nebulae (pure CSS) ---------- */
+.starfield {
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background-image:
+    radial-gradient(1px 1px at 12% 22%, #fff 50%, transparent 51%),
+    radial-gradient(1px 1px at 68% 8%,  #bfe9ff 50%, transparent 51%),
+    radial-gradient(1.5px 1.5px at 84% 64%, #fff 50%, transparent 51%),
+    radial-gradient(1px 1px at 34% 78%, #9fd8ff 50%, transparent 51%),
+    radial-gradient(1px 1px at 52% 42%, #fff 50%, transparent 51%),
+    radial-gradient(1.5px 1.5px at 8% 88%, #cfeaff 50%, transparent 51%);
+  background-size: 420px 420px;
+  opacity: .5;
+}
+.nebula {
+  position: fixed; z-index: 0; pointer-events: none;
+  width: 55vmax; height: 55vmax; border-radius: 50%;
+  filter: blur(90px); opacity: .16;
+}
+.nebula--cyan   { top: -22vmax; left: -14vmax; background: radial-gradient(circle, #00e1ff, transparent 65%); }
+.nebula--violet { bottom: -26vmax; right: -16vmax; background: radial-gradient(circle, #7b2fff, transparent 65%); }
+
+/* ---------- Stage: flex column pinned to 100vh ---------- */
+.stage {
+  position: relative; z-index: 1;
+  height: 100vh;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: space-between;
+  gap: 10px; padding: 10px 16px;
+}
+
+/* ---------- Slim HUD bars ---------- */
+.hud {
+  width: 100%; max-width: 760px;
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 12px; flex: 0 0 auto;
+}
+.hud--top    { height: 46px; }
+.hud--bottom { height: 40px; justify-content: center; gap: 26px; }
+
+.hud__brand {
+  font-size: clamp(15px, 2.6vw, 22px); letter-spacing: .34em; font-weight: 800;
+  color: #eaf7ff; text-shadow: 0 0 12px rgba(0, 225, 255, .8), 0 0 34px rgba(0, 225, 255, .35);
+}
+.hud__brand span { color: var(--cyan-glow); }
+
+.hud__tag {
+  font-size: 10px; letter-spacing: .18em; color: #7fa8bd;
+  border: 1px solid rgba(0, 225, 255, .22); border-radius: 4px;
+  padding: 4px 8px; background: rgba(10, 20, 32, .55);
+  box-shadow: inset 0 0 10px rgba(0, 225, 255, .08);
+  white-space: nowrap;
+}
+.hud__stat {
+  display: inline-flex; align-items: center; gap: 7px;
+  font-size: 10px; letter-spacing: .16em; color: #8fb4c8;
+}
+.hud__stat b { color: #eaf7ff; font-size: 12px; }
+.pip { width: 8px; height: 8px; border-radius: 2px; display: inline-block; }
+.pip--gold   { background: var(--gold);   box-shadow: 0 0 8px var(--gold); }
+.pip--red    { background: var(--red);    box-shadow: 0 0 8px var(--red); }
+.pip--purple { background: var(--purple); box-shadow: 0 0 8px var(--purple); }
+
+/* =====================================================================
+   BOARD: outer metallic frame (parent container) + recessed well
+   The frame keeps its style in EVERY state — only tile inner faces change.
+   ===================================================================== */
+.board-frame {
+  flex: 0 0 auto;
+  padding: 10px;
+  border-radius: 16px;
+  background:
+    linear-gradient(160deg, var(--frame-hi) 0%, var(--frame-mid) 45%, var(--frame-lo) 100%);
+  border: 1px solid rgba(0, 225, 255, .28);
+  box-shadow:
+    0 0 26px rgba(0, 225, 255, .16),          /* outer neon halo        */
+    inset 0 1px 0 rgba(255, 255, 255, .14),   /* top bevel highlight    */
+    inset 0 -2px 6px rgba(0, 0, 0, .55);      /* recessed bottom shade  */
+}
+.board-well {
+  padding: 10px;
+  border-radius: 10px;
+  background: radial-gradient(120% 120% at 50% 0%, #0c1622 0%, #070d15 100%);
+  box-shadow: inset 0 3px 12px rgba(0, 0, 0, .8), inset 0 0 0 1px rgba(0, 225, 255, .10);
+}
+
+/* ---------- 5×5 GRID ---------- */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(5, var(--tile));
+  grid-auto-rows: var(--tile);
+  gap: var(--gap);
+}
+
+/* =====================================================================
+   TILE — NESTED CARD STRUCTURE
+   .tile          : parent = dark metallic frame + bevels (state-invariant)
+   .tile__inner   : nested wrapper = glossy 3D face; swaps per state
+   .tile__icon    : centered glowing token (visible only when revealed)
+   ===================================================================== */
+.tile {
+  display: block;
+  padding: 4px;                              /* exposes the metallic parent frame */
+  border: 1px solid rgba(0, 225, 255, .30);  /* cyan edge on the frame itself     */
+  border-radius: 12px;
+  cursor: pointer;
+  background: linear-gradient(150deg, #22303f 0%, #131d29 50%, #0a1118 100%);
+  box-shadow:
+    0 3px 8px rgba(0, 0, 0, .6),             /* drop shadow -> raised button feel */
+    inset 0 1px 0 rgba(255, 255, 255, .12),  /* top bevel                         */
+    inset 0 -1px 3px rgba(0, 0, 0, .6);      /* bottom recess                     */
+  transition: transform .12s ease, box-shadow .12s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+.tile:hover  { transform: translateY(-1px); }
+.tile:active { transform: translateY(1px) scale(.98); }
+.tile:focus-visible { outline: 2px solid var(--cyan-glow); outline-offset: 2px; }
+
+/* ----- Nested inner container: default / UNREVEALED state -----
+   Deep metallic teal-blue face with bright cyan glass glow.       */
+.tile__inner {
+  position: relative;
+  display: flex; align-items: center; justify-content: center;
+  width: 100%; height: 100%;
+  border-radius: 8px;
+  background:
+    linear-gradient(145deg, var(--teal-face-hi) 0%, var(--teal-face) 48%, var(--teal-face-lo) 100%);
+  border: 1px solid rgba(0, 225, 255, .55);
+  box-shadow:
+    0 0 10px rgba(0, 225, 255, .35),                          /* outer cyan glow   */
+    inset 0 0 14px rgba(0, 225, 255, .22),                    /* inner cyan glow   */
+    inset 0 1px 0 rgba(255, 255, 255, .18),                   /* glossy highlight  */
+    inset 0 -3px 8px rgba(0, 0, 0, .55);                      /* glossy depth      */
+  transition: background .18s ease, border-color .18s ease, box-shadow .18s ease;
+}
+/* Glossy sweep across the glass face (multi-layer 3D effect) */
+.tile__inner::before {
+  content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
+  background: linear-gradient(115deg, rgba(255,255,255,.16) 0%, rgba(255,255,255,.04) 34%, transparent 55%);
+}
+/* Etched circuit plate detail */
+.tile__inner::after {
+  content: ""; position: absolute; inset: 18%; border-radius: 4px; pointer-events: none;
+  border: 1px dashed rgba(0, 225, 255, .18);
+  transition: opacity .18s ease;
+}
+
+/* ----- Icon: hidden while sealed, pops in when revealed ----- */
+.tile__icon {
+  position: relative; z-index: 1;
+  font-size: calc(var(--tile) * .42); line-height: 1;
+  opacity: 0; transform: scale(.4);
+  transition: opacity .16s ease, transform .16s cubic-bezier(.2, 1.6, .4, 1);
+}
+
+/* =====================================================================
+   REVEALED STATE  (.tile.revealed)
+   Parent metallic frame stays EXACTLY as-is; ONLY the nested inner
+   container's background changes to a dark recessed obsidian well with
+   a clean inner border. The icon lights up in its accent color.
+   ===================================================================== */
+.tile.revealed .tile__inner {
+  background:
+    radial-gradient(90% 90% at 50% 40%, #0b1220 0%, var(--obsidian) 70%);
+  border: 1px solid var(--obsidian-edge);                  /* clean inner border */
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, .04),              /* crisp rim light    */
+    inset 0 4px 12px rgba(0, 0, 0, .85);                   /* deep recess        */
+}
+.tile.revealed .tile__inner::after { opacity: 0; }         /* hide etch pattern  */
+.tile.revealed .tile__icon { opacity: 1; transform: scale(1); }
+
+/* --- Accent variants: colored glow around the icon + subtle frame tint.
+       The inner BACKGROUND stays obsidian; accents live in icon/border/glow. --- */
+.tile.revealed.tile--gold .tile__icon {
+  color: var(--gold);
+  text-shadow: 0 0 10px var(--gold), 0 0 26px rgba(255, 185, 50, .6);
+}
+.tile.revealed.tile--gold .tile__inner { border-color: rgba(255, 185, 50, .55); }
+.tile.revealed.tile--gold { box-shadow: 0 3px 8px rgba(0,0,0,.6), 0 0 14px rgba(255,185,50,.28),
+    inset 0 1px 0 rgba(255,255,255,.12), inset 0 -1px 3px rgba(0,0,0,.6); }
+
+.tile.revealed.tile--red .tile__icon {
+  color: var(--red);
+  text-shadow: 0 0 10px var(--red), 0 0 26px rgba(255, 50, 50, .6);
+}
+.tile.revealed.tile--red .tile__inner { border-color: rgba(255, 50, 50, .55); }
+.tile.revealed.tile--red { box-shadow: 0 3px 8px rgba(0,0,0,.6), 0 0 14px rgba(255,50,50,.30),
+    inset 0 1px 0 rgba(255,255,255,.12), inset 0 -1px 3px rgba(0,0,0,.6); }
+
+.tile.revealed.tile--purple .tile__icon {
+  color: var(--purple);
+  text-shadow: 0 0 10px var(--purple), 0 0 26px rgba(180, 77, 255, .6);
+}
+.tile.revealed.tile--purple .tile__inner { border-color: rgba(180, 77, 255, .55); }
+.tile.revealed.tile--purple { box-shadow: 0 3px 8px rgba(0,0,0,.6), 0 0 14px rgba(180,77,255,.28),
+    inset 0 1px 0 rgba(255,255,255,.12), inset 0 -1px 3px rgba(0,0,0,.6); }
+
+/* ---------- Responsive scaling ---------- */
+@media (max-width: 480px) {
+  :root { --tile: min(calc((100vh - 190px) / 5), 16vw, 56px); }
+  .hud__tag { display: none; }
+  .stage { padding: 8px 10px; }
+  .board-frame, .board-well { padding: 7px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .tile, .tile__inner, .tile__icon { transition: none; }
+  .tile:hover, .tile:active { transform: none; }
+}
