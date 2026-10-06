@@ -9,13 +9,11 @@
 </script>
 
 <header class="header">
-  <!-- Sci-fi header: left nav pod · central coin emblem badge with the
-       CRYPTO/MINES wordmark split across it · right balance + icon cluster -->
-  <nav class="nav-pod" aria-label="Game sections">
-    <a class="nav-link active" href="#game" aria-current="page">Play</a>
-    <a class="nav-link" href="#crypto-chain">Chain</a>
-    <a class="nav-link" href="#crypto-vault">Vault</a>
-  </nav>
+  <!-- Sci-fi header: central coin emblem badge with the CRYPTO/MINES
+       wordmark split across it · right balance + icon cluster.
+       (The old Play/Chain/Vault nav pill was removed to match the
+       reference design — brand now occupies its column.) -->
+  <span class="header-spacer" aria-hidden="true"></span>
 
   <div class="brand">
     <span class="wordmark wordmark-left" aria-hidden="true">CRYPTO</span>
@@ -208,7 +206,7 @@
     color: #9fb0c2; /* AA contrast vs the dark chip background */
   }
 
-  /* ── Sci-fi header (v3): nav pod · center emblem badge · right HUD ── */
+  /* ── Sci-fi header (v4): center emblem badge · right HUD ── */
   .header {
     display: grid;
     grid-template-columns: 1fr auto 1fr;
@@ -236,41 +234,12 @@
     background: linear-gradient(90deg, transparent, rgba(25, 227, 227, 0.55), transparent);
     pointer-events: none;
   }
-  .nav-pod {
-    display: flex;
-    align-items: center;
-    gap: 0.25rem;
+  /* Invisible placeholder that keeps the 1fr/auto/1fr grid so the brand
+     stays perfectly centered now that the nav pill is gone. */
+  .header-spacer {
     justify-self: start;
-    padding: 0.25rem;
-    border-radius: var(--radius-pill);
-    border: 1px solid var(--border);
-    background: linear-gradient(180deg, rgba(18, 28, 45, 0.85), rgba(8, 13, 22, 0.9));
-    box-shadow: inset 0 1px 0 var(--hairline-top);
-  }
-  .nav-link {
-    font-family: var(--font-display);
-    font-size: 0.66rem;
-    font-weight: 600;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    text-decoration: none;
-    color: var(--text-secondary);
-    padding: 0.32rem 0.7rem;
-    border-radius: var(--radius-pill);
-    transition: color 0.15s, background-color 0.15s, box-shadow 0.15s;
-  }
-  .nav-link:hover {
-    color: var(--highlight-soft);
-    background: rgba(25, 227, 227, 0.08);
-  }
-  .nav-link.active {
-    color: #06131d;
-    background: linear-gradient(180deg, var(--primary-light), var(--blue-light));
-    box-shadow: 0 0 14px rgba(25, 227, 227, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.25);
-  }
-  .nav-link:focus-visible {
-    outline: 2px solid rgba(25, 227, 227, 0.6);
-    outline-offset: 2px;
+    width: 0;
+    height: 0;
   }
   /* Center brand: CRYPTO [₿ badge] MINES */
   .brand {
@@ -373,11 +342,12 @@
 
   /* ── Responsive header reflow (no horizontal overflow on mobile) ──── */
   @media (max-width: 860px) {
-    .nav-pod {
-      display: none; /* brand stays centered; sections reachable via anchors below */
-    }
     .header {
       grid-template-columns: auto 1fr;
+    }
+    /* Nav pill removed — spacer is no longer needed in the 2-col reflow */
+    .header-spacer {
+      display: none;
     }
     .brand {
       justify-self: start;
