@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onDestroy } from 'svelte';
   import { BUY_VAULT_COST_MULTIPLIER } from '@crypto-mines/shared';
-  import { apiToDisplay, betRangeFromConfig } from '../rgs';
+  import { apiToDisplay, betRangeFromConfig, snapBetDisplayToConfig } from '../rgs';
   import Icon from './Icon.svelte';
   import ChainMeter from './ChainMeter.svelte';
 
@@ -215,9 +215,24 @@
     if (next !== bet) onBetChange(next);
   }
 
+  /**
+   * Single commit path for every quick-control click (MIN / MAX / ½ / 2×).
+   * Previously these buttons wrote RAW display values straight to App's
+   * `snapBetDisplayToConfig`, which silently rewrote anything off the wallet's
+   * step grid or ladder — e.g. ½ of a 1.05 bet lands on 0.53 and 2× lands on
+   * 2.10, neither of which is server-valid when the config steps by 1. The
+   * parent then snapped them back to different rungs, so the clicks LOOKED
+   * dead. Snapping here with the exact same rules the server enforces means
+   * every value we emit round-trips through `snapBetDisplayToConfig`
+   * unchanged (`isServerValidBet(api)` short-circuits at its very first line),
+   * so the displayed bet always updates to precisely what was clicked.
+   */
   function applyBet(v: number) {
     if (!Number.isFinite(v)) return; // never write NaN/undefined into the bet state
-    onBetChange(v);
+    const target = walletConfig ? snapBetDisplayToConfig(v, walletConfig) : v;
+    // No-op guard: skip redundant writes so an already-legal value never
+    // re-triggers parent state churn.
+    if (target !== bet) onBetChange(target);
   }
 
   onDestroy(() => cancelAnimationFrame(rafId));
