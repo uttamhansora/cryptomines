@@ -102,6 +102,19 @@
   const ringPct = $derived(Math.max(0, Math.min(100, ((displayMult - 1) / 9) * 100)));
   const ringDashOffset = $derived(RING_CIRC * (1 - ringPct / 100));
 
+  /* BET QUANTUM horizontal slider position (0–100%) between effective MIN/MAX.
+     Derived from `bet` only — no extra state, no drift, zero JS on drag beyond
+     the one input event that already flows through applyBet(). */
+  const betPct = $derived(
+    betCap > betMin ? Math.max(0, Math.min(100, ((bet - betMin) / (betCap - betMin)) * 100)) : 0,
+  );
+  /** Slider works in display units; map its raw position back onto the legal range. */
+  function handleBetSlider(e: Event) {
+    const v = Number((e.target as HTMLInputElement).value);
+    if (!Number.isFinite(v)) return;
+    applyBet(+(betMin + (v / 100) * (betCap - betMin)).toFixed(2));
+  }
+
   const ladderEnabled = $derived(
     !!walletConfig && Array.isArray(walletConfig.betLevels) && walletConfig.betLevels.length > 0,
   );
@@ -225,16 +238,18 @@
   <div class="section mult-hero">
     <span class="label label-center">
       <Icon name="multiplier" size={14} />
-      Current multiplier
+      Multiplier Circuit
     </span>
-    <!-- Circular glowing ring widget for the Current Multiplier. The fill arc
-         tracks the live count-up value via stroke-dashoffset only (GPU-cheap);
-         the halo/orbit layers provide the ambient glow. Animation hooks kept
-         intact: `.mult-ring .ring-svg` / `.ring-orbit` are what
-         AnimationController.multiplierBump() looks up, and
+    <!-- MULTIPLIER CIRCUIT: concentric animated rings + progress dial. The fill
+         arc tracks the live count-up value via stroke-dashoffset only (GPU-cheap);
+         orbit-1/orbit-2 are the counter-rotating decorative circuit rings.
+         Animation hooks kept intact: `.mult-ring .ring-svg` / `.ring-orbit` are
+         what AnimationController.multiplierBump() looks up, and
          [data-multiplier-display] is what GSAP bumps on each event. -->
     <div class="mult-ring" data-multiplier-ring>
       <span class="mult-halo" aria-hidden="true"></span>
+      <span class="orbit orbit-1" aria-hidden="true"></span>
+      <span class="orbit orbit-2" aria-hidden="true"></span>
       <svg class="ring-svg" viewBox="0 0 100 100" aria-hidden="true" focusable="false" style="transform: rotate(-90deg)">
         <circle class="ring-track" cx="50" cy="50" r="46" />
         <circle
@@ -277,28 +292,46 @@
     <span class="label label-row">
       <span class="label-inner">
         <Icon name="bet" size={14} />
-        Bet amount
+        Bet Quantum
       </span>
       <!-- Tooltip explaining that bet/mines lock during a live round -->
       <span class="tip lock-hint" data-tip={"Bet & mines lock while a round is running"} tabindex="0" role="note" aria-label="Bet and mines controls lock while a round is running">
         <svg viewBox="0 0 24 24" width="13" height="13" aria-hidden="true"><circle cx="12" cy="12" r="9.2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 10.6v6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="7.2" r="1.5" fill="currentColor"/></svg>
       </span>
     </span>
-    <!-- Bet control grid: a clean 6-column layout — MIN · ½ · ( − value + ) · 2× · MAX.
-         All cells sit on one shared track (equal heights/gaps via CSS grid), the
-         label row above stays aligned, and every button commits its change in the
-         click task itself (see setMinBet/setMaxBet/halveBet/doubleBet). -->
+    <!-- BET QUANTUM: sleek horizontal range slider (− ● +) above the quick-control
+         row. Dragging updates the bet through the same synchronous applyBet() path,
+         so every change commits in the input event's task — zero latency. -->
+    <div class="quantum-slider-row" class:locked={roundActive}>
+      <button type="button" class="step-btn" disabled={roundActive} aria-label="Decrease bet" onclick={() => adjustBet(-1)}>
+        <Icon name="minus" size={16} />
+      </button>
+      <span class="quantum-track">
+        <input
+          class="quantum-range"
+          type="range"
+          min="0"
+          max="100"
+          step="0.5"
+          value={betPct.toFixed(1)}
+          disabled={roundActive}
+          aria-label="Bet amount slider"
+          oninput={handleBetSlider}
+        />
+      </span>
+      <button type="button" class="step-btn" disabled={roundActive} aria-label="Increase bet" onclick={() => adjustBet(1)}>
+        <Icon name="plus" size={16} />
+      </button>
+    </div>
+    <!-- Quick controls: MIN · ½ · (value) · 2× · MAX on one shared CSS-grid track.
+         All cells sit at equal heights/gaps, the label row above stays aligned, and
+         every button commits its change in the click task itself (see
+         setMinBet/setMaxBet/halveBet/doubleBet). -->
     <div class="bet-grid" role="group" aria-label="Bet amount controls" class:locked={roundActive}>
       <button type="button" class="grid-btn wide" data-bet-min disabled={roundActive} title="Minimum bet" aria-label="Minimum bet" onclick={setMinBet}>MIN</button>
       <button type="button" class="grid-btn" data-bet-half disabled={roundActive} title="Halve bet" aria-label="Halve bet" onclick={halveBet}>½</button>
       <div class="value-cell">
-        <button type="button" class="step-btn" disabled={roundActive} aria-label="Decrease bet" onclick={() => adjustBet(-1)}>
-          <Icon name="minus" size={16} />
-        </button>
         <span class="value" data-bet-value>{bet.toFixed(2)}</span>
-        <button type="button" class="step-btn" disabled={roundActive} aria-label="Increase bet" onclick={() => adjustBet(1)}>
-          <Icon name="plus" size={16} />
-        </button>
       </div>
       <button type="button" class="grid-btn" data-bet-double disabled={roundActive} title="Double bet" aria-label="Double bet" onclick={doubleBet}>2×</button>
       <button type="button" class="grid-btn wide accent" data-bet-max disabled={roundActive} title="Maximum bet" aria-label="Maximum bet" onclick={setMaxBet}>MAX</button>
@@ -309,28 +342,33 @@
     <span class="label label-row">
       <span class="label-inner">
         <Icon name="mines" size={14} />
-        Mines
+        Mines Density
       </span>
       <span class="tip lock-hint" data-tip={"More mines = higher multipliers&#10;Fewer gems left to find"} tabindex="0" role="note" aria-label="More mines means higher multipliers but fewer safe gems">
         <svg viewBox="0 0 24 24" width="13" height="13" aria-hidden="true"><circle cx="12" cy="12" r="9.2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 10.6v6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="7.2" r="1.5" fill="currentColor"/></svg>
       </span>
     </span>
-    <!-- v2: stepper + presets merged into one tidy row grid -->
-    <div class="mines-grid" role="group" aria-label="Mine count selector" class:locked={roundActive}>
-      <div class="mines-stepper">
-        <button type="button" class="step-btn" disabled={roundActive} aria-label="Fewer mines" onclick={() => onMinesChange(Math.max(1, mines - 1))}>
-          <Icon name="minus" size={16} />
-        </button>
-        <span class="value" aria-live="polite">{mines}</span>
-        <button type="button" class="step-btn" disabled={roundActive} aria-label="More mines" onclick={() => onMinesChange(Math.min(24, mines + 1))}>
-          <Icon name="plus" size={16} />
-        </button>
-      </div>
-      <div class="presets chips">
-        {#each minePresets as m}
-          <button type="button" class="chip" class:active={mines === m} disabled={roundActive} aria-pressed={mines === m} onclick={() => onMinesChange(m)}>{m}</button>
-        {/each}
-      </div>
+    <!-- MINES DENSITY: red-accent slider across the legal 1–24 range, with the
+         structured density pills (1 / 5 / 10 / 15 / 20 / 24) below. Both drive
+         the exact same onMinesChange handler — no new game logic. -->
+    <div class="density-slider-row" class:locked={roundActive}>
+      <input
+        class="density-range"
+        type="range"
+        min="1"
+        max="24"
+        step="1"
+        value={mines}
+        disabled={roundActive}
+        aria-label="Mines density slider"
+        oninput={(e) => onMinesChange(Number((e.target as HTMLInputElement).value))}
+      />
+      <span class="density-count" aria-live="polite">{mines}<i>/24</i></span>
+    </div>
+    <div class="presets chips" role="group" aria-label="Mine density presets">
+      {#each minePresets as m}
+        <button type="button" class="chip" class:active={mines === m} disabled={roundActive} aria-pressed={mines === m} onclick={() => onMinesChange(m)}>{m}</button>
+      {/each}
     </div>
   </div>
 
@@ -492,6 +530,33 @@
     border: 1px dashed rgba(34, 211, 238, 0.22);
     animation: orbit-spin 14s linear infinite;
     pointer-events: none;
+  }
+  /* Concentric circuit rings — decorative, transform-only (GPU composited),
+     disabled under prefers-reduced-motion below. */
+  .orbit {
+    position: absolute;
+    border-radius: 50%;
+    pointer-events: none;
+  }
+  .orbit-1 {
+    inset: -9px;
+    border: 1px solid rgba(34, 211, 238, 0.10);
+    border-top-color: rgba(34, 211, 238, 0.45);
+    border-right-color: rgba(167, 139, 250, 0.35);
+    animation: orbit-spin 9s linear infinite;
+  }
+  .orbit-2 {
+    inset: -18px;
+    border: 1px dotted rgba(167, 139, 250, 0.28);
+    border-bottom-color: rgba(34, 211, 238, 0.4);
+    animation: orbit-spin 18s linear infinite reverse;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .orbit-1,
+    .orbit-2,
+    .ring-orbit {
+      animation: none;
+    }
   }
   @keyframes orbit-spin {
     to { transform: rotate(360deg); } }
@@ -709,16 +774,139 @@
     grid-template-columns: minmax(0, 1fr);
     gap: 0.35rem;
   }
-  .mines-stepper {
+
+  /* ── BET QUANTUM horizontal slider (− ● +) ─────────────────────────── */
+  .quantum-slider-row {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    gap: 0.35rem;
-    min-height: 44px;
-    padding: 0 0.3rem;
+    gap: 0.5rem;
+    padding: 0.2rem 0.35rem;
     border-radius: var(--radius-sm);
-    border: 1px solid rgba(112, 132, 165, 0.2);
+    border: 1px solid rgba(112, 132, 165, 0.18);
     background: linear-gradient(180deg, rgba(9, 14, 22, 0.9), rgba(16, 21, 31, 0.85));
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  }
+  .quantum-slider-row.locked {
+    opacity: 0.72;
+  }
+  .quantum-track {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    min-width: 0;
+  }
+  .quantum-range,
+  .density-range {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 6px;
+    margin: 0;
+    border-radius: var(--radius-pill);
+    background:
+      linear-gradient(90deg, rgba(34, 211, 238, 0.55), rgba(34, 211, 238, 0.16)),
+      rgba(112, 132, 165, 0.14);
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.6);
+    cursor: pointer;
+    transition: box-shadow 0.15s;
+  }
+  .quantum-range:hover:not(:disabled) {
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.6), 0 0 10px rgba(34, 211, 238, 0.25);
+  }
+  .quantum-range::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    border: 2px solid rgba(34, 211, 238, 0.85);
+    background: radial-gradient(circle at 40% 32%, #a5f3fc, #0e7490 70%);
+    box-shadow: 0 0 12px rgba(34, 211, 238, 0.5), 0 2px 6px rgba(0, 0, 0, 0.5);
+    transition: transform 0.1s ease;
+  }
+  .quantum-range::-moz-range-thumb {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    border: 2px solid rgba(34, 211, 238, 0.85);
+    background: radial-gradient(circle at 40% 32%, #a5f3fc, #0e7490 70%);
+    box-shadow: 0 0 12px rgba(34, 211, 238, 0.5), 0 2px 6px rgba(0, 0, 0, 0.5);
+  }
+  .quantum-range:active:not(:disabled)::-webkit-slider-thumb {
+    transform: scale(1.15);
+  }
+  .quantum-range:focus-visible {
+    outline: 2px solid rgba(34, 211, 238, 0.6);
+    outline-offset: 4px;
+  }
+  .quantum-range:disabled,
+  .density-range:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  /* ── MINES DENSITY red-accent slider + live count readout ──────────── */
+  .density-slider-row {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    padding: 0.2rem 0.5rem;
+    border-radius: var(--radius-sm);
+    border: 1px solid rgba(239, 68, 68, 0.16);
+    background: linear-gradient(180deg, rgba(22, 12, 16, 0.85), rgba(12, 8, 10, 0.92));
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  }
+  .density-slider-row.locked {
+    opacity: 0.72;
+  }
+  .density-range {
+    background:
+      linear-gradient(90deg, rgba(239, 68, 68, 0.6), rgba(239, 68, 68, 0.18)),
+      rgba(112, 132, 165, 0.14);
+  }
+  .density-range:hover:not(:disabled) {
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.6), 0 0 10px rgba(239, 68, 68, 0.3);
+  }
+  .density-range::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    border: 2px solid rgba(248, 113, 113, 0.9);
+    background: radial-gradient(circle at 40% 32%, #fca5a5, #991b1b 70%);
+    box-shadow: 0 0 12px rgba(239, 68, 68, 0.55), 0 2px 6px rgba(0, 0, 0, 0.5);
+    transition: transform 0.1s ease;
+  }
+  .density-range::-moz-range-thumb {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    border: 2px solid rgba(248, 113, 113, 0.9);
+    background: radial-gradient(circle at 40% 32%, #fca5a5, #991b1b 70%);
+    box-shadow: 0 0 12px rgba(239, 68, 68, 0.55), 0 2px 6px rgba(0, 0, 0, 0.5);
+  }
+  .density-range:active:not(:disabled)::-webkit-slider-thumb {
+    transform: scale(1.15);
+  }
+  .density-range:focus-visible {
+    outline: 2px solid rgba(248, 113, 113, 0.6);
+    outline-offset: 4px;
+  }
+  .density-count {
+    font-family: var(--font-display);
+    font-size: 0.95rem;
+    color: var(--danger-bright);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+    min-width: 3.2rem;
+    text-align: right;
+  }
+  .density-count i {
+    font-style: normal;
+    font-size: 0.68rem;
+    color: var(--text-muted);
+    margin-left: 1px;
   }
   .chips {
     display: grid;
@@ -747,11 +935,16 @@
     cursor: not-allowed;
   }
   .chip.active {
-    border-color: rgba(34, 211, 238, 0.65);
-    color: var(--highlight-soft);
+    border-color: rgba(239, 68, 68, 0.65);
+    color: var(--danger-bright);
     box-shadow:
       inset 0 1px 0 rgba(255, 255, 255, 0.08),
-      0 0 14px rgba(34, 211, 238, 0.25);
+      0 0 14px rgba(239, 68, 68, 0.28);
+  }
+  /* red hover tint on density pills — the section reads as a danger control */
+  .chips .chip:hover:not(:disabled) {
+    border-color: rgba(239, 68, 68, 0.45);
+    box-shadow: 0 0 10px rgba(239, 68, 68, 0.14);
   }
   .value {
     font-family: var(--font-display);
