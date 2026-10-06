@@ -82,7 +82,7 @@
     width: min(100%, var(--board-max));
     aspect-ratio: 1 / 1;
     margin: 0 auto;
-    padding: 12px;
+    padding: 10px;
     border-radius: 16px;
     display: flex;
     flex-direction: column;
@@ -153,7 +153,7 @@
   .board-inset {
     position: relative;
     flex: 1;
-    padding: 12px;
+    padding: 10px;
     border-radius: 12px;
     background: #04141a;
     border: 1px solid rgba(25, 227, 227, 0.16);
@@ -179,34 +179,34 @@
   .board {
     display: grid;
     grid-template-columns: repeat(5, minmax(0, 1fr));
-    /* Tiles almost touch (gap ≈ 12–14% of tile size) — reference proportion */
-    gap: 8px;
+    /* Tiles almost touch (gap ≈ 12% of tile size) — reference proportion */
+    gap: 7px;
     position: relative;
     flex: 1;
     transform: translate3d(0, 0, 0);
     /* leave room at the bottom of each row for the tiles' extruded 3D edge */
-    padding-bottom: 6px;
+    padding-bottom: 5px;
   }
   /* Tablet: slightly smaller board + tighter gaps */
   @media (max-width: 1023px) {
     .board-rim {
-      width: min(100%, 520px, 90vw);
+      width: min(100%, 480px, 88vw);
     }
     .board {
-      gap: 7px;
+      gap: 6px;
     }
   }
   /* Phone: full-bleed feel, thin frame, compact gaps */
   @media (max-width: 600px) {
     .board-rim {
-      width: min(100%, 94vw);
+      width: min(100%, 90vw);
       padding: 8px;
     }
     .board-inset {
       padding: 8px;
     }
     .board {
-      gap: 6px;
+      gap: 5px;
     }
   }
   .mine-flash {

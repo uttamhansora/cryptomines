@@ -333,6 +333,11 @@ button:disabled { cursor: not-allowed; }
   position: relative;
   padding: var(--s-4);
   border-radius: var(--r-lg);
+  /* Keep the board well-proportioned (reference design): cap the container
+     width so it has balanced margins instead of stretching full-column. */
+  width: 100%;
+  max-width: 580px;
+  margin-inline: auto;
   /* outer metallic band with a brushed light sweep in the middle */
   background: var(--grad-metal);
   border: 1px solid rgba(0, 242, 254, 0.22);
@@ -377,7 +382,7 @@ button:disabled { cursor: not-allowed; }
   position: relative; z-index: 1;
   display: grid;
   grid-template-columns: repeat(5, 1fr);
-  gap: 10px;
+  gap: 8px;
 }
 /* Idle state: dim the field so "Start Round" is the obvious next step */
 .cm-board[data-disabled='true'] { opacity: 0.72; }
@@ -1051,8 +1056,8 @@ button:disabled { cursor: not-allowed; }
   .cm-panel { position: static; }
   /* On stacked layouts put CTA + vault right under the board for thumb reach */
   .cm-panel { order: 2; }
-  .cm-board { max-width: 560px; margin: 0 auto; width: 100%; }
-  .cm-board-frame { max-width: 620px; margin: 0 auto; width: 100%; }
+  .cm-board { max-width: 500px; margin: 0 auto; width: 100%; }
+  .cm-board-frame { max-width: 540px; margin: 0 auto; width: 100%; }
 }
 
 @media (max-width: 768px) {
