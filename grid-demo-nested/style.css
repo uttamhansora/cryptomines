@@ -141,8 +141,8 @@ html, body {
 /* =====================================================================
    TILE — NESTED CARD STRUCTURE
    .tile          : parent = dark metallic frame + bevels (state-invariant)
-   .tile__inner   : nested wrapper = glossy 3D face; swaps per state
-   .tile__icon    : centered glowing token (visible only when revealed)
+   .tile-inner   : nested wrapper = glossy 3D face; swaps per state
+   .tile-icon    : centered glowing token (visible only when revealed)
    ===================================================================== */
 .tile {
   display: block;
@@ -164,7 +164,7 @@ html, body {
 
 /* ----- Nested inner container: default / UNREVEALED state -----
    Deep metallic teal-blue face with bright cyan glass glow.       */
-.tile__inner {
+.tile-inner {
   position: relative;
   display: flex; align-items: center; justify-content: center;
   width: 100%; height: 100%;
@@ -180,19 +180,19 @@ html, body {
   transition: background .18s ease, border-color .18s ease, box-shadow .18s ease;
 }
 /* Glossy sweep across the glass face (multi-layer 3D effect) */
-.tile__inner::before {
+.tile-inner::before {
   content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
   background: linear-gradient(115deg, rgba(255,255,255,.16) 0%, rgba(255,255,255,.04) 34%, transparent 55%);
 }
 /* Etched circuit plate detail */
-.tile__inner::after {
+.tile-inner::after {
   content: ""; position: absolute; inset: 18%; border-radius: 4px; pointer-events: none;
   border: 1px dashed rgba(0, 225, 255, .18);
   transition: opacity .18s ease;
 }
 
 /* ----- Icon: hidden while sealed, pops in when revealed ----- */
-.tile__icon {
+.tile-icon {
   position: relative; z-index: 1;
   font-size: calc(var(--tile) * .42); line-height: 1;
   opacity: 0; transform: scale(.4);
@@ -204,41 +204,72 @@ html, body {
    Parent metallic frame stays EXACTLY as-is; ONLY the nested inner
    container's background changes to a dark recessed obsidian well with
    a clean inner border. The icon lights up in its accent color.
-   ===================================================================== */
-.tile.revealed .tile__inner {
-  background:
-    radial-gradient(90% 90% at 50% 40%, #0b1220 0%, var(--obsidian) 70%);
-  border: 1px solid var(--obsidian-edge);                  /* clean inner border */
-  box-shadow:
-    inset 0 0 0 1px rgba(255, 255, 255, .04),              /* crisp rim light    */
-    inset 0 4px 12px rgba(0, 0, 0, .85);                   /* deep recess        */
-}
-.tile.revealed .tile__inner::after { opacity: 0; }         /* hide etch pattern  */
-.tile.revealed .tile__icon { opacity: 1; transform: scale(1); }
 
-/* --- Accent variants: colored glow around the icon + subtle frame tint.
-       The inner BACKGROUND stays obsidian; accents live in icon/border/glow. --- */
-.tile.revealed.tile--gold .tile__icon {
+   BUG FIX — specificity of the revealed override:
+   The unrevealed face is styled by the base rule `.tile-inner` (one
+   class selector). An override like `.tile.revealed .tile-inner`
+   (two classes + one class = 0,3,0) beats it, BUT if any accent rule
+   ever re-declared `background` on `.tile.revealed.tile--X .tile-inner`
+   (0,4,0) it would win and pin the face back to teal/transparent.
+   To make the dark reveal bullet-proof we:
+     1. give the default face an explicit `--face-bg` custom property,
+     2. let every revealed variant simply SET `--face-bg`, and
+     3. mark the revealed background/border declarations `!important`
+        so no higher-specificity or later-loaded rule can resurrect the
+        teal gradient inside the nested container.
+   ===================================================================== */
+
+/* 1. Default (unrevealed) face value lives in a custom property so the
+      revealed state can swap the PAINTED BACKGROUND via one mechanism. */
+.tile-inner { --face-bg: linear-gradient(145deg, var(--teal-face-hi) 0%, var(--teal-face) 48%, var(--teal-face-lo) 100%); }
+
+/* 2. Revealed: nested inner container goes deep obsidian/slate.
+      `!important` guarantees this override always wins over the base
+      teal rule regardless of source order or accent-rule specificity. */
+.tile.revealed .tile-inner {
+  background: var(--face-bg) !important;                   /* <- swaps to dark obsidian */
+  border: 1px solid var(--obsidian-edge) !important;       /* clean inner border        */
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, .04),              /* crisp rim light           */
+    inset 0 4px 12px rgba(0, 0, 0, .85);                   /* deep recess               */
+}
+.tile.revealed .tile-inner::after { opacity: 0; }         /* hide etch pattern         */
+.tile.revealed .tile-icon { opacity: 1; transform: scale(1); }
+
+/* --- Accent variants: each sets --face-bg (dark obsidian radial) and
+       colors ONLY the icon glow + inner border tint. The background is
+       applied through the single `.tile.revealed .tile-inner` rule above,
+       so it can never be overridden back to teal by these accent rules. --- */
+.tile.revealed.tile--gold .tile-inner {
+  --face-bg: radial-gradient(90% 90% at 50% 40%, #1a1206 0%, var(--obsidian) 72%);
+  border-color: rgba(255, 185, 50, .55) !important;
+}
+.tile.revealed.tile--gold .tile-icon {
   color: var(--gold);
   text-shadow: 0 0 10px var(--gold), 0 0 26px rgba(255, 185, 50, .6);
 }
-.tile.revealed.tile--gold .tile__inner { border-color: rgba(255, 185, 50, .55); }
 .tile.revealed.tile--gold { box-shadow: 0 3px 8px rgba(0,0,0,.6), 0 0 14px rgba(255,185,50,.28),
     inset 0 1px 0 rgba(255,255,255,.12), inset 0 -1px 3px rgba(0,0,0,.6); }
 
-.tile.revealed.tile--red .tile__icon {
+.tile.revealed.tile--red .tile-inner {
+  --face-bg: radial-gradient(90% 90% at 50% 40%, #1c080c 0%, var(--obsidian) 72%);
+  border-color: rgba(255, 50, 50, .55) !important;
+}
+.tile.revealed.tile--red .tile-icon {
   color: var(--red);
   text-shadow: 0 0 10px var(--red), 0 0 26px rgba(255, 50, 50, .6);
 }
-.tile.revealed.tile--red .tile__inner { border-color: rgba(255, 50, 50, .55); }
 .tile.revealed.tile--red { box-shadow: 0 3px 8px rgba(0,0,0,.6), 0 0 14px rgba(255,50,50,.30),
     inset 0 1px 0 rgba(255,255,255,.12), inset 0 -1px 3px rgba(0,0,0,.6); }
 
-.tile.revealed.tile--purple .tile__icon {
+.tile.revealed.tile--purple .tile-inner {
+  --face-bg: radial-gradient(90% 90% at 50% 40%, #120a1e 0%, var(--obsidian) 72%);
+  border-color: rgba(180, 77, 255, .55) !important;
+}
+.tile.revealed.tile--purple .tile-icon {
   color: var(--purple);
   text-shadow: 0 0 10px var(--purple), 0 0 26px rgba(180, 77, 255, .6);
 }
-.tile.revealed.tile--purple .tile__inner { border-color: rgba(180, 77, 255, .55); }
 .tile.revealed.tile--purple { box-shadow: 0 3px 8px rgba(0,0,0,.6), 0 0 14px rgba(180,77,255,.28),
     inset 0 1px 0 rgba(255,255,255,.12), inset 0 -1px 3px rgba(0,0,0,.6); }
 
@@ -250,6 +281,6 @@ html, body {
   .board-frame, .board-well { padding: 7px; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .tile, .tile__inner, .tile__icon { transition: none; }
+  .tile, .tile-inner, .tile-icon { transition: none; }
   .tile:hover, .tile:active { transform: none; }
 }
