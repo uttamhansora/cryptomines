@@ -387,6 +387,13 @@ button:disabled { cursor: not-allowed; }
   border-radius: var(--r-md);
   isolation: isolate;
 }
+/* Hardware acceleration for the reveal: the opened face animates transform +
+   opacity only, so promote it to its own compositor layer (will-change +
+   translateZ(0)) — it paints instantly on click with no raster stutter. */
+.cm-tile-back {
+  will-change: transform, opacity;
+  transform: translateZ(0);
+}
 
 .cm-tile-face {
   position: absolute; inset: 0;
@@ -436,7 +443,9 @@ button:disabled { cursor: not-allowed; }
   box-shadow: inset 0 0 18px rgba(0, 0, 0, 0.75);      /* recessed obsidian  */
   background: linear-gradient(165deg, #080c14 0%, #06090f 100%) !important;
   background-color: #080c14 !important;
-  animation: tile-open 260ms var(--ease-out);   /* micro-flip feel, icon already visible */
+  /* GPU layer + fast micro-flip live in the dedicated .cm-tile-back rule above
+     (will-change/translateZ) — animation trimmed to 180ms for a snappier open. */
+  animation: tile-open 180ms var(--ease-out);   /* micro-flip feel, icon already visible */
 }
 .cm-tile--safe .cm-tile-back,
 .cm-tile--safe-vault .cm-tile-back {
@@ -526,7 +535,7 @@ button:disabled { cursor: not-allowed; }
     rgba(245, 185, 76, 0.9) 300deg 304deg, transparent 304deg 360deg);
   -webkit-mask: radial-gradient(circle, transparent 34%, black 38%, transparent 62%);
           mask: radial-gradient(circle, transparent 34%, black 38%, transparent 62%);
-  animation: burst 550ms var(--ease-out) forwards;
+  animation: burst 250ms var(--ease-out) forwards; /* snappier one-shot (was 550ms) */
   pointer-events: none;
 }
 @keyframes burst {
@@ -565,6 +574,9 @@ button:disabled { cursor: not-allowed; }
     inset 0 -4px 8px rgba(0, 0, 0, 0.5);                 /* bottom depth     */
   position: relative;
   animation: mine-hazard-pulse 1.2s ease-in-out infinite;
+  /* GPU-promote the pulsing hazard orb (transform/filter-only loop) */
+  will-change: transform, filter;
+  transform: translateZ(0);
 }
 .cm-mine::before, .cm-mine::after {
   content: ''; position: absolute;
@@ -584,7 +596,7 @@ button:disabled { cursor: not-allowed; }
   position: absolute; inset: -45%;
   border-radius: 50%;
   background: radial-gradient(circle, rgba(255, 170, 90, 0.95) 0%, rgba(255, 77, 109, 0.6) 35%, transparent 70%);
-  animation: boom 600ms var(--ease-out) forwards;
+  animation: boom 250ms var(--ease-out) forwards; /* sharper flash (was 600ms) */
   pointer-events: none;
 }
 @keyframes boom {
@@ -592,8 +604,9 @@ button:disabled { cursor: not-allowed; }
   to   { transform: scale(1.8); opacity: 0; }
 }
 
-/* Ghost mines revealed after a bust — dimmed, no flash animation */
-.cm-tile--mine-ghost .cm-tile-back { animation-duration: 500ms; }
+/* Ghost mines revealed after a bust — dimmed, no flash animation.
+   Duration matches the snappier base tile-open (180ms) instead of stretching it. */
+.cm-tile--mine-ghost .cm-tile-back { animation-duration: 180ms; }
 .cm-tile--mine-ghost .cm-mine { opacity: 0.35; box-shadow: none; }
 
 /* Dim unrevealed tiles after bust/cashout */

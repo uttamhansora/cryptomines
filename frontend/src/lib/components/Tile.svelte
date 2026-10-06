@@ -235,7 +235,10 @@
     margin: 3px 3px 5px;
     border-radius: 8px;
     position: relative;
-    will-change: transform;
+    /* Hardware acceleration: promote to its own GPU layer up-front so the
+       reveal flip/fade composites on the render thread with zero lag. */
+    will-change: transform, opacity;
+    transform: translateZ(0);
     backface-visibility: hidden;
     transform-style: preserve-3d;
     border: 2px solid transparent;
@@ -262,13 +265,12 @@
       0 0 0 1px rgba(0, 0, 0, 0.6),                  /* dark outline outside   */
       0 0 10px rgba(80, 220, 230, 0.25),             /* soft cyan outer glow   */
       0 5px 10px rgba(0, 0, 0, 0.6);                 /* drop shadow            */
-    transition: filter 0.2s ease, box-shadow 0.2s ease;
+    transition: filter 150ms ease, box-shadow 150ms ease; /* snappier hover state (was 0.2s) */
   }
-  /* GPU layer is only needed while a tile is actually interactive. Once the
-     cell is revealed its pose is final, so we release the composited layer —
-     25 permanent promoted layers forced full-board re-composite work during
-     every reveal animation on low-powered devices. */
-  .tile:disabled .tile-inner {
+  /* GPU layer is released once the cell is fully at rest (revealed AND no
+     longer in its entrance window) — so the reveal animation itself keeps a
+     promoted, stutter-free layer, and only settled tiles give memory back. */
+  .tile:disabled:not(.just-revealed) .tile-inner {
     will-change: auto;
   }
   /* Hover: box lifts, edge shine brightens, cyan glow intensifies, and a
@@ -302,7 +304,7 @@
       transparent 60%
     );
     transform: translateX(-130%);
-    animation: tile-sheen 0.6s ease-out 1;
+    animation: tile-sheen 400ms ease-out 1; /* snappier sweep (was 0.6s) */
   }
   .tile:not(:disabled):hover .back-mark {
     opacity: 0.95;
@@ -469,6 +471,10 @@
     place-items: center;
     border-radius: 6px;
     z-index: 3;
+    /* GPU-promote the flipping lid (transform + opacity are its only animated
+       props) so the open animation composites without main-thread work. */
+    will-change: transform, opacity;
+    transform: translateZ(0);
     transform-style: preserve-3d;
     backface-visibility: hidden;
   }
@@ -484,7 +490,8 @@
   /* CSS fallback flip when the tile flips open (GSAP timeline also drives this
      during playback; both are transform/opacity-only and GPU-friendly). */
   .tile.just-revealed .tile-lid {
-    animation: lid-flip 0.24s var(--ease-out-soft, cubic-bezier(0.22, 1, 0.36, 1)) both;
+    /* Lid flip trimmed to 200ms for a snappier open (was 0.24s). */
+    animation: lid-flip 200ms var(--ease-out-soft, cubic-bezier(0.22, 1, 0.36, 1)) both;
   }
   @keyframes lid-flip {
     from { transform: rotateX(0deg); opacity: 1; }
@@ -507,6 +514,11 @@
     perspective: 300px;
     position: relative;
     z-index: 4;   /* above the gloss-shine pseudo-element */
+    /* Hardware acceleration: the entrance animates transform + opacity only —
+       promote it to its own compositor layer so the icon paints instantly on
+       click with no raster lag or stutter. */
+    will-change: transform, opacity;
+    transform: translateZ(0);
     /* default: rich dark circle with a soft gold rim + warm outer bloom */
     --badge-bg: radial-gradient(circle at 32% 26%, #1c2a3e 0%, #101b2b 52%, #060b14 100%);
     --badge-edge: rgba(247, 147, 26, 0.5);
@@ -608,15 +620,15 @@
        the stagger feel without holding any pixels back. `sym-aura-in` fades in
        the glow aura on its own track so the token-specific drop-shadow colors
        survive the entrance untouched (final keyframe = natural resting pose). */
-    animation: sym-in 0.3s cubic-bezier(0.22, 1, 0.36, 1) both,
-               sym-aura-in 0.3s cubic-bezier(0.22, 1, 0.36, 1) both;
+    animation: sym-in 200ms cubic-bezier(0.22, 1, 0.36, 1) both,
+               sym-aura-in 200ms cubic-bezier(0.22, 1, 0.36, 1) both;
   }
-  /* one-shot reveal glow: peaks ~250ms then settles — never left glowing forever */
+  /* one-shot reveal glow: peaks fast then settles — never left glowing forever */
   .tile.just-revealed.safe .tile-glow {
-    animation: glow-settle 0.6s ease-out both;
+    animation: glow-settle 250ms ease-out both;   /* was 0.6s — quicker settle */
   }
   .tile.just-revealed.mine .tile-glow {
-    animation: danger-flash 0.45s ease-out both;
+    animation: danger-flash 220ms ease-out both;  /* was 0.45s — sharper flash */
   }
   @keyframes glow-settle {
     0% { opacity: 0; transform: scale(0.85); }
@@ -728,7 +740,9 @@
       0 0 0 1px rgba(229, 48, 63, 0.55),      /* red neon square border */
       0 0 18px var(--mine-glow),
       inset 0 0 14px rgba(229, 48, 63, 0.22);
-    animation: mine-shake 0.3s ease-out, mine-pulse 1.2s ease-in-out 0.3s infinite;
+    /* Shake trimmed 0.3s → 180ms so the hazard jolt lands inside the faster
+       entrance window; pulse delay retimed to match (infinite loop untouched). */
+    animation: mine-shake 180ms ease-out, mine-pulse 1.2s ease-in-out 180ms infinite;
   }
   @keyframes mine-pulse {
     0%, 100% { box-shadow: 0 0 0 1px rgba(229, 48, 63, 0.55), 0 0 12px rgba(255, 50, 70, 0.35), inset 0 0 10px rgba(229, 48, 63, 0.18); }
