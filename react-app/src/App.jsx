@@ -160,9 +160,15 @@ export default function App() {
   const revealTile = useCallback((index) => {
     if (gameStateRef.current !== 'playing') return;
 
-    /* Resolve mine/safe synchronously from the latest board — the result
-       state is committed in THIS render, so the correct symbol appears on
-       the very next paint (no timers gate the icon). */
+    /* INSTANT REVEAL CONTRACT:
+       - The mine/safe result is resolved SYNCHRONOUSLY from the in-memory
+         board (no API/await gates the icon — nothing can delay it).
+       - The clicked tile's state is written into `tilesRef` IMMEDIATELY,
+         inside this same click task. A second/duplicate click that lands
+         before React commits therefore hits the hidden-cell guard below and
+         is ignored — double-clicking an already-filled box is impossible.
+       - All setState calls happen synchronously in this handler, so the
+         icon renders in the same commit as the click (next paint frame). */
     const cell = boardDataRef.current[index];
     if (!cell || tilesRef.current[index] !== 'hidden') return;
 
@@ -176,9 +182,12 @@ export default function App() {
         if (boardDataRef.current[i].mine) return 'mine-ghost';
         return s;
       });
+      tilesRef.current = nextTiles;           // sync guard: blocks re-clicks pre-commit
       setTiles(nextTiles);
       setGameState('busted');
       // Bet already deducted at start — nothing returned on a bust.
+      // This timer only resets the ROUND STATE after the game-over screen has
+      // been shown; the hazard icon itself is already painted instantly above.
       setTimeout(() => setGameState('idle'), 1600); // auto-reset for new round
       return;
     }
@@ -188,6 +197,7 @@ export default function App() {
     nextTiles = tilesRef.current.map((s, i) =>
       i === index ? (cell.vault ? 'safe-vault' : 'safe') : s
     );
+    tilesRef.current = nextTiles;             // sync guard: blocks re-clicks pre-commit
     setTiles(nextTiles);
     setSafeReveals(nextK);
 
