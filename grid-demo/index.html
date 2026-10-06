@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CryptoMines — Sci-Fi Grid Demo</title>
+  <!-- Futuristic uppercase typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- Deep-space ambience layers (pure CSS gradients, no images) -->
+  <div class="space-bg" aria-hidden="true">
+    <div class="nebula nebula--cyan"></div>
+    <div class="nebula nebula--violet"></div>
+    <div class="starfield starfield--far"></div>
+    <div class="starfield starfield--near"></div>
+  </div>
+
+  <!-- Single-viewport shell: never scrolls vertically or horizontally -->
+  <main class="stage">
+
+    <!-- Slim header band -->
+    <header class="hud-top">
+      <span class="hud-tag hud-tag--left">NODE&nbsp;LINK&nbsp;·&nbsp;ONLINE</span>
+      <h1 class="brand">CRYPTO<span>MINES</span></h1>
+      <span class="hud-tag hud-tag--right">SECTOR&nbsp;05×05</span>
+    </header>
+
+    <!-- 5x5 interactive grid: hover = cyan charge glow, click = cycle gold -> red -> default -->
+    <section class="board" role="grid" aria-label="5 by 5 mine grid">
+      <button class="tile"            role="gridcell" aria-label="unrevealed tile"><span class="glyph"></span></button>
+      <button class="tile"            role="gridcell" aria-label="unrevealed tile"><span class="glyph"></span></button>
+      <button class="tile tile--gold" role="gridcell" aria-label="gold tile"><span class="glyph">◆</span></button>
+      <button class="tile"            role="gridcell" aria-label="unrevealed tile"><span class="glyph"></span></button>
+      <button class="tile tile--red"  role="gridcell" aria-label="danger tile"><span class="glyph">✖</span></button>
+
+      <button class="tile"            role="gridcell" aria-label="unrevealed tile"><span class="glyph"></span></button>
+      <button class="tile tile--gold" role="gridcell" aria-label="gold tile"><span class="glyph">◆</span></button>
+      <button class="tile"            role="gridcell" aria-label="unrevealed tile"><span class="glyph"></span></button>
+      <button class="tile"            role="gridcell" aria-label="unrevealed tile"><span class="glyph"></span></button>
+      <button class="tile"            role="gridcell" aria-label="unrevealed tile"><span class="glyph"></span></button>
+
+      <button class="tile"            role="gridcell" aria-label="unrevealed tile"><span class="glyph"></span></button>
+      <button class="tile"            role="gridcell" aria-label="unrevealed tile"><span class="glyph"></span></button>
+      <button class="tile tile--red"  role="gridcell" aria-label="danger tile"><span class="glyph">✖</span></button>
+      <button class="tile"            role="gridcell" aria-label="unrevealed tile"><span class="glyph"></span></button>
+      <button class="tile tile--gold" role="gridcell" aria-label="gold tile"><span class="glyph">◆</span></button>
+
+      <button class="tile tile--gold" role="gridcell" aria-label="gold tile"><span class="glyph">◆</span></button>
+      <button class="tile"            role="gridcell" aria-label="unrevealed tile"><span class="glyph"></span></button>
+      <button class="tile"            role="gridcell" aria-label="unrevealed tile"><span class="glyph"></span></button>
+      <button class="tile"            role="gridcell" aria-label="unrevealed tile"><span class="glyph"></span></button>
+      <button class="tile"            role="gridcell" aria-label="unrevealed tile"><span class="glyph"></span></button>
+
+      <button class="tile"            role="gridcell" aria-label="unrevealed tile"><span class="glyph"></span></button>
+      <button class="tile"            role="gridcell" aria-label="unrevealed tile"><span class="glyph"></span></button>
+      <button class="tile tile--red"  role="gridcell" aria-label="danger tile"><span class="glyph">✖</span></button>
+      <button class="tile tile--gold" role="gridcell" aria-label="gold tile"><span class="glyph">◆</span></button>
+      <button class="tile"            role="gridcell" aria-label="unrevealed tile"><span class="glyph"></span></button>
+    </section>
+
+    <!-- Compact status strip -->
+    <footer class="hud-bottom">
+      <span class="stat">GRID&nbsp;SCALE&nbsp;<b>AUTO-VH</b></span>
+      <span class="stat stat--gold">BULLION&nbsp;<b>6</b></span>
+      <span class="stat stat--red">MINES&nbsp;<b>3</b></span>
+    </footer>
+  </main>
+
+  <!-- Minimal inline interaction: cycles tile states via CSS classes only (no game logic) -->
+  <script>
+    document.querySelectorAll('.tile').forEach(function (t) {
+      t.addEventListener('click', function () {
+        if (t.classList.contains('tile--gold')) { t.classList.replace('tile--gold', 'tile--red'); }
+        else if (t.classList.contains('tile--red')) { t.classList.remove('tile--red'); t.querySelector('.glyph').textContent = ''; }
+        else { t.classList.add('tile--gold'); t.querySelector('.glyph').textContent = '◆'; }
+      });
+    });
+  </script>
+</body>
+</html>
