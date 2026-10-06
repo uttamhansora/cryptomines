@@ -96,13 +96,14 @@ button:disabled { cursor: not-allowed; opacity: 0.55; }
   position: relative; z-index: 1;
   max-width: 1240px;
   margin: 0 auto;
-  padding: var(--s-3) var(--s-4);       /* compact page margins (was s-4/s-6) */
-  display: flex; flex-direction: column; gap: var(--s-3);
+  padding: var(--s-2) var(--s-4);       /* tighter page margins for the compact layout */
+  display: flex; flex-direction: column; gap: var(--s-2);
   height: 100vh;                        /* pin to viewport → no vertical scroll */
+  overflow: hidden;                     /* belt-and-braces: never scrolls on desktop */
 }
 
 @media (max-width: 1023px) {
-  .dm-container { height: auto; min-height: 100vh; }
+  .dm-container { height: auto; min-height: 100vh; overflow: visible; }
 }
 
 /* Shared glass panel recipe */
@@ -218,8 +219,8 @@ button:disabled { cursor: not-allowed; opacity: 0.55; }
 
 /* ---------------- 2. Board frame (metallic, glowing) ---------------- */
 .dm-board-card {
-  padding: var(--s-3) var(--s-4);
-  display: flex; flex-direction: column; gap: var(--s-2);
+  padding: var(--s-2) var(--s-3);       /* was s-3/s-4 — trim vertical chrome */
+  display: flex; flex-direction: column; gap: var(--s-1);   /* was s-2 */
   min-height: 0;                              /* shrink within the pinned column */
 }
 
@@ -271,16 +272,17 @@ button:disabled { cursor: not-allowed; opacity: 0.55; }
 .dm-bracket--bl { bottom: 7px; left: 7px; border-right: 0; border-top: 0; border-radius: 0 0 0 6px; }
 .dm-bracket--br { bottom: 7px; right: 7px; border-left: 0; border-top: 0; border-radius: 0 0 6px 0; }
 
-/* 5×5 interactive grid — compact tiles, neat gutters.
-   Sized from the --tile-size / --grid-gap tokens so the whole board
-   scales proportionally (width AND height) from one place. */
+/* 5×5 interactive grid — explicitly compacted so the board never
+   forces vertical scrolling: tile width AND height come from the
+   viewport-aware --tile-size clamp (56–72px), gutters are fixed at
+   --grid-gap, and the grid's own padding was trimmed to 1px. */
 .dm-grid {
   position: relative; z-index: 1;
   display: grid;
   grid-template-columns: repeat(5, var(--tile-size));
-  grid-auto-rows: var(--tile-size);     /* square cells, explicit compact height */
+  grid-auto-rows: var(--tile-size);     /* explicit smaller square cell height */
   gap: var(--grid-gap);
-  padding: 2px;
+  padding: 1px;                         /* was 2px — shave the last px of chrome */
   width: fit-content;
   margin-inline: auto;                  /* keep the grid centered in the frame */
 }
@@ -361,22 +363,23 @@ button:disabled { cursor: not-allowed; opacity: 0.55; }
 
 /* ---------------- 3. Right control sidebar ---------------- */
 .dm-sidebar {
-  display: flex; flex-direction: column; gap: var(--s-3);
+  display: flex; flex-direction: column; gap: var(--s-2);   /* was s-3 — tighter stack */
   min-height: 0;                              /* shrink within the pinned grid row */
 }
 /* Widgets compress proportionally when the viewport is short,
    so the whole sidebar (and thus the page) stays on one screen. */
 .dm-widget {
-  padding: var(--s-3) var(--s-4);
-  display: flex; flex-direction: column; gap: var(--s-2);
+  padding: var(--s-2) var(--s-3);       /* was s-3/s-4 — compact panel chrome */
+  display: flex; flex-direction: column; gap: var(--s-1);   /* was s-2 */
   flex-shrink: 1; min-height: 0; overflow: hidden;
 }
 .dm-widget__title { display: flex; align-items: center; justify-content: space-between; }
 
-/* --- Multiplier radar gauge — scales down via clamp, never exceeds its slot --- */
+/* --- Multiplier radar gauge — compact fixed dial (was 190px/26vh) so the
+   sidebar column can never push the page past one viewport height --- */
 .dm-radar {
   position: relative;
-  width: min(190px, 26vh, 100%);              /* shrinks on short viewports */
+  width: min(150px, 22vh, 100%);              /* smaller dial, scales on short viewports */
   aspect-ratio: 1 / 1;                        /* keeps the dial perfectly round */
   height: auto;
   margin: 0 auto;
@@ -395,8 +398,8 @@ button:disabled { cursor: not-allowed; opacity: 0.55; }
   content: ''; position: absolute; border-radius: 50%;
   border: 1px solid rgba(0, 242, 254, 0.14);
 }
-.dm-radar__ring::before { inset: 26px; }
-.dm-radar__ring::after  { inset: 52px; }
+.dm-radar__ring::before { inset: 21px; }   /* concentric rings re-scaled for the smaller dial */
+.dm-radar__ring::after  { inset: 42px; }
 /* rotating sweep arm (transform-only animation) */
 .dm-radar__sweep {
   position: absolute; inset: 0; border-radius: 50%;
@@ -458,7 +461,7 @@ button:disabled { cursor: not-allowed; opacity: 0.55; }
 
 /* Numeric input slot (metallic inset) */
 .dm-input {
-  width: 110px; padding: 8px 10px;
+  width: 110px; padding: 6px 10px;          /* was 8px — slimmer bet input row */
   text-align: center;
   font-family: var(--font-display); font-size: 0.95rem; font-weight: 700;
   color: var(--text);
@@ -473,7 +476,7 @@ button:disabled { cursor: not-allowed; opacity: 0.55; }
 /* Quick-action metallic buttons: MIN · ½ · 2x · MAX */
 .dm-quick { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
 .dm-chip {
-  padding: 7px 0;
+  padding: 5px 0;                         /* was 7px — compact quick-action chips */
   font-size: 0.72rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
   color: var(--muted);
   background: var(--grad-metal-btn);
@@ -488,7 +491,7 @@ button:disabled { cursor: not-allowed; opacity: 0.55; }
 /* Mines density selector pills */
 .dm-density { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; }
 .dm-density__opt {
-  padding: 8px 0;
+  padding: 6px 0;                         /* was 8px — compact density pills */
   font-family: var(--font-display); font-size: 0.8rem; font-weight: 700;
   color: var(--muted);
   background: var(--inset-well);
@@ -507,7 +510,7 @@ button:disabled { cursor: not-allowed; opacity: 0.55; }
 
 /* Primary action button (DEPLOY / CASH OUT) */
 .dm-cta {
-  padding: 14px 0;
+  padding: 10px 0;                        /* was 14px — shorter CTA row */
   font-family: var(--font-display); font-size: 0.95rem; font-weight: 800;
   letter-spacing: 0.24em; text-transform: uppercase;
   color: #021018;
@@ -539,10 +542,10 @@ button:disabled { cursor: not-allowed; opacity: 0.55; }
   display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--s-3);
   flex-shrink: 0;                    /* tracker bar always visible at the bottom */
 }
-.dm-status { padding: var(--s-2) var(--s-4); display: flex; flex-direction: column; gap: 6px; }
+.dm-status { padding: var(--s-1) var(--s-3); display: flex; flex-direction: column; gap: 4px; }   /* slim tracker windows */
 .dm-status__row { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
 .dm-status__icon {
-  width: 34px; height: 34px; border-radius: var(--r-sm);
+  width: 28px; height: 28px; border-radius: var(--r-sm);     /* was 34px — compact footer icons */
   display: grid; place-items: center;
   background: var(--grad-metal-btn);
   border: 1px solid var(--border);
@@ -594,7 +597,9 @@ button:disabled { cursor: not-allowed; opacity: 0.55; }
   .dm-container { gap: var(--s-3); }
   .dm-sidebar { flex-direction: column; }
   .dm-frame { max-width: min(var(--board-max), 92vw); flex: none; }
-  .dm-grid { --tile-size: min(84px, 16.5vw); --grid-gap: 5px; }   /* proportional shrink */
+  /* Stacked mode scrolls freely, so tiles may grow a touch — but keep the
+     explicit cap modest (76px) to preserve the compact reference feel. */
+  .dm-grid { --tile-size: min(76px, 15vw); --grid-gap: 5px; }   /* proportional shrink */
 }
 @media (max-width: 640px) {
   .dm-header { grid-template-columns: 1fr; justify-items: center; gap: 10px; }
