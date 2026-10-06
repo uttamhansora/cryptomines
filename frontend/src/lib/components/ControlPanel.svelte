@@ -250,6 +250,7 @@
       <span class="mult-halo" aria-hidden="true"></span>
       <span class="orbit orbit-1" aria-hidden="true"></span>
       <span class="orbit orbit-2" aria-hidden="true"></span>
+      <span class="orbit orbit-3" aria-hidden="true"></span>
       <svg class="ring-svg" viewBox="0 0 100 100" aria-hidden="true" focusable="false" style="transform: rotate(-90deg)">
         <circle class="ring-track" cx="50" cy="50" r="46" />
         <circle
@@ -471,7 +472,7 @@
     left: 18%;
     right: 18%;
     height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(0, 240, 255, 0.5), transparent);
+    background: linear-gradient(90deg, transparent, rgba(0, 242, 254, 0.5), transparent);
     pointer-events: none;
   }
   .section {
@@ -483,7 +484,7 @@
     align-items: center;
     text-align: center;
     padding-bottom: 0.25rem;
-    border-bottom: 1px solid rgba(0, 240, 255, 0.1);
+    border-bottom: 1px solid rgba(0, 242, 254, 0.1);
   }
   .mult-ring {
     position: relative;
@@ -498,7 +499,7 @@
     position: absolute;
     inset: -14px;
     border-radius: 50%;
-    background: radial-gradient(circle at 50% 50%, rgba(0, 240, 255, 0.16), transparent 68%);
+    background: radial-gradient(circle at 50% 50%, rgba(0, 242, 254, 0.16), transparent 68%);
     pointer-events: none;
   }
   .ring-svg {
@@ -520,14 +521,14 @@
     stroke: var(--accent-primary);
     stroke-width: 3;
     stroke-linecap: round;
-    filter: drop-shadow(0 0 4px rgba(0, 240, 255, 0.5));
+    filter: drop-shadow(0 0 4px rgba(0, 242, 254, 0.5));
     transition: stroke-dashoffset 0.4s var(--ease-out-soft);
   }
   .ring-orbit {
     position: absolute;
     inset: 8px;
     border-radius: 50%;
-    border: 1px dashed rgba(0, 240, 255, 0.22);
+    border: 1px dashed rgba(0, 242, 254, 0.22);
     animation: orbit-spin 14s linear infinite;
     pointer-events: none;
   }
@@ -540,20 +541,28 @@
   }
   .orbit-1 {
     inset: -9px;
-    border: 1px solid rgba(0, 240, 255, 0.10);
-    border-top-color: rgba(0, 240, 255, 0.45);
+    border: 1px solid rgba(0, 242, 254, 0.10);
+    border-top-color: rgba(0, 242, 254, 0.45);
     border-right-color: rgba(167, 139, 250, 0.35);
     animation: orbit-spin 9s linear infinite;
   }
   .orbit-2 {
     inset: -18px;
     border: 1px dotted rgba(167, 139, 250, 0.28);
-    border-bottom-color: rgba(0, 240, 255, 0.4);
+    border-bottom-color: rgba(0, 242, 254, 0.4);
     animation: orbit-spin 18s linear infinite reverse;
+  }
+  /* Third concentric circuit ring — outermost, faint cyan sweep */
+  .orbit-3 {
+    inset: -27px;
+    border: 1px solid rgba(0, 242, 254, 0.07);
+    border-left-color: rgba(0, 242, 254, 0.32);
+    animation: orbit-spin 27s linear infinite;
   }
   @media (prefers-reduced-motion: reduce) {
     .orbit-1,
     .orbit-2,
+    .orbit-3,
     .ring-orbit {
       animation: none;
     }
@@ -566,7 +575,7 @@
     font-family: var(--font-display);
     font-size: clamp(1.5rem, 4.5vw, 1.8rem);
     color: var(--accent-secondary);
-    text-shadow: 0 0 18px rgba(0, 240, 255, 0.25);
+    text-shadow: 0 0 18px rgba(0, 242, 254, 0.25);
     font-variant-numeric: tabular-nums;
     /* transform/opacity only — the old `filter: brightness()` keyframe repainted
        this layer every frame of its pop-in */
@@ -631,10 +640,10 @@
   }
   .stepper button:hover:not(:disabled),
   .presets button:hover:not(:disabled) {
-    border-color: rgba(0, 240, 255, 0.4);
+    border-color: rgba(0, 242, 254, 0.4);
     box-shadow:
       inset 0 1px 0 rgba(255, 255, 255, 0.08),
-      0 0 12px rgba(0, 240, 255, 0.14);
+      0 0 12px rgba(0, 242, 254, 0.14);
   }
   .stepper button:active:not(:disabled),
   .presets button:active:not(:disabled) {
@@ -650,11 +659,11 @@
     gap: 0.3rem;
   }
   .presets button.active {
-    border-color: rgba(0, 240, 255, 0.65);
+    border-color: rgba(0, 242, 254, 0.65);
     color: var(--accent-secondary);
     box-shadow:
       inset 0 1px 0 rgba(255, 255, 255, 0.08),
-      0 0 14px rgba(0, 240, 255, 0.25);
+      0 0 14px rgba(0, 242, 254, 0.25);
   }
 
   /* ── Bet control grid (sidebar layout v2) ────────────────────────────
@@ -688,10 +697,10 @@
     transition: transform 0.1s ease, border-color 0.15s, box-shadow 0.15s;
   }
   .grid-btn:hover:not(:disabled) {
-    border-color: rgba(0, 240, 255, 0.4);
+    border-color: rgba(0, 242, 254, 0.4);
     box-shadow:
       inset 0 1px 0 rgba(255, 255, 255, 0.08),
-      0 0 12px rgba(0, 240, 255, 0.14);
+      0 0 12px rgba(0, 242, 254, 0.14);
   }
   /* :active fires in the SAME frame as pointerdown — zero-JS tactile press */
   .grid-btn:active:not(:disabled) {
@@ -705,7 +714,7 @@
     min-width: 52px;
   }
   .grid-btn.accent {
-    border-color: rgba(0, 240, 255, 0.35);
+    border-color: rgba(0, 242, 254, 0.35);
     color: var(--highlight-soft);
   }
   .value-cell {
@@ -734,8 +743,8 @@
     transition: transform 0.1s ease, border-color 0.15s, box-shadow 0.15s;
   }
   .step-btn:hover:not(:disabled) {
-    border-color: rgba(0, 240, 255, 0.45);
-    box-shadow: 0 0 10px rgba(0, 240, 255, 0.16);
+    border-color: rgba(0, 242, 254, 0.45);
+    box-shadow: 0 0 10px rgba(0, 242, 254, 0.16);
   }
   .step-btn:active:not(:disabled) {
     transform: scale(0.9);
@@ -804,14 +813,14 @@
     margin: 0;
     border-radius: var(--radius-pill);
     background:
-      linear-gradient(90deg, rgba(0, 240, 255, 0.55), rgba(0, 240, 255, 0.16)),
+      linear-gradient(90deg, rgba(0, 242, 254, 0.55), rgba(0, 242, 254, 0.16)),
       rgba(112, 132, 165, 0.14);
     box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.6);
     cursor: pointer;
     transition: box-shadow 0.15s;
   }
   .quantum-range:hover:not(:disabled) {
-    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.6), 0 0 10px rgba(0, 240, 255, 0.25);
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.6), 0 0 10px rgba(0, 242, 254, 0.25);
   }
   .quantum-range::-webkit-slider-thumb {
     -webkit-appearance: none;
@@ -819,24 +828,24 @@
     width: 18px;
     height: 18px;
     border-radius: 50%;
-    border: 2px solid rgba(0, 240, 255, 0.85);
-    background: radial-gradient(circle at 40% 32%, #9BFBFF, #00A6AC 70%);
-    box-shadow: 0 0 12px rgba(0, 240, 255, 0.5), 0 2px 6px rgba(0, 0, 0, 0.5);
+    border: 2px solid rgba(0, 242, 254, 0.85);
+    background: radial-gradient(circle at 40% 32%, #9BFBFF, #0090A8 70%);
+    box-shadow: 0 0 12px rgba(0, 242, 254, 0.5), 0 2px 6px rgba(0, 0, 0, 0.5);
     transition: transform 0.1s ease;
   }
   .quantum-range::-moz-range-thumb {
     width: 18px;
     height: 18px;
     border-radius: 50%;
-    border: 2px solid rgba(0, 240, 255, 0.85);
-    background: radial-gradient(circle at 40% 32%, #9BFBFF, #00A6AC 70%);
-    box-shadow: 0 0 12px rgba(0, 240, 255, 0.5), 0 2px 6px rgba(0, 0, 0, 0.5);
+    border: 2px solid rgba(0, 242, 254, 0.85);
+    background: radial-gradient(circle at 40% 32%, #9BFBFF, #0090A8 70%);
+    box-shadow: 0 0 12px rgba(0, 242, 254, 0.5), 0 2px 6px rgba(0, 0, 0, 0.5);
   }
   .quantum-range:active:not(:disabled)::-webkit-slider-thumb {
     transform: scale(1.15);
   }
   .quantum-range:focus-visible {
-    outline: 2px solid rgba(0, 240, 255, 0.6);
+    outline: 2px solid rgba(0, 242, 254, 0.6);
     outline-offset: 4px;
   }
   .quantum-range:disabled,
@@ -925,7 +934,7 @@
     transition: transform 0.1s ease, border-color 0.15s, box-shadow 0.15s, color 0.15s;
   }
   .chip:hover:not(:disabled) {
-    border-color: rgba(0, 240, 255, 0.4);
+    border-color: rgba(0, 242, 254, 0.4);
   }
   .chip:active:not(:disabled) {
     transform: scale(0.93);
@@ -969,10 +978,10 @@
   .play {
     display: grid;
     place-items: center;
-    background: linear-gradient(180deg, #00D2D3 0%, #00F0FF 100%);
+    background: linear-gradient(180deg, #4FACFE 0%, #00F2FE 100%);
     color: #ecfeff;
     font-size: 1.02rem;
-    border: 1px solid rgba(0, 240, 255, 0.55);
+    border: 1px solid rgba(0, 242, 254, 0.55);
     box-shadow:
       0 10px 24px rgba(0, 0, 0, 0.45),
       inset 0 1px 0 rgba(255, 255, 255, 0.12);
@@ -981,7 +990,7 @@
   .play:hover:not(:disabled) {
     box-shadow:
       0 10px 24px rgba(0, 0, 0, 0.45),
-      0 0 22px rgba(0, 240, 255, 0.55),
+      0 0 22px rgba(0, 242, 254, 0.55),
       inset 0 1px 0 rgba(255, 255, 255, 0.12);
   }
   .play-face {
@@ -1072,7 +1081,7 @@
     border-radius: var(--radius-md);
     border: 1px solid rgba(0, 210, 211, 0.45);
     background:
-      radial-gradient(ellipse 80% 60% at 50% 0%, rgba(0, 240, 255, 0.12), transparent 70%),
+      radial-gradient(ellipse 80% 60% at 50% 0%, rgba(0, 242, 254, 0.12), transparent 70%),
       linear-gradient(165deg, rgba(23, 27, 34, 0.98), rgba(8, 12, 14, 0.99));
     color: var(--text-primary);
     display: flex;
@@ -1216,7 +1225,7 @@
   }
   .confirm-yes {
     flex: 1;
-    background: linear-gradient(180deg, #00D2D3, #008C93);
+    background: linear-gradient(180deg, #4FACFE, #007A8F);
     color: #040a1a;
     border: none;
     border-radius: var(--radius-sm);

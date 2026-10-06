@@ -49,9 +49,9 @@
     animation: chain-pulse 0.45s ease-out;
   }
   @keyframes chain-pulse {
-    0% { box-shadow: 0 0 0 rgba(0, 240, 255, 0), inset 0 1px 0 rgba(255, 255, 255, 0.04); }
-    40% { box-shadow: 0 0 0 2px rgba(0, 240, 255, 0.32), inset 0 0 24px rgba(0, 240, 255, 0.12); }
-    100% { box-shadow: 0 0 0 rgba(0, 240, 255, 0), inset 0 1px 0 rgba(255, 255, 255, 0.04); }
+    0% { box-shadow: 0 0 0 rgba(0, 242, 254, 0), inset 0 1px 0 rgba(255, 255, 255, 0.04); }
+    40% { box-shadow: 0 0 0 2px rgba(0, 242, 254, 0.32), inset 0 0 24px rgba(0, 242, 254, 0.12); }
+    100% { box-shadow: 0 0 0 rgba(0, 242, 254, 0), inset 0 1px 0 rgba(255, 255, 255, 0.04); }
   }
   .head {
     display: flex;
@@ -119,15 +119,15 @@
     inset: 0;
     border-radius: 50%;
     opacity: 0;
-    background: radial-gradient(circle at 40% 32%, #9BFBFF, #00D2D3 60%, #003B44);
+    background: radial-gradient(circle at 40% 32%, #9BFBFF, #4FACFE 60%, #003540);
     transition: opacity 0.2s;
   }
   .node.active {
-    border-color: rgba(0, 240, 255, 0.8);
+    border-color: rgba(0, 242, 254, 0.8);
     transform: scale(1.08);
     box-shadow:
-      0 0 12px rgba(0, 240, 255, 0.45),
-      0 0 4px rgba(0, 240, 255, 0.25),
+      0 0 12px rgba(0, 242, 254, 0.45),
+      0 0 4px rgba(0, 242, 254, 0.25),
       inset 0 1px 0 rgba(255, 255, 255, 0.25);
     animation: node-charge 0.35s var(--ease-out-soft);
   }
@@ -157,7 +157,7 @@
     overflow: hidden;
   }
   .wire.lit {
-    background: rgba(0, 240, 255, 0.3);
+    background: rgba(0, 242, 254, 0.3);
     animation: wire-fill 0.28s var(--ease-out-soft) both;
     transform-origin: left center;
   }
@@ -194,7 +194,7 @@
     position: absolute;
     inset: 0;
     pointer-events: none;
-    background: radial-gradient(circle at 50% 50%, rgba(0, 240, 255, 0.12), transparent 65%);
+    background: radial-gradient(circle at 50% 50%, rgba(0, 242, 254, 0.12), transparent 65%);
     opacity: 0;
   }
 </style>

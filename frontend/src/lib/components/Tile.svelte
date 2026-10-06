@@ -175,7 +175,7 @@
             <polygon points="32,10 52,22 52,42 32,54 12,42 12,22" />
             <polygon points="32,20 43,27 43,37 32,44 21,37 21,27" opacity=".7" />
           </g>
-          <circle cx="32" cy="32" r="4.2" fill="#00F0FF" opacity=".5" />
+          <circle cx="32" cy="32" r="4.2" fill="#00F2FE" opacity=".5" />
           <path d="M32 10v10M32 44v10M12 22l9 5M43 27l9-5M12 42l9-5M43 37l9 5" stroke="var(--primary)" stroke-width="1.4" opacity=".35" />
         </svg>
       </span>
@@ -239,11 +239,11 @@
     backface-visibility: hidden;
     transform-style: preserve-3d;
     /* metallic sci-fi bevel: glowing cyan-tinted rim + layered light/shadow edges */
-    border: 1px solid rgba(0, 240, 255, 0.26);
+    border: 1px solid rgba(0, 242, 254, 0.26);
     background: var(--tile-face);
     box-shadow:
       0 3px 0 rgba(0, 0, 0, 0.45),
-      0 0 12px rgba(0, 240, 255, 0.08),
+      0 0 12px rgba(0, 242, 254, 0.08),
       inset 0 1px 0 rgba(255, 255, 255, 0.12),
       inset 1px 0 0 rgba(103, 232, 249, 0.07),
       inset -1px 0 0 rgba(103, 232, 249, 0.07),
@@ -258,10 +258,10 @@
   }
   .tile:not(:disabled):hover .tile-inner {
     transform: translate3d(0, -3px, 0);
-    border-color: rgba(0, 240, 255, 0.4);
+    border-color: rgba(0, 242, 254, 0.4);
     box-shadow:
       0 6px 14px rgba(0, 0, 0, 0.5),
-      0 0 16px rgba(0, 240, 255, 0.12),
+      0 0 16px rgba(0, 242, 254, 0.12),
       inset 0 1px 0 rgba(255, 255, 255, 0.12);
   }
   .tile:not(:disabled):hover .back-mark {
@@ -315,7 +315,7 @@
     inset: 0;
     opacity: 0;
     pointer-events: none;
-    background: radial-gradient(circle, rgba(0, 240, 255, 0.3), transparent 65%);
+    background: radial-gradient(circle, rgba(0, 242, 254, 0.3), transparent 65%);
   }
   .tile.sym-btc .tile-glow,
   .tile.sym-btc .tile-burst {

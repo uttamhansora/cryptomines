@@ -4,19 +4,19 @@
       <stop offset="0" stop-color="#E0FBFF"/><stop offset="1" stop-color="#7DE3F4"/>
     </linearGradient>
     <linearGradient id="diaL" x1="12" y1="27" x2="30" y2="52" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#5CF5FF"/><stop offset="1" stop-color="#00A6AC"/>
+      <stop offset="0" stop-color="#8BE9FD"/><stop offset="1" stop-color="#0090A8"/>
     </linearGradient>
     <linearGradient id="diaR" x1="52" y1="27" x2="34" y2="52" gradientUnits="userSpaceOnUse">
       <stop offset="0" stop-color="#38BDF8"/><stop offset="1" stop-color="#0B5E77"/>
     </linearGradient>
     <linearGradient id="diaC" x1="32" y1="27" x2="32" y2="52" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#9BFBFF"/><stop offset="1" stop-color="#00D2D3"/>
+      <stop offset="0" stop-color="#9BFBFF"/><stop offset="1" stop-color="#4FACFE"/>
     </linearGradient>
     <filter id="diaGlow" x="-30%" y="-30%" width="160%" height="160%">
-      <feDropShadow dx="0" dy="0" stdDeviation="2.6" flood-color="#00F0FF" flood-opacity=".5"/>
+      <feDropShadow dx="0" dy="0" stdDeviation="2.6" flood-color="#00F2FE" flood-opacity=".5"/>
     </filter>
   </defs>
-  <g filter="url(#diaGlow)" stroke="#003B44" stroke-width="1" stroke-linejoin="round">
+  <g filter="url(#diaGlow)" stroke="#003540" stroke-width="1" stroke-linejoin="round">
     <polygon points="22,12 42,12 52,27 32,52 12,27" fill="url(#diaC)"/>
     <polygon points="22,12 42,12 32,27" fill="url(#diaTop)"/>
     <polygon points="22,12 12,27 32,27" fill="url(#diaTop)" opacity=".85"/>
