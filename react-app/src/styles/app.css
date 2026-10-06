@@ -393,6 +393,7 @@ button:disabled { cursor: not-allowed; }
 .cm-tile-back {
   will-change: transform, opacity;
   transform: translateZ(0);
+  backface-visibility: hidden;   /* instant GPU compositing, no flip stutter */
 }
 
 .cm-tile-face {
@@ -443,9 +444,11 @@ button:disabled { cursor: not-allowed; }
   box-shadow: inset 0 0 18px rgba(0, 0, 0, 0.75);      /* recessed obsidian  */
   background: linear-gradient(165deg, #080c14 0%, #06090f 100%) !important;
   background-color: #080c14 !important;
-  /* GPU layer + fast micro-flip live in the dedicated .cm-tile-back rule above
-     (will-change/translateZ) — animation trimmed to 180ms for a snappier open. */
-  animation: tile-open 180ms var(--ease-out);   /* micro-flip feel, icon already visible */
+  /* Lightning-fast micro-flip: 90ms (was 180ms) — the icon is at full opacity
+     on frame 1, so this is only a blink-short scale settle. GPU-promoted via
+     the will-change/translateZ rule above + backface-visibility hidden for
+     instant compositing with zero raster stutter. */
+  animation: tile-open 90ms var(--ease-out);
 }
 .cm-tile--safe .cm-tile-back,
 .cm-tile--safe-vault .cm-tile-back {
@@ -498,7 +501,9 @@ button:disabled { cursor: not-allowed; }
     0 0 18px rgba(245, 185, 76, 0.85),      /* mid gold halo       */
     0 0 34px rgba(245, 185, 76, 0.35);      /* wide soft bloom     */
   filter: drop-shadow(0 3px 5px rgba(0, 0, 0, 0.55));  /* ground in the dark well */
-  animation: gem-pulse 1.6s ease-in-out infinite;
+  /* Faster breathing sparkle (was 1.6s): 600ms loop reads as an energetic
+     glint instead of a slow fade; transform/filter only — GPU composited. */
+  animation: gem-pulse 600ms ease-in-out infinite;
 }
 @keyframes gem-pulse {
   0%, 100% { transform: scale(1);    filter: drop-shadow(0 3px 5px rgba(0, 0, 0, 0.55)) brightness(1); }
@@ -573,10 +578,12 @@ button:disabled { cursor: not-allowed; }
     0 0 30px rgba(255, 50, 70, 0.4),                     /* wide danger bloom*/
     inset 0 -4px 8px rgba(0, 0, 0, 0.5);                 /* bottom depth     */
   position: relative;
-  animation: mine-hazard-pulse 1.2s ease-in-out infinite;
+  /* Faster breathing hazard (was 1.2s): 560ms loop = energetic blink */
+  animation: mine-hazard-pulse 560ms ease-in-out infinite;
   /* GPU-promote the pulsing hazard orb (transform/filter-only loop) */
   will-change: transform, filter;
   transform: translateZ(0);
+  backface-visibility: hidden;
 }
 .cm-mine::before, .cm-mine::after {
   content: ''; position: absolute;
@@ -606,7 +613,7 @@ button:disabled { cursor: not-allowed; }
 
 /* Ghost mines revealed after a bust — dimmed, no flash animation.
    Duration matches the snappier base tile-open (180ms) instead of stretching it. */
-.cm-tile--mine-ghost .cm-tile-back { animation-duration: 180ms; }
+.cm-tile--mine-ghost .cm-tile-back { animation-duration: 90ms; }
 .cm-tile--mine-ghost .cm-mine { opacity: 0.35; box-shadow: none; }
 
 /* Dim unrevealed tiles after bust/cashout */
