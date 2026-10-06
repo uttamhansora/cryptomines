@@ -143,19 +143,17 @@
   .corner.tr { top: 5px; right: 5px; border-top-width: 2px; border-right-width: 2px; border-top-right-radius: 14px; }
   .corner.bl { bottom: 5px; left: 5px; border-bottom-width: 2px; border-left-width: 2px; border-bottom-left-radius: 14px; }
   .corner.br { bottom: 5px; right: 5px; border-bottom-width: 2px; border-right-width: 2px; border-bottom-right-radius: 14px; }
-  /* inner playfield — dark teal well (#071c24), 10px tile gaps */
+  /* inner playfield — very dark RECESSED area so tiles read as raised boxes */
   .board-inset {
     position: relative;
-    padding: clamp(8px, 2.4vw, 10px);
+    padding: 14px;
     border-radius: 12px;
-    background:
-      radial-gradient(ellipse 90% 70% at 50% -10%, rgba(25, 227, 227, 0.07), transparent 65%),
-      #071c24;
+    background: #04141a;
     border: 1px solid rgba(25, 227, 227, 0.16);
     box-shadow:
-      inset 0 14px 34px rgba(0, 0, 0, 0.55),
-      inset 0 0 0 1px rgba(0, 0, 0, 0.4),
-      inset 0 1px 0 rgba(255, 255, 255, 0.04);
+      inset 0 6px 18px rgba(0, 0, 0, 0.9),
+      inset 0 -2px 6px rgba(0, 0, 0, 0.6),
+      inset 0 0 0 1px rgba(0, 0, 0, 0.4);
     overflow: hidden;
   }
   /* faint crypto-grid texture */
@@ -173,9 +171,11 @@
   .board {
     display: grid;
     grid-template-columns: repeat(5, minmax(0, 1fr));
-    gap: clamp(6px, 1.8vw, 10px);
+    gap: 12px;
     position: relative;
     transform: translate3d(0, 0, 0);
+    /* leave room at the bottom of each row for the tiles' extruded 3D edge */
+    padding-bottom: 6px;
   }
   .mine-flash {
     position: absolute;

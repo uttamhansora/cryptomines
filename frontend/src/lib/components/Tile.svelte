@@ -203,52 +203,49 @@
     border: none;
     background: transparent;
     cursor: pointer;
-    border-radius: 10px;
+    border-radius: 12px;
     position: relative;
     -webkit-tap-highlight-color: transparent;
   }
   .tile:disabled {
     cursor: default;
   }
-  /* the recessed socket each tile sits in — makes the board read as one unit */
+  /* the recessed SOCKET each tile sits in — darker than the board floor with a
+     deep inset shadow, so the tile reads as rising out of a hole */
   .tile-well {
     position: absolute;
-    inset: 2px;
+    inset: 0;
     border-radius: 12px;
-    background: #05080d;
+    background: #020d12;
     box-shadow:
-      inset 0 3px 8px rgba(0, 0, 0, 0.7),
-      inset 0 -1px 0 rgba(255, 255, 255, 0.03);
+      inset 0 4px 10px rgba(0, 0, 0, 0.9),
+      inset 0 -2px 5px rgba(0, 0, 0, 0.6),
+      inset 0 0 0 1px rgba(0, 0, 0, 0.5);
     pointer-events: none;
   }
+  /* LAYER 1 — OUTER METAL BEZEL (the raised 3D box itself). GSAP animates this
+     node's transform (press / hover lift / flip), so all resting depth lives in
+     box-shadow, never in transform. */
   .tile-inner {
     display: grid;
     place-items: center;
-    width: 100%;
-    height: 100%;
+    width: calc(100% - 6px);
+    height: calc(100% - 8px);
+    margin: 3px 3px 5px;
     border-radius: 10px;
     position: relative;
-    overflow: hidden;
-    transform: translate3d(0, -1px, 0);
-    /* No CSS transition on transform here: during a reveal GSAP writes the
-       transform every frame, and any transition duration would make the browser
-       ALSO interpolate between those per-frame values — compounding into smeared,
-       laggy motion (transition delay == perceived animation delay). Hover lift
-       and press still animate smoothly via their GSAP tweens / keyframes. */
     will-change: transform;
     backface-visibility: hidden;
     transform-style: preserve-3d;
-    /* metallic sci-fi bevel: teal border + inset top highlight + cyan glow */
-    border: 2px solid rgba(var(--teal-border-rgb), 0.55);   /* --teal-border */
-    background: var(--tile-face);                            /* 145deg #1b6f78 → #0c3f4a */
+    /* brushed-metal bezel gradient + 4px frame thickness via padding */
+    background: linear-gradient(145deg, #8fa7b1 0%, #4d6672 35%, #24363f 70%, #3a525e 100%);
+    padding: 4px;
     box-shadow:
-      0 3px 0 rgba(0, 0, 0, 0.45),
-      0 0 12px rgba(25, 227, 227, 0.08),
-      inset 0 2px 0 rgba(255, 255, 255, 0.25),               /* top-edge highlight */
-      inset 1px 0 0 rgba(111, 233, 238, 0.07),
-      inset -1px 0 0 rgba(111, 233, 238, 0.07),
-      inset 0 -6px 12px rgba(0, 0, 0, 0.35);
-    transition: filter 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+      0 6px 0 #0d1c23,                      /* thick bottom edge = physical height */
+      0 10px 16px rgba(0, 0, 0, 0.7),       /* drop shadow cast into the socket    */
+      inset 0 1px 0 rgba(255, 255, 255, 0.45),  /* top bevel highlight             */
+      inset 0 -2px 3px rgba(0, 0, 0, 0.6);      /* bottom inner shade              */
+    transition: filter 0.2s ease, box-shadow 0.2s ease;
   }
   /* GPU layer is only needed while a tile is actually interactive. Once the
      cell is revealed its pose is final, so we release the composited layer —
@@ -257,45 +254,77 @@
   .tile:disabled .tile-inner {
     will-change: auto;
   }
+  /* Hover: the whole box lifts out of its socket */
   .tile:not(:disabled):hover .tile-inner {
-    transform: translate3d(0, -2px, 0);
-    /* brighter teal face (--teal-tile-hover) + neon cyan glow */
-    filter: brightness(1.28) saturate(1.15);
-    border-color: var(--cyan-glow);                          /* #19e3e3 */
+    translate: 0 -2px;
+    filter: brightness(1.12);
     box-shadow:
-      0 6px 14px rgba(0, 0, 0, 0.5),
+      0 8px 0 #0d1c23,
+      0 14px 22px rgba(0, 0, 0, 0.75),
       0 0 14px var(--cyan-glow),
-      inset 0 2px 0 rgba(255, 255, 255, 0.25);
+      inset 0 1px 0 rgba(255, 255, 255, 0.45),
+      inset 0 -2px 3px rgba(0, 0, 0, 0.6);
   }
   .tile:not(:disabled):hover .back-mark {
     opacity: 0.95;
   }
+  /* Pressed: sinks into the socket */
   .tile-inner.press {
-    transform: translate3d(0, 2px, 0) scale(0.97);
-    box-shadow: inset 0 3px 10px rgba(0, 0, 0, 0.55);
+    translate: 0 2px;
+    scale: 0.97;
+    box-shadow:
+      0 2px 0 #0d1c23,
+      0 4px 8px rgba(0, 0, 0, 0.6),
+      inset 0 3px 10px rgba(0, 0, 0, 0.55);
   }
-  /* thin top bevel highlight for physical depth */
+  /* LAYER 2 — INNER TEAL GLASS PANEL filling the bezel opening (inset 4px) */
   .tile-bevel {
     position: absolute;
-    inset: 0 0 auto 0;
-    height: 42%;
-    border-radius: 10px 10px 40% 40%;
-    background: linear-gradient(180deg, rgba(165, 243, 252, 0.10), transparent 85%);
+    inset: 4px;
+    border-radius: 7px;
     pointer-events: none;
+    border: 1px solid #0b3a43;
+    background:
+      radial-gradient(circle at 30% 20%, rgba(130, 255, 255, 0.35) 0%, transparent 45%),
+      linear-gradient(160deg, #23a1ab 0%, #146974 45%, #0a3c47 100%);
+    box-shadow:
+      inset 0 2px 4px rgba(255, 255, 255, 0.35),
+      inset 0 -6px 10px rgba(0, 0, 0, 0.45),
+      inset 0 0 0 1px rgba(0, 0, 0, 0.5);
   }
-  /* diagonal reflection sweep on the metal face — static, zero-cost */
-  .tile-inner::before {
+  /* Tiny dark screws in the metal bezel corners (pure CSS, zero extra DOM) */
+  .tile-inner::after {
     content: '';
     position: absolute;
     inset: 0;
-    background: linear-gradient(118deg, transparent 42%, rgba(111, 233, 238, 0.07) 50%, transparent 58%);
+    border-radius: 10px;
     pointer-events: none;
+    background-image:
+      radial-gradient(circle, rgba(2, 8, 12, 0.85) 0 1.5px, transparent 2px),
+      radial-gradient(circle, rgba(2, 8, 12, 0.85) 0 1.5px, transparent 2px),
+      radial-gradient(circle, rgba(2, 8, 12, 0.85) 0 1.5px, transparent 2px),
+      radial-gradient(circle, rgba(2, 8, 12, 0.85) 0 1.5px, transparent 2px);
+    background-position: 7px 7px, calc(100% - 7px) 7px, 7px calc(100% - 7px), calc(100% - 7px) calc(100% - 7px);
+    background-size: 6px 6px;
+    background-repeat: no-repeat;
+  }
+  /* LAYER 3 — GLOSS SHINE: diagonal soft white reflection over the glass panel */
+  .tile-inner::before {
+    content: '';
+    position: absolute;
+    inset: 4px;
+    border-radius: 7px;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.22) 0%, rgba(255, 255, 255, 0.05) 40%, transparent 41%);
+    pointer-events: none;
+    z-index: 2;
   }
   .tile-glow {
     position: absolute;
-    inset: 0;
+    inset: 4px;
+    border-radius: 7px;
     opacity: 0;
     pointer-events: none;
+    z-index: 4;
     background: radial-gradient(circle at 50% 30%, var(--glow-blue), transparent 70%);
   }
   .tile.vault .tile-glow {
@@ -345,12 +374,14 @@
     background: radial-gradient(circle, rgba(35, 144, 155, 0.48), transparent 68%);
   }
   /* unrevealed lid emblem */
+  /* unrevealed lid = the closed glass face of the raised box. Stays mounted
+     while revealing so GSAP can flip it away; hidden only once fully revealed. */
   .tile-lid {
     position: absolute;
-    inset: 0;
+    inset: 4px;
     display: grid;
     place-items: center;
-    border-radius: inherit;
+    border-radius: 7px;
     z-index: 3;
     transform-style: preserve-3d;
     backface-visibility: hidden;
@@ -360,7 +391,7 @@
     place-items: center;
     width: 100%;
     height: 100%;
-    opacity: 0.6;
+    opacity: 0.35;   /* subtle cyan line emblem — the tile reads as a clean glass box */
     transition: opacity 0.16s ease;
     pointer-events: none;
   }
@@ -379,6 +410,8 @@
     width: 70%;
     height: 70%;
     perspective: 300px;
+    position: relative;
+    z-index: 4;   /* above the gloss-shine pseudo-element */
   }
   .tile.just-revealed .sym-wrap {
     /* Zero animation-delay: the icon entrance starts on the very first frame
@@ -431,19 +464,29 @@
     }
   }
   /* Revealed SAFE = dark empty cavity (#06161c) with deep inner shadow; the
-     gold reward icon sits inside it glowing (gold drop-shadow below). */
+     gold reward icon sits inside it glowing. */
   .tile.revealed.safe .tile-inner {
-    border-color: rgba(244, 182, 60, 0.45);   /* --gold rim             */
+    background: linear-gradient(145deg, #38505b 0%, #1a2c34 60%, #10202a 100%);
+    box-shadow:
+      0 4px 0 #0d1c23,
+      0 6px 12px rgba(0, 0, 0, 0.6),
+      inset 0 1px 0 rgba(255, 255, 255, 0.25),
+      inset 0 -2px 3px rgba(0, 0, 0, 0.6);
+  }
+  .tile.revealed.safe .tile-bevel {
+    border-color: rgba(244, 182, 60, 0.45);   /* --gold rim */
     background: #06161c;
     box-shadow:
-      0 0 0 1px rgba(244, 182, 60, 0.12),
-      0 4px 12px rgba(0, 0, 0, 0.45),
       inset 0 4px 14px rgba(0, 0, 0, 0.75),
-      inset 0 0 18px rgba(244, 182, 60, 0.10);
+      inset 0 0 18px rgba(244, 182, 60, 0.10),
+      0 0 0 1px rgba(244, 182, 60, 0.12);
   }
-  /* Revealed MINE = dark tile + red neon square border + pulsing glow */
+  /* Revealed MINE = dark glass + red neon square border + pulsing glow */
   .tile.mine .tile-inner {
-    border-color: var(--danger);              /* --mine-red #e5303f     */
+    background: linear-gradient(145deg, #4a3038 0%, #241319 60%, #16080c 100%);
+  }
+  .tile.mine .tile-bevel {
+    border: 1px solid var(--danger);          /* --mine-red #e5303f */
     background: linear-gradient(160deg, #1c0a10, #0b0508);
     box-shadow:
       0 0 0 1px rgba(229, 48, 63, 0.55),
@@ -455,11 +498,10 @@
     0%, 100% { box-shadow: 0 0 0 1px rgba(229, 48, 63, 0.55), 0 0 12px rgba(255, 50, 70, 0.35), inset 0 0 10px rgba(229, 48, 63, 0.18); }
     50% { box-shadow: 0 0 0 1px rgba(229, 48, 63, 0.85), 0 0 22px rgba(255, 50, 70, 0.6), inset 0 0 16px rgba(229, 48, 63, 0.3); }
   }
-  @media (prefers-reduced-motion: reduce) {
-    .tile.mine .tile-inner {
-      animation: none;
-    }
+  .tile.ghost .tile-inner {
+    opacity: 0.8;
   }
+  /* mine shake lives on the glass panel now — target it there */
   @keyframes mine-shake {
     0% { transform: translate3d(0, 0, 0); }
     25% { transform: translate3d(-3px, 1px, 0); }
@@ -467,15 +509,20 @@
     75% { transform: translate3d(-2px, 0, 0); }
     100% { transform: translate3d(0, 0, 0); }
   }
-  .tile.ghost .tile-inner {
-    opacity: 0.8;
+  @media (prefers-reduced-motion: reduce) {
+    .tile.mine .tile-bevel {
+      animation: none;
+    }
   }
-  .tile.ghost.mine .tile-inner {
+  .tile.ghost .tile-bevel {
+    border-radius: 7px;
+  }
+  .tile.ghost.mine .tile-bevel {
     opacity: 0.92;
     border-color: rgba(229, 48, 63, 0.32);
     animation: none;
   }
-  .tile.ghost.safe .tile-inner {
+  .tile.ghost.safe .tile-bevel {
     border-color: rgba(244, 182, 60, 0.18);
   }
   .tile.mine:not(.ghost) .tile-inner {
