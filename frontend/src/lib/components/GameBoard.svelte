@@ -80,7 +80,7 @@
     padding: 12px;
     border-radius: 20px;
     background: var(--metal-frame);
-    border: 1px solid rgba(0, 210, 211, 0.22);
+    border: 1px solid rgba(79, 172, 254, 0.22);
     box-shadow:
       0 24px 60px rgba(0, 0, 0, 0.6),
       0 4px 14px rgba(0, 0, 0, 0.5),
@@ -105,7 +105,7 @@
     position: absolute;
     width: 14px;
     height: 14px;
-    border-color: rgba(0, 210, 211, 0.55);
+    border-color: rgba(79, 172, 254, 0.55);
     border-style: solid;
     border-width: 0;
     pointer-events: none;
@@ -178,10 +178,10 @@
     height: 40%;
     transform: translate(-50%, -50%);
     border-radius: 50%;
-    border: 1px solid rgba(0, 210, 211, 0.4);
+    border: 1px solid rgba(79, 172, 254, 0.4);
     opacity: 0;
     pointer-events: none;
     z-index: 2;
-    box-shadow: 0 0 24px rgba(0, 210, 211, 0.16);
+    box-shadow: 0 0 24px rgba(79, 172, 254, 0.16);
   }
 </style>

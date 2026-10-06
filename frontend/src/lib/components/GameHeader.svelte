@@ -102,8 +102,8 @@
     width: 34px;
     height: 34px;
     border-radius: 9px;
-    background: linear-gradient(160deg, rgba(0, 210, 211, 0.16), rgba(12, 20, 42, 0.55));
-    border: 1px solid rgba(0, 210, 211, 0.4);
+    background: linear-gradient(160deg, rgba(79, 172, 254, 0.16), rgba(12, 20, 42, 0.55));
+    border: 1px solid rgba(79, 172, 254, 0.4);
     box-shadow:
       0 0 16px rgba(0, 242, 254, 0.14),
       inset 0 1px 0 rgba(255, 255, 255, 0.08);

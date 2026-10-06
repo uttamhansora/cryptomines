@@ -92,7 +92,7 @@
     top: 58%;
     width: 30vmax;
     height: 30vmax;
-    background: radial-gradient(circle, rgba(0, 210, 211, 0.10), transparent 60%);
+    background: radial-gradient(circle, rgba(79, 172, 254, 0.10), transparent 60%);
     animation: drift-c 38s ease-in-out infinite alternate;
   }
   @keyframes drift-a {

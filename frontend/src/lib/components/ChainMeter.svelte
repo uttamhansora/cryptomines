@@ -139,12 +139,12 @@
     100% { transform: scale(1.08); }
   }
   .node.next {
-    border-color: rgba(0, 210, 211, 0.6);
+    border-color: rgba(79, 172, 254, 0.6);
     animation: node-next 1.3s ease-in-out infinite;
   }
   @keyframes node-next {
-    0%, 100% { box-shadow: inset 0 2px 4px rgba(0,0,0,.6), 0 0 0 rgba(0, 210, 211, 0); }
-    50% { box-shadow: inset 0 2px 4px rgba(0,0,0,.6), 0 0 10px rgba(0, 210, 211, .35); }
+    0%, 100% { box-shadow: inset 0 2px 4px rgba(0,0,0,.6), 0 0 0 rgba(79, 172, 254, 0); }
+    50% { box-shadow: inset 0 2px 4px rgba(0,0,0,.6), 0 0 10px rgba(79, 172, 254, .35); }
   }
   .wire {
     flex: 1;
