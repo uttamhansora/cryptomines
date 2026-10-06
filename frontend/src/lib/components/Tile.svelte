@@ -647,8 +647,11 @@
     filter: drop-shadow(0 4px 14px rgba(229, 48, 63, 0.55));
   }
   @keyframes sym-in {
+    /* Icon is at FULL opacity from the very first frame — the entrance is a
+       transform-only scale/rotate settle (0.55 → overshoot → rest), never an
+       opacity gate, so pixels appear in the same frame as the click commit. */
     from {
-      opacity: 0;
+      opacity: 1;
       transform: scale(0.55) rotateY(70deg);
     }
     25% {

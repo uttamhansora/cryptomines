@@ -453,9 +453,12 @@ button:disabled { cursor: not-allowed; }
   color: var(--danger);
 }
 
+/* Reveal micro-animation — starts at FULL OPACITY so the icon is visible on
+   the very first painted frame after the click (zero hidden delay). Only a
+   short ~260ms scale settle remains for the "pop" feel, per spec §3. */
 @keyframes tile-open {
-  from { transform: rotateY(88deg); opacity: 0.35; }
-  to   { transform: rotateY(0deg); opacity: 1; }
+  from { transform: scale(0.92); opacity: 1; }
+  to   { transform: scale(1);    opacity: 1; }
 }
 
 /* Safe reward gem — GOLD per reference (§7). HD multi-stop facet gradient,
