@@ -334,6 +334,16 @@
       inset 0 -6px 10px rgba(0, 0, 0, 0.45),
       inset 0 0 0 1px rgba(0, 0, 0, 0.5);
   }
+  /* Revealed: the inner glass panel must read as a deep dark obsidian well —
+     force its background to near-black too (it is the topmost painted layer,
+     so leaving it teal/transparent would visually override the dark .tile-inner). */
+  .tile.revealed .tile-bevel {
+    background: #080c14 !important;
+    border-radius: 6px;
+  }
+  .tile.revealed.mine .tile-bevel {
+    background: #06090f !important;
+  }
   /* thin glossy streak across the top edge of the glass face */
   .tile-bevel::before {
     content: '';
@@ -478,7 +488,10 @@
     from { transform: rotateX(0deg); opacity: 1; }
     to { transform: rotateX(-78deg); opacity: 0; }
   }
-  /* Icons scale with the tile: 62% of the tile face */
+  /* Icons scale with the tile: 62% of the tile face.
+     Revealed-state icon glows (gold for rewards, red for mines) live here so
+     the token reads cleanly against the forced dark obsidian inner background.
+     Purely presentational — no JS/handlers touched. */
   .sym-wrap {
     display: grid;
     place-items: center;
@@ -487,6 +500,10 @@
     perspective: 300px;
     position: relative;
     z-index: 4;   /* above the gloss-shine pseudo-element */
+    filter: drop-shadow(0 0 10px rgba(244, 182, 60, 0.5)); /* gold glow (safe rewards) */
+  }
+  .tile.revealed.mine .sym-wrap {
+    filter: drop-shadow(0 0 12px rgba(229, 48, 63, 0.7));  /* red glow (hazard/mines)  */
   }
   .tile.just-revealed .sym-wrap {
     /* Zero animation-delay: the icon entrance starts on the very first frame
@@ -538,12 +555,22 @@
       transform: scale(1) rotateY(0deg);
     }
   }
-  /* Revealed tiles: the shine is removed (dark recessed look) — thin dim
-     border #1c4650, safe = soft gold glow rim, mine = red neon glow. */
-  .tile.revealed:not(.ghost) .tile-inner {
-    background: none;           /* kills BOTH the teal face + steel edge shine */
-    border-color: transparent;
+  /* Revealed tiles: the nested inner container's background MUST switch from
+     the teal glass face to a deep dark obsidian/black-slate color so it never
+     stays teal after opening. Forced with `!important` per requirement — this
+     beats any other revealed-state rule regardless of specificity or order.
+     A clean 1px inner border (#1c4650) frames the dark well. The outer frame
+     (.tile-well socket) stays intact; no JS/handlers/IDs touched. */
+  .tile.revealed .tile-inner {
+    background: #080c14 !important;   /* deep dark obsidian/slate — overrides teal */
+    background-color: #080c14 !important;
+    border-color: #1c4650 !important; /* clean inner border around the dark face  */
     box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.6), 0 3px 8px rgba(0, 0, 0, 0.5);
+  }
+  /* Slightly darker slate for mines so the hazard reads deeper in the socket */
+  .tile.revealed.mine .tile-inner {
+    background: #06090f !important;
+    background-color: #06090f !important;
   }
   .tile.revealed.safe .tile-inner {
     box-shadow:
