@@ -490,8 +490,9 @@
   /* CSS fallback flip when the tile flips open (GSAP timeline also drives this
      during playback; both are transform/opacity-only and GPU-friendly). */
   .tile.just-revealed .tile-lid {
-    /* Lid flip trimmed to 200ms for a snappier open (was 0.24s). */
-    animation: lid-flip 200ms var(--ease-out-soft, cubic-bezier(0.22, 1, 0.36, 1)) both;
+    /* Lightning-fast lid flip: 90ms (was 200ms) — the icon underneath is fully
+       painted from frame 1, so the lid only needs a blink-short sweep away. */
+    animation: lid-flip 90ms var(--ease-out-soft, cubic-bezier(0.22, 1, 0.36, 1)) both;
   }
   @keyframes lid-flip {
     from { transform: rotateX(0deg); opacity: 1; }
@@ -519,6 +520,7 @@
        click with no raster lag or stutter. */
     will-change: transform, opacity;
     transform: translateZ(0);
+    backface-visibility: hidden;   /* instant GPU compositing, no flip stutter */
     /* default: rich dark circle with a soft gold rim + warm outer bloom */
     --badge-bg: radial-gradient(circle at 32% 26%, #1c2a3e 0%, #101b2b 52%, #060b14 100%);
     --badge-edge: rgba(247, 147, 26, 0.5);
@@ -608,27 +610,30 @@
       0 0 0 1px var(--badge-edge),
       0 0 18px rgba(255, 50, 70, 0.45);                  /* red danger halo   */
     filter: drop-shadow(0 0 12px rgba(229, 48, 63, 0.7));  /* red glow (hazard/mines)  */
-    animation: mine-hazard-pulse 1.2s ease-in-out infinite; /* gentle pulsing highlight */
+    /* Faster breathing highlight (was 1.2s ease-in-out): a 560ms loop reads as
+       an energetic blink rather than a slow opacity fade. */
+    animation: mine-hazard-pulse 560ms ease-in-out infinite;
   }
   @keyframes mine-hazard-pulse {
-    0%, 100% { opacity: 0.92; transform: scale(1); }
-    50%      { opacity: 1;    transform: scale(1.06); }
+    /* No opacity gate — icon stays fully visible; only a light scale breathe. */
+    0%, 100% { transform: scale(1); }
+    50%      { transform: scale(1.05); }
   }
   .tile.just-revealed .sym-wrap {
-    /* Zero animation-delay: the icon entrance starts on the very first frame
-       after the click/confirmation commit. Overlapping keyframe timings carry
-       the stagger feel without holding any pixels back. `sym-aura-in` fades in
-       the glow aura on its own track so the token-specific drop-shadow colors
-       survive the entrance untouched (final keyframe = natural resting pose). */
-    animation: sym-in 200ms cubic-bezier(0.22, 1, 0.36, 1) both,
-               sym-aura-in 200ms cubic-bezier(0.22, 1, 0.36, 1) both;
+    /* Instant pop: 90ms total (was 200ms), zero animation-delay — the icon
+       starts on the very first frame after the click/confirmation commit.
+       `sym-aura-in` rides its own track so the token-specific drop-shadow
+       colors survive the entrance untouched (final keyframe = resting pose). */
+    animation: sym-in 90ms cubic-bezier(0.22, 1, 0.36, 1) both,
+               sym-aura-in 90ms cubic-bezier(0.22, 1, 0.36, 1) both;
   }
-  /* one-shot reveal glow: peaks fast then settles — never left glowing forever */
+  /* one-shot reveal glow: near-blink settle (90ms, was 250ms) — peaks fast
+     then rests; never left glowing forever */
   .tile.just-revealed.safe .tile-glow {
-    animation: glow-settle 250ms ease-out both;   /* was 0.6s — quicker settle */
+    animation: glow-settle 90ms ease-out both;
   }
   .tile.just-revealed.mine .tile-glow {
-    animation: danger-flash 220ms ease-out both;  /* was 0.45s — sharper flash */
+    animation: danger-flash 90ms ease-out both;   /* was 220ms — blink flash */
   }
   @keyframes glow-settle {
     0% { opacity: 0; transform: scale(0.85); }
@@ -660,19 +665,20 @@
   }
   @keyframes sym-in {
     /* Icon is at FULL opacity from the very first frame — the entrance is a
-       transform-only scale/rotate settle (0.55 → overshoot → rest), never an
-       opacity gate, so pixels appear in the same frame as the click commit. */
+       pure transform settle, never an opacity gate, so pixels appear in the
+       same frame as the click commit. Shortened travel (0.72 → 1.05 → 1 over
+       just 90ms) so it reads as an instant snap-pop, not a fade-in. */
     from {
       opacity: 1;
-      transform: scale(0.55) rotateY(70deg);
+      transform: scale(0.72);
     }
-    25% {
+    60% {
       opacity: 1;
-      transform: scale(1.06) rotateY(-8deg);
+      transform: scale(1.05);
     }
     to {
       opacity: 1;
-      transform: scale(1) rotateY(0deg);
+      transform: scale(1);
     }
   }
   /* companion track that fades in the glow aura alongside sym-in's transform.

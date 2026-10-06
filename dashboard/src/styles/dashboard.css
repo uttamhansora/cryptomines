@@ -353,22 +353,33 @@ button:disabled { cursor: not-allowed; opacity: 0.55; }
   background: linear-gradient(165deg, var(--obsidian) 0%, var(--obsidian-2) 100%) !important;
   background-color: #080c14 !important;
   border: 1px solid rgba(230, 241, 255, 0.12);        /* clean inner border default */
-  animation: dm-reveal 260ms var(--ease-out);
+  /* Lightning-fast reveal: 90ms (was 260ms), and dm-reveal now starts at full
+     opacity so no pixels are ever gated behind a fade loop. */
+  animation: dm-reveal 90ms var(--ease-out);
+  /* Hardware acceleration: transform/opacity-only entrance → own compositor
+     layer for instant, stutter-free paint on click. */
+  will-change: transform, opacity;
+  transform: translateZ(0);
+  backface-visibility: hidden;
 }
 /* Centered reveal glyph wrapper — grid + flex double-centering so every token
    icon sits pixel-perfect in the middle of the dark obsidian face. */
 .dm-tile__glyph {
   display: grid; place-items: center;
   width: 100%; height: 100%;
+  will-change: transform, opacity;   /* GPU-promote the icon pop as well */
+  transform: translateZ(0);
+  backface-visibility: hidden;
 }
 .dm-tile__back svg {
   /* crisp HD vector scaling, no blur at any tile size */
   shape-rendering: geometricPrecision;
-  transition: filter 160ms ease;
+  transition: filter 90ms ease;   /* snappier hover/filter settle (was 160ms) */
 }
 @keyframes dm-reveal {
-  from { transform: scale(0.7); opacity: 0; }
-  to   { transform: scale(1);   opacity: 1; }
+  /* Full opacity from frame 1 — pure scale settle, never an opacity gate. */
+  from { transform: scale(0.78); opacity: 1; }
+  to   { transform: scale(1);    opacity: 1; }
 }
 
 /* SAFE tile face: obsidian kept + gold hairline border + warm inset glow. */
@@ -396,7 +407,7 @@ button:disabled { cursor: not-allowed; opacity: 0.55; }
     drop-shadow(0 0 4px rgba(255, 236, 180, 0.9))
     drop-shadow(0 0 10px rgba(255, 201, 77, 0.7))
     drop-shadow(0 0 22px rgba(255, 185, 50, 0.35));
-  animation: dm-icon-in 260ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: dm-icon-in 90ms cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 /* MINE = red hazard glyph centered on a deep obsidian face — pulsing highlight.
    Badge backing swaps to a deep crimson disc with a neon-red ring/halo. */
@@ -419,8 +430,8 @@ button:disabled { cursor: not-allowed; opacity: 0.55; }
     drop-shadow(0 0 4px rgba(255, 140, 160, 0.95))
     drop-shadow(0 0 12px rgba(255, 65, 108, 0.8))
     drop-shadow(0 0 24px rgba(255, 50, 70, 0.4));
-  animation: dm-icon-in 260ms cubic-bezier(0.22, 1, 0.36, 1) both,
-             dm-hazard-pulse 1.2s ease-in-out 260ms infinite;
+  animation: dm-icon-in 90ms cubic-bezier(0.22, 1, 0.36, 1) both,
+             dm-hazard-pulse 560ms ease-in-out 90ms infinite;   /* faster blink (was 1.2s + 260ms delay) */
 }
 /* VAULT / crypto-token (e.g. Solana-style) = purple glow on obsidian */
 .dm-tile--vault .dm-tile__back {
@@ -443,13 +454,14 @@ button:disabled { cursor: not-allowed; opacity: 0.55; }
     drop-shadow(0 0 4px rgba(217, 184, 255, 0.9))
     drop-shadow(0 0 12px rgba(162, 89, 255, 0.8))
     drop-shadow(0 0 24px rgba(153, 69, 255, 0.4));
-  animation: dm-icon-in 260ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: dm-icon-in 90ms cubic-bezier(0.22, 1, 0.36, 1) both;
 }
-/* Gentle micro-interaction when a tile is FIRST revealed: scale-up + fade-in
-   with a soft overshoot; keyframes end in the icon's natural resting pose. */
+/* Instant snap-pop micro-interaction (90ms, was 260ms): NO opacity gate — the
+   icon is fully visible on frame 1 and only settles with a scale overshoot, so
+   it reads as appearing immediately on click. */
 @keyframes dm-icon-in {
-  from { opacity: 0; transform: scale(0.55); }
-  60%  { opacity: 1; transform: scale(1.08); }
+  from { opacity: 1; transform: scale(0.6); }
+  60%  { opacity: 1; transform: scale(1.06); }
   to   { opacity: 1; transform: scale(1); }
 }
 /* Red pulsing hazard highlight (transform/opacity/filter only — GPU friendly) */
