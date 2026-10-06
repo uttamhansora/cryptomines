@@ -210,7 +210,7 @@
     filter: drop-shadow(0 0 28px rgba(14, 116, 144, 0.45));
   }
   .win.mega .hero {
-    filter: drop-shadow(0 0 40px rgba(0, 210, 211, 0.55));
+    filter: drop-shadow(0 0 40px rgba(79, 172, 254, 0.55));
   }
   .title {
     margin: 0;

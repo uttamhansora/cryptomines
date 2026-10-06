@@ -1079,7 +1079,7 @@
     width: 100%;
     min-height: 104px;
     border-radius: var(--radius-md);
-    border: 1px solid rgba(0, 210, 211, 0.45);
+    border: 1px solid rgba(79, 172, 254, 0.45);
     background:
       radial-gradient(ellipse 80% 60% at 50% 0%, rgba(0, 242, 254, 0.12), transparent 70%),
       linear-gradient(165deg, rgba(23, 27, 34, 0.98), rgba(8, 12, 14, 0.99));
@@ -1110,7 +1110,7 @@
     border-color: rgba(165, 243, 252, 0.7);
     box-shadow:
       inset 0 1px 0 rgba(255, 255, 255, 0.08),
-      0 0 22px rgba(0, 210, 211, 0.2),
+      0 0 22px rgba(79, 172, 254, 0.2),
       0 10px 28px rgba(0, 0, 0, 0.4);
   }
   .buy:hover:not(:disabled)::after {
@@ -1124,7 +1124,7 @@
     z-index: 1;
     display: grid;
     place-items: center;
-    filter: drop-shadow(0 4px 12px rgba(0, 210, 211, 0.4));
+    filter: drop-shadow(0 4px 12px rgba(79, 172, 254, 0.4));
     transition: transform 0.3s var(--ease-out-soft);
   }
   .buy:hover:not(:disabled) .buy-vault {
@@ -1162,7 +1162,7 @@
     color: var(--accent-primary);
   }
   .confirm {
-    border: 1px solid rgba(0, 210, 211, 0.35);
+    border: 1px solid rgba(79, 172, 254, 0.35);
     border-radius: var(--radius-md);
     padding: var(--space-md);
     background: rgba(8, 12, 14, 0.98);
