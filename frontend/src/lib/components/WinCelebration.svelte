@@ -102,7 +102,7 @@
           ctx.fillStyle =
             tier === 'good'
               ? p.life > 0.5
-                ? '#7DD3FC'
+                ? '#5CF5FF'
                 : '#00F0FF'
               : p.life > 0.5
                 ? '#5CF5FF'

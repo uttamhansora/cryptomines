@@ -820,7 +820,7 @@
     height: 18px;
     border-radius: 50%;
     border: 2px solid rgba(0, 240, 255, 0.85);
-    background: radial-gradient(circle at 40% 32%, #a5f3fc, #00A6AC 70%);
+    background: radial-gradient(circle at 40% 32%, #9BFBFF, #00A6AC 70%);
     box-shadow: 0 0 12px rgba(0, 240, 255, 0.5), 0 2px 6px rgba(0, 0, 0, 0.5);
     transition: transform 0.1s ease;
   }
@@ -829,7 +829,7 @@
     height: 18px;
     border-radius: 50%;
     border: 2px solid rgba(0, 240, 255, 0.85);
-    background: radial-gradient(circle at 40% 32%, #a5f3fc, #00A6AC 70%);
+    background: radial-gradient(circle at 40% 32%, #9BFBFF, #00A6AC 70%);
     box-shadow: 0 0 12px rgba(0, 240, 255, 0.5), 0 2px 6px rgba(0, 0, 0, 0.5);
   }
   .quantum-range:active:not(:disabled)::-webkit-slider-thumb {

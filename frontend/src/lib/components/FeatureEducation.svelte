@@ -100,7 +100,7 @@
   }
   .seg.lit {
     border-color: rgba(0, 240, 255, 0.7);
-    background: linear-gradient(180deg, #a5f3fc, #00D2D3 70%);
+    background: linear-gradient(180deg, #9BFBFF, #00D2D3 70%);
     box-shadow:
       0 0 10px rgba(0, 240, 255, 0.45),
       inset 0 1px 0 rgba(255, 255, 255, 0.35);

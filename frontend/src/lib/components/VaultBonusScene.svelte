@@ -248,7 +248,7 @@
     height: 14px;
     border-radius: 50%;
     border: 2px solid rgba(14, 116, 144, 0.65);
-    background: radial-gradient(circle at 35% 30%, #a5f3fc, #003B44);
+    background: radial-gradient(circle at 35% 30%, #9BFBFF, #003B44);
     box-shadow: 0 0 8px rgba(14, 116, 144, 0.35);
     pointer-events: none;
   }

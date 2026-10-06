@@ -119,7 +119,7 @@
     inset: 0;
     border-radius: 50%;
     opacity: 0;
-    background: radial-gradient(circle at 40% 32%, #a5f3fc, #00D2D3 60%, #003B44);
+    background: radial-gradient(circle at 40% 32%, #9BFBFF, #00D2D3 60%, #003B44);
     transition: opacity 0.2s;
   }
   .node.active {

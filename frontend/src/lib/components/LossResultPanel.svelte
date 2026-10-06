@@ -76,7 +76,7 @@
     font-size: 1.35rem;
     letter-spacing: 0.1em;
     text-transform: uppercase;
-    color: #cffafe;
+    color: #B8FCFF;
   }
   .sub {
     margin: 0 0 0.8rem;
