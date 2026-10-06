@@ -355,10 +355,16 @@ button:disabled { cursor: not-allowed; opacity: 0.55; }
   border: 1px solid rgba(230, 241, 255, 0.12);        /* clean inner border default */
   animation: dm-reveal 260ms var(--ease-out);
 }
-/* Centered reveal glyph wrapper */
+/* Centered reveal glyph wrapper — grid + flex double-centering so every token
+   icon sits pixel-perfect in the middle of the dark obsidian face. */
 .dm-tile__glyph {
   display: grid; place-items: center;
   width: 100%; height: 100%;
+}
+.dm-tile__back svg {
+  /* crisp HD vector scaling, no blur at any tile size */
+  shape-rendering: geometricPrecision;
+  transition: filter 160ms ease;
 }
 @keyframes dm-reveal {
   from { transform: scale(0.7); opacity: 0; }
@@ -374,9 +380,14 @@ button:disabled { cursor: not-allowed; opacity: 0.55; }
 }
 .dm-tile--safe .dm-tile__back svg,
 .dm-tile--safe .dm-tile__back .dm-tile__glyph {
-  filter: drop-shadow(0 0 8px rgba(255, 201, 77, 0.85));
+  /* layered warm aura: tight gold core + wide bloom + grounding shadow */
+  filter:
+    drop-shadow(0 0 4px rgba(255, 236, 180, 0.9))
+    drop-shadow(0 0 10px rgba(255, 201, 77, 0.7))
+    drop-shadow(0 0 22px rgba(255, 185, 50, 0.35));
+  animation: dm-icon-in 260ms cubic-bezier(0.22, 1, 0.36, 1) both;
 }
-/* MINE = red hazard glyph centered on a deep obsidian face */
+/* MINE = red hazard glyph centered on a deep obsidian face — pulsing highlight */
 .dm-tile--mine .dm-tile__back {
   border: 1px solid rgba(255, 65, 108, 0.55);          /* clean inner border */
   box-shadow: inset 0 0 16px rgba(255, 65, 108, 0.22), var(--glow-red);
@@ -384,7 +395,12 @@ button:disabled { cursor: not-allowed; opacity: 0.55; }
 }
 .dm-tile--mine .dm-tile__back svg,
 .dm-tile--mine .dm-tile__back .dm-tile__glyph {
-  filter: drop-shadow(0 0 8px rgba(255, 65, 108, 0.9));
+  filter:
+    drop-shadow(0 0 4px rgba(255, 140, 160, 0.95))
+    drop-shadow(0 0 12px rgba(255, 65, 108, 0.8))
+    drop-shadow(0 0 24px rgba(255, 50, 70, 0.4));
+  animation: dm-icon-in 260ms cubic-bezier(0.22, 1, 0.36, 1) both,
+             dm-hazard-pulse 1.2s ease-in-out 260ms infinite;
 }
 /* VAULT / crypto-token (e.g. Solana-style) = purple glow on obsidian */
 .dm-tile--vault .dm-tile__back {
@@ -394,7 +410,27 @@ button:disabled { cursor: not-allowed; opacity: 0.55; }
 }
 .dm-tile--vault .dm-tile__back svg,
 .dm-tile--vault .dm-tile__back .dm-tile__glyph {
-  filter: drop-shadow(0 0 8px rgba(162, 89, 255, 0.9));
+  filter:
+    drop-shadow(0 0 4px rgba(217, 184, 255, 0.9))
+    drop-shadow(0 0 12px rgba(162, 89, 255, 0.8))
+    drop-shadow(0 0 24px rgba(153, 69, 255, 0.4));
+  animation: dm-icon-in 260ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+/* Gentle micro-interaction when a tile is FIRST revealed: scale-up + fade-in
+   with a soft overshoot; keyframes end in the icon's natural resting pose. */
+@keyframes dm-icon-in {
+  from { opacity: 0; transform: scale(0.55); }
+  60%  { opacity: 1; transform: scale(1.08); }
+  to   { opacity: 1; transform: scale(1); }
+}
+/* Red pulsing hazard highlight (transform/opacity/filter only — GPU friendly) */
+@keyframes dm-hazard-pulse {
+  0%, 100% { transform: scale(1);    filter: brightness(1); }
+  50%      { transform: scale(1.06); filter: brightness(1.3); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .dm-tile--mine .dm-tile__back svg,
+  .dm-tile--mine .dm-tile__back .dm-tile__glyph { animation: none; }
 }
 /* Dim unrevealed tiles after round ends */
 .dm-tile--hidden:disabled .dm-tile__front { opacity: 0.55; }
