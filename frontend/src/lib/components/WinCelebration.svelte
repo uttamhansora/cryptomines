@@ -102,11 +102,11 @@
           ctx.fillStyle =
             tier === 'good'
               ? p.life > 0.5
-                ? '#7DD3FC'
-                : '#22d3ee'
+                ? '#5CF5FF'
+                : '#00F0FF'
               : p.life > 0.5
-                ? '#67e8f9'
-                : '#22d3ee';
+                ? '#5CF5FF'
+                : '#00F0FF';
           ctx.beginPath();
           ctx.arc(p.x, p.y, tier === 'mega' ? 2.5 : 2, 0, Math.PI * 2);
           ctx.fill();
@@ -183,7 +183,7 @@
     border: 2px solid rgba(125, 211, 252, 0.55);
     opacity: 0;
     pointer-events: none;
-    box-shadow: 0 0 40px rgba(34, 211, 238, 0.35);
+    box-shadow: 0 0 40px rgba(0, 240, 255, 0.35);
   }
   .burst {
     position: absolute;
@@ -210,7 +210,7 @@
     filter: drop-shadow(0 0 28px rgba(14, 116, 144, 0.45));
   }
   .win.mega .hero {
-    filter: drop-shadow(0 0 40px rgba(8, 145, 178, 0.55));
+    filter: drop-shadow(0 0 40px rgba(0, 210, 211, 0.55));
   }
   .title {
     margin: 0;
@@ -234,7 +234,7 @@
     font-family: var(--font-display);
     font-size: clamp(1.75rem, 7vw, 2.65rem);
     color: var(--accent-secondary);
-    text-shadow: 0 0 24px rgba(34, 211, 238, 0.28);
+    text-shadow: 0 0 24px rgba(0, 240, 255, 0.28);
   }
   .win.mega .mult {
     font-size: clamp(2rem, 8vw, 3.1rem);

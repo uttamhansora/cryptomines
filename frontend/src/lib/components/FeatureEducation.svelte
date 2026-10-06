@@ -69,7 +69,7 @@
     left: 14%;
     right: 14%;
     height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(34, 211, 238, 0.4), transparent);
+    background: linear-gradient(90deg, transparent, rgba(0, 240, 255, 0.4), transparent);
     pointer-events: none;
   }
   .pod::after {
@@ -79,8 +79,8 @@
     left: 6px;
     width: 8px;
     height: 8px;
-    border-top: 1px solid rgba(34, 211, 238, 0.5);
-    border-left: 1px solid rgba(34, 211, 238, 0.5);
+    border-top: 1px solid rgba(0, 240, 255, 0.5);
+    border-left: 1px solid rgba(0, 240, 255, 0.5);
     pointer-events: none;
   }
   /* ── Segmented status pods (chain steps / vault slots) ─────────────── */
@@ -99,19 +99,19 @@
     transition: box-shadow 0.2s var(--ease-out-soft), border-color 0.2s, opacity 0.2s;
   }
   .seg.lit {
-    border-color: rgba(34, 211, 238, 0.7);
-    background: linear-gradient(180deg, #a5f3fc, #0891b2 70%);
+    border-color: rgba(0, 240, 255, 0.7);
+    background: linear-gradient(180deg, #9BFBFF, #00D2D3 70%);
     box-shadow:
-      0 0 10px rgba(34, 211, 238, 0.45),
+      0 0 10px rgba(0, 240, 255, 0.45),
       inset 0 1px 0 rgba(255, 255, 255, 0.35);
   }
   .seg.next {
-    border-color: rgba(34, 211, 238, 0.45);
+    border-color: rgba(0, 240, 255, 0.45);
     animation: seg-next-pulse 1.3s ease-in-out infinite;
   }
   @keyframes seg-next-pulse {
-    0%, 100% { box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.55), 0 0 0 rgba(34, 211, 238, 0); }
-    50% { box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.55), 0 0 8px rgba(34, 211, 238, 0.35); }
+    0%, 100% { box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.55), 0 0 0 rgba(0, 240, 255, 0); }
+    50% { box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.55), 0 0 8px rgba(0, 240, 255, 0.35); }
   }
   @media (prefers-reduced-motion: reduce) {
     .seg.next { animation: none; }

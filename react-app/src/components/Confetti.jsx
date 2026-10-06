@@ -5,7 +5,7 @@ import { useMemo } from 'react';
  * Pure CSS transform/opacity keyframes; pieces are static spans so the
  * effect costs nothing per frame after mount and never blocks interaction.
  */
-const COLORS = ['#22D3EE', '#06B6D4', '#F5B94C', '#FFD98A'];
+const COLORS = ['#00F0FF', '#00D2D3', '#F5B94C', '#FFD98A'];
 
 export default function Confetti({ count = 60 }) {
   const pieces = useMemo(

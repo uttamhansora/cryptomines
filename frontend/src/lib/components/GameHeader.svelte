@@ -22,8 +22,8 @@
     <span class="mark" aria-hidden="true">
       <!-- Bitcoin-style emblem inside a hexagonal metallic badge -->
       <svg viewBox="0 0 64 64" width="24" height="24">
-        <polygon points="32,7 54,20 54,44 32,57 10,44 10,20" fill="#12161f" stroke="#22d3ee" stroke-width="2.4" />
-        <g fill="none" stroke="#67e8f9" stroke-width="3.4" stroke-linecap="round">
+        <polygon points="32,7 54,20 54,44 32,57 10,44 10,20" fill="#12161f" stroke="#00F0FF" stroke-width="2.4" />
+        <g fill="none" stroke="#5CF5FF" stroke-width="3.4" stroke-linecap="round">
           <path d="M25 21v22M25 21h9.5a5.5 5.5 0 0 1 0 11H25zM25 32h10.5a5.5 5.5 0 0 1 0 11H25z" />
           <path d="M29 16.5v4.5M36 16.5v4.5M29 43v4.5M36 43v4.5" stroke-width="2.6" />
         </g>
@@ -102,10 +102,10 @@
     width: 34px;
     height: 34px;
     border-radius: 9px;
-    background: linear-gradient(160deg, rgba(8, 145, 178, 0.16), rgba(12, 20, 42, 0.55));
-    border: 1px solid rgba(8, 145, 178, 0.4);
+    background: linear-gradient(160deg, rgba(0, 210, 211, 0.16), rgba(12, 20, 42, 0.55));
+    border: 1px solid rgba(0, 210, 211, 0.4);
     box-shadow:
-      0 0 16px rgba(34, 211, 238, 0.14),
+      0 0 16px rgba(0, 240, 255, 0.14),
       inset 0 1px 0 rgba(255, 255, 255, 0.08);
   }
   h1 {
@@ -136,7 +136,7 @@
     padding: 0.3rem 0.65rem;
     border-radius: 10px;
     background: linear-gradient(180deg, rgba(16, 21, 31, 0.9), rgba(9, 14, 22, 0.9));
-    border: 1px solid rgba(34, 211, 238, 0.22);
+    border: 1px solid rgba(0, 240, 255, 0.22);
     box-shadow:
       inset 0 1px 0 rgba(255, 255, 255, 0.05),
       0 4px 14px rgba(0, 0, 0, 0.4);
@@ -188,12 +188,12 @@
     pointer-events: none; /* clicks always land on the button itself */
   }
   .icon-btn:hover {
-    border-color: rgba(34, 211, 238, 0.45);
-    box-shadow: 0 0 14px rgba(34, 211, 238, 0.16);
+    border-color: rgba(0, 240, 255, 0.45);
+    box-shadow: 0 0 14px rgba(0, 240, 255, 0.16);
     color: var(--accent-primary); /* icons glow cyan on hover */
   }
   .icon-btn:focus-visible {
-    outline: 2px solid rgba(34, 211, 238, 0.6);
+    outline: 2px solid rgba(0, 240, 255, 0.6);
     outline-offset: 2px;
   }
   .icon-btn:active {
@@ -202,7 +202,7 @@
   /* Sound button reads "live" (cyan) when audio is enabled, muted-grey when off */
   .icon-btn[aria-pressed='true'] {
     color: var(--accent-primary);
-    border-color: rgba(34, 211, 238, 0.35);
+    border-color: rgba(0, 240, 255, 0.35);
   }
   .icon-btn[aria-pressed='false'] {
     color: #9fb0c2; /* AA contrast vs the dark chip background */
@@ -217,7 +217,7 @@
     padding: var(--space-2) var(--space-3);
     border-radius: var(--radius-lg);
     background:
-      radial-gradient(120% 180% at 50% -60%, rgba(34, 211, 238, 0.10), transparent 60%),
+      radial-gradient(120% 180% at 50% -60%, rgba(0, 240, 255, 0.10), transparent 60%),
       linear-gradient(180deg, rgba(16, 24, 40, 0.72), rgba(9, 14, 24, 0.82));
     border: 1px solid var(--border);
     box-shadow: inset 0 1px 0 var(--hairline-top), var(--shadow-md);
@@ -233,7 +233,7 @@
     left: 12%;
     right: 12%;
     height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(34, 211, 238, 0.55), transparent);
+    background: linear-gradient(90deg, transparent, rgba(0, 240, 255, 0.55), transparent);
     pointer-events: none;
   }
   .nav-pod {
@@ -261,15 +261,15 @@
   }
   .nav-link:hover {
     color: var(--highlight-soft);
-    background: rgba(34, 211, 238, 0.08);
+    background: rgba(0, 240, 255, 0.08);
   }
   .nav-link.active {
     color: #06131d;
     background: linear-gradient(180deg, var(--primary-light), var(--blue-light));
-    box-shadow: 0 0 14px rgba(34, 211, 238, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+    box-shadow: 0 0 14px rgba(0, 240, 255, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.25);
   }
   .nav-link:focus-visible {
-    outline: 2px solid rgba(34, 211, 238, 0.6);
+    outline: 2px solid rgba(0, 240, 255, 0.6);
     outline-offset: 2px;
   }
   /* Center brand: CRYPTO [₿ badge] MINES */
@@ -322,7 +322,7 @@
     height: 40px;
     border-radius: var(--radius-md);
     background:
-      radial-gradient(circle at 50% 30%, rgba(34, 211, 238, 0.18), transparent 70%),
+      radial-gradient(circle at 50% 30%, rgba(0, 240, 255, 0.18), transparent 70%),
       var(--grad-hero-soft);
     border: 1px solid var(--border-strong);
     box-shadow: var(--glow-cyan), inset 0 1px 0 var(--hairline-top);
@@ -338,7 +338,7 @@
     height: 7px;
     border-radius: 50%;
     background: var(--primary);
-    box-shadow: 0 0 8px rgba(34, 211, 238, 0.8);
+    box-shadow: 0 0 8px rgba(0, 240, 255, 0.8);
     animation: badge-blink 2.4s ease-in-out infinite;
   }
   @keyframes badge-blink {

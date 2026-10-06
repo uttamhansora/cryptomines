@@ -248,7 +248,7 @@
     height: 14px;
     border-radius: 50%;
     border: 2px solid rgba(14, 116, 144, 0.65);
-    background: radial-gradient(circle at 35% 30%, #a5f3fc, #083344);
+    background: radial-gradient(circle at 35% 30%, #9BFBFF, #003B44);
     box-shadow: 0 0 8px rgba(14, 116, 144, 0.35);
     pointer-events: none;
   }
@@ -273,10 +273,10 @@
     height: 55%;
     transform: translate(-50%, -50%);
     border-radius: 50%;
-    border: 2px solid rgba(34, 211, 238, 0.35);
+    border: 2px solid rgba(0, 240, 255, 0.35);
     opacity: 0;
     pointer-events: none;
-    box-shadow: 0 0 24px rgba(34, 211, 238, 0.25);
+    box-shadow: 0 0 24px rgba(0, 240, 255, 0.25);
   }
   .door-light {
     position: absolute;
@@ -286,7 +286,7 @@
     height: 40%;
     transform: translate(-50%, -50%);
     border-radius: 50%;
-    background: radial-gradient(circle, rgba(34, 211, 238, 0.45), rgba(14, 116, 144, 0.25) 45%, transparent 72%);
+    background: radial-gradient(circle, rgba(0, 240, 255, 0.45), rgba(14, 116, 144, 0.25) 45%, transparent 72%);
     opacity: 0;
   }
   .title-block {
