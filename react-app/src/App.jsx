@@ -274,6 +274,9 @@ export default function App() {
               onReveal={revealTile}
             />
 
+            {/* Compact HUD instruction — small, centred, muted (spec §9) */}
+            <p className="cm-instruction">TAP A TILE ON THE BOARD TO REVEAL</p>
+
             {/* Clear, human-readable game feedback (never colour alone) */}
             <StatusBanner gameState={gameState} balance={balance} bet={bet} />
 
