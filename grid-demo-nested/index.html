@@ -31,45 +31,45 @@
         <!--
           Each cell is a NESTED structure:
             .tile            -> outer parent: dark metallic frame + bevels (NEVER changes state color)
-              .tile__inner   -> nested inner container: glossy face that swaps background per state
-                .tile__icon  -> centered glowing token icon (hidden until revealed)
+              .tile-inner   -> nested inner container: glossy face that swaps background per state
+                .tile-icon  -> centered glowing token icon (hidden until revealed)
         -->
         <div class="grid" role="grid">
 
           <!-- Row 1 (first tile pre-revealed as a state demo; click any tile to toggle) -->
-          <button class="tile revealed tile--gold" role="gridcell"><span class="tile__inner"><span class="tile__icon icon-gold">&#9670;</span></span></button>
-          <button class="tile revealed tile--red" role="gridcell"><span class="tile__inner"><span class="tile__icon icon-red">&#10006;</span></span></button>
-          <button class="tile" role="gridcell"><span class="tile__inner"><span class="tile__icon icon-gold">&#9670;</span></span></button>
-          <button class="tile revealed tile--purple" role="gridcell"><span class="tile__inner"><span class="tile__icon icon-purple">&#9679;</span></span></button>
-          <button class="tile" role="gridcell"><span class="tile__inner"><span class="tile__icon icon-gold">&#9670;</span></span></button>
+          <button class="tile revealed tile--gold" role="gridcell"><span class="tile-inner"><span class="tile-icon icon-gold">&#9670;</span></span></button>
+          <button class="tile revealed tile--red" role="gridcell"><span class="tile-inner"><span class="tile-icon icon-red">&#10006;</span></span></button>
+          <button class="tile unrevealed" role="gridcell"><span class="tile-inner"><span class="tile-icon icon-gold">&#9670;</span></span></button>
+          <button class="tile revealed tile--purple" role="gridcell"><span class="tile-inner"><span class="tile-icon icon-purple">&#9679;</span></span></button>
+          <button class="tile unrevealed" role="gridcell"><span class="tile-inner"><span class="tile-icon icon-gold">&#9670;</span></span></button>
 
           <!-- Row 2 -->
-          <button class="tile" role="gridcell"><span class="tile__inner"><span class="tile__icon icon-gold">&#9670;</span></span></button>
-          <button class="tile" role="gridcell"><span class="tile__inner"><span class="tile__icon icon-purple">&#9679;</span></span></button>
-          <button class="tile" role="gridcell"><span class="tile__inner"><span class="tile__icon icon-red">&#10006;</span></span></button>
-          <button class="tile" role="gridcell"><span class="tile__inner"><span class="tile__icon icon-gold">&#9670;</span></span></button>
-          <button class="tile" role="gridcell"><span class="tile__inner"><span class="tile__icon icon-red">&#10006;</span></span></button>
+          <button class="tile unrevealed" role="gridcell"><span class="tile-inner"><span class="tile-icon icon-gold">&#9670;</span></span></button>
+          <button class="tile unrevealed" role="gridcell"><span class="tile-inner"><span class="tile-icon icon-purple">&#9679;</span></span></button>
+          <button class="tile unrevealed" role="gridcell"><span class="tile-inner"><span class="tile-icon icon-red">&#10006;</span></span></button>
+          <button class="tile unrevealed" role="gridcell"><span class="tile-inner"><span class="tile-icon icon-gold">&#9670;</span></span></button>
+          <button class="tile unrevealed" role="gridcell"><span class="tile-inner"><span class="tile-icon icon-red">&#10006;</span></span></button>
 
           <!-- Row 3 -->
-          <button class="tile" role="gridcell"><span class="tile__inner"><span class="tile__icon icon-gold">&#9670;</span></span></button>
-          <button class="tile" role="gridcell"><span class="tile__inner"><span class="tile__icon icon-gold">&#9670;</span></span></button>
-          <button class="tile" role="gridcell"><span class="tile__inner"><span class="tile__icon icon-purple">&#9679;</span></span></button>
-          <button class="tile" role="gridcell"><span class="tile__inner"><span class="tile__icon icon-red">&#10006;</span></span></button>
-          <button class="tile" role="gridcell"><span class="tile__inner"><span class="tile__icon icon-gold">&#9670;</span></span></button>
+          <button class="tile unrevealed" role="gridcell"><span class="tile-inner"><span class="tile-icon icon-gold">&#9670;</span></span></button>
+          <button class="tile unrevealed" role="gridcell"><span class="tile-inner"><span class="tile-icon icon-gold">&#9670;</span></span></button>
+          <button class="tile unrevealed" role="gridcell"><span class="tile-inner"><span class="tile-icon icon-purple">&#9679;</span></span></button>
+          <button class="tile unrevealed" role="gridcell"><span class="tile-inner"><span class="tile-icon icon-red">&#10006;</span></span></button>
+          <button class="tile unrevealed" role="gridcell"><span class="tile-inner"><span class="tile-icon icon-gold">&#9670;</span></span></button>
 
           <!-- Row 4 -->
-          <button class="tile" role="gridcell"><span class="tile__inner"><span class="tile__icon icon-red">&#10006;</span></span></button>
-          <button class="tile" role="gridcell"><span class="tile__inner"><span class="tile__icon icon-gold">&#9670;</span></span></button>
-          <button class="tile" role="gridcell"><span class="tile__inner"><span class="tile__icon icon-gold">&#9670;</span></span></button>
-          <button class="tile" role="gridcell"><span class="tile__inner"><span class="tile__icon icon-purple">&#9679;</span></span></button>
-          <button class="tile" role="gridcell"><span class="tile__inner"><span class="tile__icon icon-gold">&#9670;</span></span></button>
+          <button class="tile unrevealed" role="gridcell"><span class="tile-inner"><span class="tile-icon icon-red">&#10006;</span></span></button>
+          <button class="tile unrevealed" role="gridcell"><span class="tile-inner"><span class="tile-icon icon-gold">&#9670;</span></span></button>
+          <button class="tile unrevealed" role="gridcell"><span class="tile-inner"><span class="tile-icon icon-gold">&#9670;</span></span></button>
+          <button class="tile unrevealed" role="gridcell"><span class="tile-inner"><span class="tile-icon icon-purple">&#9679;</span></span></button>
+          <button class="tile unrevealed" role="gridcell"><span class="tile-inner"><span class="tile-icon icon-gold">&#9670;</span></span></button>
 
           <!-- Row 5 -->
-          <button class="tile" role="gridcell"><span class="tile__inner"><span class="tile__icon icon-gold">&#9670;</span></span></button>
-          <button class="tile" role="gridcell"><span class="tile__inner"><span class="tile__icon icon-red">&#10006;</span></span></button>
-          <button class="tile" role="gridcell"><span class="tile__inner"><span class="tile__icon icon-purple">&#9679;</span></span></button>
-          <button class="tile" role="gridcell"><span class="tile__inner"><span class="tile__icon icon-gold">&#9670;</span></span></button>
-          <button class="tile" role="gridcell"><span class="tile__inner"><span class="tile__icon icon-red">&#10006;</span></span></button>
+          <button class="tile unrevealed" role="gridcell"><span class="tile-inner"><span class="tile-icon icon-gold">&#9670;</span></span></button>
+          <button class="tile unrevealed" role="gridcell"><span class="tile-inner"><span class="tile-icon icon-red">&#10006;</span></span></button>
+          <button class="tile unrevealed" role="gridcell"><span class="tile-inner"><span class="tile-icon icon-purple">&#9679;</span></span></button>
+          <button class="tile unrevealed" role="gridcell"><span class="tile-inner"><span class="tile-icon icon-gold">&#9670;</span></span></button>
+          <button class="tile unrevealed" role="gridcell"><span class="tile-inner"><span class="tile-icon icon-red">&#10006;</span></span></button>
 
         </div><!-- /.grid -->
       </div><!-- /.board-well -->
@@ -94,7 +94,7 @@
     const counters = { gold: 0, purple: 0, red: 0 };
 
     tiles.forEach((tile) => {
-      const kind = [...tile.querySelector('.tile__icon').classList]
+      const kind = [...tile.querySelector('.tile-icon').classList]
         .find((c) => c.startsWith('icon-')).replace('icon-', '');
       if (tile.classList.contains('revealed')) counters[kind]++;
 
