@@ -262,7 +262,7 @@ export default function App() {
         {/* Full-width Crypto Chain HUD strip between header and main grid */}
         <ChainStepper progress={chainProgress} />
 
-        <main className="cm-layout">
+        <main id="game" className="cm-layout">
           {/* ============ LEFT COLUMN — board area (focal point) ============ */}
           <div className="cm-col-board">
             <p className="cm-tagline">REVEAL&nbsp;&nbsp;·&nbsp;&nbsp;MULTIPLY&nbsp;&nbsp;·&nbsp;&nbsp;CASH OUT</p>

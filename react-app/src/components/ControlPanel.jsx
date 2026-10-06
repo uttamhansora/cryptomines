@@ -66,7 +66,7 @@ function ControlPanelBase({
       <section className="cm-subpanel">
         <div className="cm-mult-block">
           <span className="cm-section-label cm-center">
-            <span className="cm-dot" aria-hidden="true" /> MULTIPLIER
+            <span className="cm-dot" aria-hidden="true" /> MULTIPLIER CIRCUIT
           </span>
           <div
             className={`cm-mult-badge${playing ? ' is-live' : ''}`}
@@ -74,8 +74,12 @@ function ControlPanelBase({
             role="img"
             aria-label={`Current multiplier ${multiplier.toFixed(2)}×`}
           >
-            {/* radar-style decorative rings (§10) */}
-            <span className="cm-mult-radar" aria-hidden="true" />
+            {/* animated concentric-ring decoration around the dial */}
+            <span className="cm-mult-rings" aria-hidden="true">
+              <span className="cm-mult-ring-line" />
+              <span className="cm-mult-ring-line cm-mult-ring-line--2" />
+              <span className="cm-mult-ring-line cm-mult-ring-line--3" />
+            </span>
             {/* SVG progress ring — communicates ladder position, not colour alone */}
             <svg className="cm-mult-ring-svg" viewBox="0 0 120 120" aria-hidden="true" focusable="false">
               <defs>
@@ -169,7 +173,7 @@ function ControlPanelBase({
             <Minus size={16} />
           </button>
           <input
-            className="cm-slider"
+            className="cm-slider cm-slider--danger"
             type="range"
             min={MIN_MINES}
             max={MAX_MINES}
